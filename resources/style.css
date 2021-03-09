@@ -1,0 +1,18 @@
+.red-button:pressed {
+    background-color: red;
+}
+
+.red-progress-bar:horizontal {
+    border: 1px solid gray;
+    border-radius: 3px;
+    background: white;
+    padding: 1px;
+    text-align: right;
+    margin-right: 7ex;
+}
+
+.red-progress-bar::chunk:horizontal {
+    background: red;
+    margin-right: 2px; /* space */
+    width: 10px;
+}

@@ -1,0 +1,59 @@
+src/*~
+*~
+doc/html
+doc/latex
+*Makefile*
+*.orig
+.ciscript
+ci.*
+jambs*
+
+# Eclipse project generated
+.cproject
+.project
+.metadata/
+.settings/
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# Intellij IDEA-based IDEs:
+
+# User-specific stuff
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+
+# Generated files
+.idea/**/contentModel.xml
+
+# Sensitive or high-churn files
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+.idea/**/dataSources.local.xml
+.idea/**/sqlDataSources.xml
+.idea/**/dynamic.xml
+.idea/**/uiDesigner.xml
+.idea/**/dbnavigator.xml
+
+# CMake
+cmake-build-*/
+
+# Mongo Explorer plugin
+.idea/**/mongoSettings.xml
+
+# File-based project format
+*.iws
+
+# IntelliJ
+out/
+/.idea/vcs.xml
