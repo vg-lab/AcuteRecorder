@@ -6,15 +6,15 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QPainter>
 #include <iostream>
+#include <thread>
 
 /**
  * Prints a debug message with the average velocity of this render thread
  * every 100 images.
  * @param i the amount of images rendered.
- * @param start the timestamp marking the start of this thread.
+ * @param start the TimeStamp marking the start of this thread.
  */
-inline void printDebugVelocity( int i , std::chrono::time_point<
-  std::chrono::system_clock , std::chrono::nanoseconds > start )
+inline void printDebugVelocity( int i , TimeStamp start )
 {
   if ( i % 100 == 0 )
   {
@@ -29,22 +29,52 @@ WidgetRenderThread::WidgetRenderThread( const QSize& size , int fps ,
                                         QWidget *widget )
   :
   AbstractRendererThread( size , fps ) ,
-  storageThread_( size , fps ) , widget_( widget )
+  storageThread_( size , fps ) , widget_( widget ) ,
+  start_( ) , delayPerFrame_( 1000000 / fps ) ,
+  timer_( nullptr), imagesRendered_( 0 )
 {
 
 }
 
 bool WidgetRenderThread::start( )
 {
-  if ( !AbstractRendererThread::start( )) return false;
+  if ( !AbstractRendererThread::start( ) ||
+       storageThread_.isThreadRunning( ))
+    return false;
+
+  start_ = std::chrono::high_resolution_clock::now( );
+  lastFrame_ = start_;
+  imagesRendered_ = 0;
+
+  timer_ = new QTimer( widget_ );
+  QObject::connect( timer_ , &QTimer::timeout ,
+                    [ = ]( )
+                    { run( ); } );
+
+  timer_->start( 0 );
+
   storageThread_.start( );
   return true;
+}
+
+void WidgetRenderThread::stop( )
+{
+  AbstractRendererThread::stop( );
+  if ( timer_ != nullptr )
+  {
+    timer_->stop( );
+    finished_ = true;
+    delete timer_;
+  }
+
+  storageThread_.stop( );
 }
 
 bool WidgetRenderThread::setFPS( int fps )
 {
   if ( !AbstractRendererThread::setFPS( fps )) return false;
 
+  delayPerFrame_ = std::chrono::microseconds( 1000000 / fps );
   storageThread_.setFPS( fps );
 
   return true;
@@ -67,32 +97,19 @@ VideoStorageThread *WidgetRenderThread::storeManager( )
 void WidgetRenderThread::run( )
 {
 
-  int i = 0;
-  auto start = std::chrono::high_resolution_clock::now( );
-  auto delay = std::chrono::nanoseconds( 1000000 / fps_ );
+  auto now = std::chrono::high_resolution_clock::now( );
+  auto time = now - lastFrame_;
 
-
-  while ( running_ )
+  if ( time < delayPerFrame_ )
   {
-    auto then = std::chrono::high_resolution_clock::now( );
-
-    render( );
-
-    // Sleep
-    auto time = std::chrono::high_resolution_clock::now( ) - then;
-    if ( time < delay )
-    {
-      std::this_thread::sleep_for( delay - time );
-    }
-
-    // Prints the velocity every 100 frames
-    printDebugVelocity( i++ , start );
+    std::this_thread::sleep_for( delayPerFrame_ - time );
   }
 
-  storageThread_.stop( );
-  storageThread_.join( );
 
-  finished_ = true;
+  render( );
+  printDebugVelocity( imagesRendered_++ , start_ );
+
+  lastFrame_ = now;
 }
 
 void WidgetRenderThread::render( )

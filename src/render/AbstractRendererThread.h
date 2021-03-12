@@ -20,8 +20,6 @@ protected:
   QSize size_;
   int fps_;
 
-  QFuture< void > future_;
-
   volatile bool running_ , finished_;
 
   /**
@@ -59,11 +57,6 @@ public:
    * @return whether this thread is running.
    */
   bool isThreadRunning( ) const;
-
-  /**
-   * Waits for this thread to finish.
-   */
-  void join( );
 
   /**
    * Returns the framerate of the resulted video.

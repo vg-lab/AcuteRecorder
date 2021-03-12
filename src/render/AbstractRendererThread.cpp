@@ -18,9 +18,6 @@ bool AbstractRendererThread::start( )
   finished_ = false;
   running_ = true;
 
-  future_ = QtConcurrent::run( [ = ]( )
-                               { run( ); } );
-
   return true;
 }
 
@@ -34,12 +31,6 @@ bool AbstractRendererThread::isThreadRunning( ) const
   // Use finished_ instead of running_!
   return !finished_;
 }
-
-void AbstractRendererThread::join( )
-{
-  future_.waitForFinished( );
-}
-
 
 int AbstractRendererThread::FPS( ) const
 {

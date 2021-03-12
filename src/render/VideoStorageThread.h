@@ -27,6 +27,8 @@ class VideoStorageThread : public AbstractRendererThread
   QWaitCondition notEmptyCondition_;
   std::string output_;
 
+  QFuture< void > future_;
+
   volatile int filesInQueue_;
 
   /**
@@ -50,6 +52,11 @@ public:
    * @param fps the framerate of the video to store.
    */
   VideoStorageThread( const QSize& size , int fps );
+
+  /**
+   * Waits for this thread to finish.
+   */
+  void join( );
 
   /**
    * Send an image to this thread.
@@ -78,6 +85,8 @@ public:
    * @return whether this operation was successful.
    */
   bool setOutput( const std::string& output );
+
+  bool start( ) override;
 };
 
 
