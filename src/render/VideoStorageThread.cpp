@@ -40,6 +40,19 @@ VideoStorageThread::VideoStorageThread( const QSize& size , int fps ) :
 {
 }
 
+bool VideoStorageThread::start( )
+{
+  if ( !AbstractRendererThread::start( )) return false;
+  future_ = QtConcurrent::run( [ = ]( )
+                               { run( ); } );
+  return true;
+}
+
+void VideoStorageThread::join( )
+{
+  future_.waitForFinished( );
+}
+
 void VideoStorageThread::push( QImage *image )
 {
   mutex_.lock( );

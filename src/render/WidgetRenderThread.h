@@ -8,7 +8,11 @@
 
 #include <QSize>
 #include <QWidget>
+#include <QTimer>
+#include <chrono>
 #include "VideoStorageThread.h"
+
+typedef std::chrono::time_point< std::chrono::system_clock , std::chrono::nanoseconds > TimeStamp;
 
 /**
  * This thread renders the given widget at the given framerate and sends
@@ -19,6 +23,12 @@ class WidgetRenderThread : public AbstractRendererThread
 
   VideoStorageThread storageThread_;
   QWidget *widget_;
+  QTimer *timer_{};
+
+  TimeStamp start_;
+  TimeStamp lastFrame_;
+  std::chrono::microseconds delayPerFrame_;
+  int imagesRendered_;
 
   void run( ) override;
 
@@ -48,10 +58,11 @@ public:
 
   bool start( ) override;
 
+  void stop( ) override;
+
   bool setFPS( int fps ) override;
 
   bool setSize( const QSize& size ) override;
-
 };
 
 
