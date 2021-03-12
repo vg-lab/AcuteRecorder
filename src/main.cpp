@@ -6,7 +6,7 @@
 #include <QGraphicsAnchorLayout>
 #include <QLayout>
 #include "MyRubberWindow.h"
-#include "RenderManager.h"
+#include "render/WidgetRenderThread.h"
 #include <QtConcurrent/QtConcurrent>
 #include <QMovie>
 #include <QProgressBar>
@@ -60,7 +60,7 @@ int main( int argc , char **argv )
   button.setProperty( "class" , "red-button" );
   barLayout.addWidget( &button );
 
-  auto *manager = new RenderManager( 60 , QSize( 1920 , 1080 ) , window );
+  auto *manager = new WidgetRenderThread( QSize( 1920 , 1080 ) , 60 , window );
 
   QObject::connect( &button , &QPushButton::clicked , [ = ]( )
   {
@@ -77,7 +77,7 @@ int main( int argc , char **argv )
     manager->stop( );
   } );
 
-  QPushButton button3("Screenshot");
+  QPushButton button3( "Screenshot" );
   button3.setMinimumWidth( 200 );
   button3.setMinimumHeight( 100 );
   button3.setProperty( "class" , "red-button" );
@@ -96,7 +96,6 @@ int main( int argc , char **argv )
 
     rubber->show( );
   } );
-
 
 
   auto store = manager->storeManager( );

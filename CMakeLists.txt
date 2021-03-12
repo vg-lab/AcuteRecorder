@@ -15,10 +15,10 @@ add_executable(QtRecorder
         src/main.cpp
         src/MyRubberWindow.cpp
         src/MyRubberWindow.h
-        src/RenderManager.cpp
-        src/RenderManager.h
-        src/StoreManager.cpp
-        src/StoreManager.h)
+        src/render/WidgetRenderThread.cpp
+        src/render/WidgetRenderThread.h
+        src/render/VideoStorageThread.cpp
+        src/render/VideoStorageThread.h src/render/AbstractRendererThread.cpp src/render/AbstractRendererThread.h)
 
 
 target_link_libraries(QtRecorder Qt5::Widgets)

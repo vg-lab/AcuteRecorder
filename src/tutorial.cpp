@@ -6,7 +6,7 @@
 #include <QGraphicsAnchorLayout>
 #include <QLayout>
 #include <thread>
-#include "RenderManager.h"
+#include "render/WidgetRenderThread.h"
 
 int main( int argc , char **argv )
 {
