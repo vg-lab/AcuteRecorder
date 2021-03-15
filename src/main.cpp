@@ -11,9 +11,9 @@
 #include <QMovie>
 #include <QProgressBar>
 
-void forEachNode( const QWidget *widget , int deep )
+void forEachNode( const QWidget *widget , int deep)
 {
-  std::cout << "Found " << typeid( *widget ).name( ) << " deep: " << deep
+  std::cout << "Found " << typeid( *widget ).name( ) << ". Deep: " << deep
             << std::endl;
 
   auto& list = widget->children( );
