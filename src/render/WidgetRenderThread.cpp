@@ -30,8 +30,8 @@ WidgetRenderThread::WidgetRenderThread( const QSize& size , int fps ,
   :
   AbstractRendererThread( size , fps ) ,
   storageThread_( size , fps ) , widget_( widget ) ,
-  start_( ) , delayPerFrame_( 1000000 / fps ) ,
-  timer_( nullptr), imagesRendered_( 0 )
+  start_( ) ,
+  timer_( nullptr ) , imagesRendered_( 0 )
 {
 
 }
@@ -43,15 +43,13 @@ bool WidgetRenderThread::start( )
     return false;
 
   start_ = std::chrono::high_resolution_clock::now( );
-  lastFrame_ = start_;
   imagesRendered_ = 0;
 
   timer_ = new QTimer( widget_ );
   QObject::connect( timer_ , &QTimer::timeout ,
                     [ = ]( )
                     { run( ); } );
-
-  timer_->start( 0 );
+  timer_->start( 1000 / fps_ );
 
   storageThread_.start( );
   return true;
@@ -73,8 +71,6 @@ void WidgetRenderThread::stop( )
 bool WidgetRenderThread::setFPS( int fps )
 {
   if ( !AbstractRendererThread::setFPS( fps )) return false;
-
-  delayPerFrame_ = std::chrono::microseconds( 1000000 / fps );
   storageThread_.setFPS( fps );
 
   return true;
@@ -96,20 +92,8 @@ VideoStorageThread *WidgetRenderThread::storeManager( )
 
 void WidgetRenderThread::run( )
 {
-
-  auto now = std::chrono::high_resolution_clock::now( );
-  auto time = now - lastFrame_;
-
-  if ( time < delayPerFrame_ )
-  {
-    std::this_thread::sleep_for( delayPerFrame_ - time );
-  }
-
-
   render( );
   printDebugVelocity( imagesRendered_++ , start_ );
-
-  lastFrame_ = now;
 }
 
 void WidgetRenderThread::render( )

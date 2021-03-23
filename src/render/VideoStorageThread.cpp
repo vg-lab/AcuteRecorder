@@ -6,7 +6,7 @@
 #include <QtConcurrent/QtConcurrent>
 #include <iostream>
 
-const char *BASE_COMMAND = "ffmpeg -r %d -f rawvideo -pix_fmt rgb24 -s %dx%d -i - -c:v libx265 -preset ultrafast -y -crf 21 %s";
+const char *BASE_COMMAND = "ffmpeg -hwaccel cuda -r %d -f rawvideo -pix_fmt rgb24 -s %dx%d -i - -c:v hevc_nvenc -preset medium -y -crf 21 %s";
 
 /**
  * Generates a FFMPEG command used to encode a set of raw images to a mp4 video.

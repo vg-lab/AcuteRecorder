@@ -26,8 +26,6 @@ class WidgetRenderThread : public AbstractRendererThread
   QTimer *timer_{};
 
   TimeStamp start_;
-  TimeStamp lastFrame_;
-  std::chrono::microseconds delayPerFrame_;
   int imagesRendered_;
 
   void run( ) override;
