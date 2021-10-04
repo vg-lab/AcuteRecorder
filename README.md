@@ -1,6 +1,8 @@
 # QtRecorder - Widget recorder for Qt
 (c) 2021-2021. GMRV / URJC
 
+![](https://i.imgur.com/H3xsaqr.png)
+
 ## Introduction
 
 QtRecorder is a module for Qt apps that allows to record Qt widgets.
