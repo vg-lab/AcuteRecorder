@@ -1,5 +1,5 @@
 //
-// Created by gaeqs on 12/3/21.
+// Created by Gael Rial Costas on 12/3/21.
 //
 
 #ifndef QTRECORDER_ABSTRACTRENDERERTHREAD_H
@@ -45,10 +45,10 @@ public:
   virtual bool start( );
 
   /**
-   * Signals the thread that it must stop.
-   * This method DOESN'T stop the thread immediately!
+   * Signals the thread that it must stopButton.
+   * This method DOESN'T stopButton the thread immediately!
    * Use join( ) after this method if you need to wait for
-   * the thread to stop.
+   * the thread to stopButton.
    */
   virtual void stop( );
 

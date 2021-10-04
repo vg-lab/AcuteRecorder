@@ -1,5 +1,5 @@
 //
-// Created by gaeqs on 8/3/21.
+// Created by Gael Rial Costas on 8/3/21.
 //
 
 #ifndef QTRECORDER_WIDGETRENDERTHREAD_H
@@ -11,6 +11,8 @@
 #include <QTimer>
 #include <chrono>
 #include "VideoStorageThread.h"
+#include "../data/RecorderGeneralData.h"
+#include "QRenderHelper.h"
 
 typedef std::chrono::time_point< std::chrono::system_clock , std::chrono::nanoseconds > TimeStamp;
 
@@ -21,12 +23,15 @@ typedef std::chrono::time_point< std::chrono::system_clock , std::chrono::nanose
 class WidgetRenderThread : public AbstractRendererThread
 {
 
+  QWidget *recorderWidget_;
+
   VideoStorageThread storageThread_;
-  QWidget *widget_;
-  QTimer *timer_{};
+  QRenderHelper helper_;
+  QTimer *timer_;
 
   TimeStamp start_;
   int imagesRendered_;
+  ViewportD relativeViewport_;
 
   void run( ) override;
 
@@ -42,11 +47,9 @@ public:
    *
    * This constructor also creates a VideoStorageThread.
    *
-   * @param fps the amount of images per second to render.
-   * @param size the dimensions of the images to render.
-   * @param widget the widget to render.
+   * @param data the data this recorder will get the data from.
    */
-  WidgetRenderThread( const QSize& size , int fps , QWidget *widget );
+  WidgetRenderThread( RecorderGeneralData *data );
 
   /**
    * Returns the VideoStorageThread inside this render thread.

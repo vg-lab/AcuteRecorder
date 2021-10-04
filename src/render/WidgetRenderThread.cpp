@@ -1,5 +1,5 @@
 //
-// Created by gaeqs on 8/3/21.
+// Created by Gael Rial Costas on 8/3/21.
 //
 
 #include "WidgetRenderThread.h"
@@ -12,7 +12,7 @@
  * Prints a debug message with the average velocity of this render thread
  * every 100 images.
  * @param i the amount of images rendered.
- * @param start the TimeStamp marking the start of this thread.
+ * @param start the TimeStamp marking the startButton of this thread.
  */
 inline void printDebugVelocity( int i , TimeStamp start )
 {
@@ -25,14 +25,27 @@ inline void printDebugVelocity( int i , TimeStamp start )
   }
 }
 
-WidgetRenderThread::WidgetRenderThread( const QSize& size , int fps ,
-                                        QWidget *widget )
+WidgetRenderThread::WidgetRenderThread( RecorderGeneralData *data )
   :
-  AbstractRendererThread( size , fps ) ,
-  storageThread_( size , fps ) , widget_( widget ) ,
+  AbstractRendererThread( data->getFinalDestinationSize( ) ,
+                          data->fps ) ,
+  recorderWidget_( data->recorderWidget ) ,
+  storageThread_( data->getFinalDestinationSize( ) , data->fps ) ,
+  helper_( data->getFinalRenderHelper( )) ,
   start_( ) ,
-  timer_( nullptr ) , imagesRendered_( 0 )
+  timer_( nullptr ) ,
+  imagesRendered_( 0 ) ,
+  relativeViewport_( data->getFinalRelativeViewport( ))
 {
+
+  std::cout << "Widget render thread" << std::endl;
+  std::cout << "Source viewport: " << relativeViewport_
+            << " (" << data->getFinalSourceViewport( ) << ")" << std::endl;
+  std::cout << "Size: " << size_.width( ) << ", "
+            << size_.height( ) << std::endl;
+  std::cout << "ST Size: " << storageThread_.size( ).width( ) << ", "
+            << storageThread_.size( ).height( ) << std::endl;
+  std::cout << "------------------------------" << std::endl;
 
 }
 
@@ -45,7 +58,11 @@ bool WidgetRenderThread::start( )
   start_ = std::chrono::high_resolution_clock::now( );
   imagesRendered_ = 0;
 
-  timer_ = new QTimer( widget_ );
+  auto parent = helper_.widget( ) == nullptr
+                ? recorderWidget_
+                : helper_.widget( );
+
+  timer_ = new QTimer( parent );
   QObject::connect( timer_ , &QTimer::timeout ,
                     [ = ]( )
                     { run( ); } );
@@ -98,14 +115,6 @@ void WidgetRenderThread::run( )
 
 void WidgetRenderThread::render( )
 {
-  auto *image = new QImage( size_ , QImage::Format_RGB888 );
-  QPainter painter( image );
-
-  // This scales the widget to fit the image.
-  painter.scale(( double ) size_.width( ) / widget_->width( ) ,
-                ( double ) size_.height( ) / widget_->height( ));
-
-  // Renders and sends the image to the storage thread.
-  widget_->render( &painter );
-  storageThread_.push( image );
+  storageThread_.push( helper_.render( size_ , relativeViewport_ ));
 }
+
