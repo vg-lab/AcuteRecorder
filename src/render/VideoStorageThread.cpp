@@ -1,12 +1,15 @@
 //
-// Created by gaeqs on 8/3/21.
+// Created by Gael Rial Costas on 8/3/21.
 //
 
 #include "VideoStorageThread.h"
 #include <QtConcurrent/QtConcurrent>
 #include <iostream>
 
-const char *BASE_COMMAND = "ffmpeg -hwaccel cuda -r %d -f rawvideo -pix_fmt rgb24 -s %dx%d -i - -c:v hevc_nvenc -preset medium -y -crf 21 %s";
+const char *BASE_COMMAND_GPU = "ffmpeg -hwaccel cuda -vsync 0 -r %d -f rawvideo -s %dx%d -pix_fmt rgb24 -i - -c:v hevc_nvenc -f mp4 -preset medium -y %s";
+const char *BASE_COMMAND_CPU = "ffmpeg -vsync 0 -r %d -f rawvideo -s %dx%d -pix_fmt rgb24 -i - -c:v libx264 -f mp4 -preset fast -y %s";
+
+const int NVIDIA_MIN_DIMENSION = 145;
 
 /**
  * Generates a FFMPEG command used to encode a set of raw images to a mp4 video.
@@ -28,16 +31,34 @@ std::string generateFFMPEGCommand( int fps , int width , int height ,
   const char *outputCString = output.c_str( );
   char array[ARRAY_SIZE];
 
-  int size = snprintf( array , ARRAY_SIZE , BASE_COMMAND ,
+  // If the width or height are less than 145 pixels, use CPU encoding.
+  // This is because NVENC doesn't support video
+  // encoding of such small dimensions.
+  const char *command;
+  if ( width < NVIDIA_MIN_DIMENSION || height < NVIDIA_MIN_DIMENSION )
+    command = BASE_COMMAND_CPU;
+  else
+    command = BASE_COMMAND_GPU;
+
+  int size = snprintf( array , ARRAY_SIZE , command ,
                        fps , width , height , outputCString );
 
-  return std::string( array , array + size );
+  return { array , array + size };
 }
 
 VideoStorageThread::VideoStorageThread( const QSize& size , int fps ) :
   AbstractRendererThread( size , fps ) ,
-  queue_( ) , file_( ) , mutex_( ) , notEmptyCondition_( ) , filesInQueue_( 0 )
+  queue_( ) , file_( ) , mutex_( ) , notEmptyCondition_( ) ,
+  filesInQueue_( 0 ) ,
+  expectedBytesPerLine( size.width( ) * 3 )
 {
+}
+
+bool VideoStorageThread::setSize( const QSize& size )
+{
+  if ( !AbstractRendererThread::setSize( size )) return false;
+  expectedBytesPerLine = size.width( ) * 3;
+  return true;
 }
 
 bool VideoStorageThread::start( )
@@ -46,6 +67,12 @@ bool VideoStorageThread::start( )
   future_ = QtConcurrent::run( [ = ]( )
                                { run( ); } );
   return true;
+}
+
+void VideoStorageThread::stop( )
+{
+  AbstractRendererThread::stop( );
+  notEmptyCondition_.notify_all( );
 }
 
 void VideoStorageThread::join( )
@@ -89,6 +116,9 @@ void VideoStorageThread::run( )
     size_.height( ) ,
     "output.mp4" );
 
+  std::cout << "Opening FFMPEG" << std::endl;
+  std::cout << cmd << std::endl;
+
   // Creates the process for the command and opens a write pipe.
   file_ = popen( cmd.c_str( ) , "w" );
 
@@ -96,14 +126,36 @@ void VideoStorageThread::run( )
   while ( running_ || !queue_.empty( ))
   {
 
-    // Pops an element from t he queue. If this method returns
+    // Pops an element from the queue. If this method returns
     // true the thread must end. If that happens we just break the while.
     if ( !popElement( image )) break;
 
     // Sends the image to FFMPEG.
     unsigned char *bytes = image->bits( );
     int amount = image->byteCount( );
-    fwrite( bytes , amount , sizeof( unsigned char ) , file_ );
+
+    // Qt images will always ceil the bytes per line to a multiple of four.
+    // This is because QImage uses integers under the hood.
+    // We need to get rid of these extra bytes or ffmpeg will implode!
+    int bytesPerLine = image->bytesPerLine( );
+    int difference = bytesPerLine - expectedBytesPerLine;
+
+    if ( difference )
+    {
+      // There are extra bytes! Let's get rid of them writing
+      // the frame line per line.
+      for ( int i = 0; i < size_.height( ); ++i )
+      {
+        fwrite( bytes , expectedBytesPerLine ,
+                sizeof( unsigned char ) , file_ );
+        bytes += bytesPerLine;
+      }
+    }
+    else
+    {
+      // There are no extra bytes! Write the full frame.
+      fwrite( bytes , amount , sizeof( unsigned char ) , file_ );
+    }
     delete image;
 
     filesInQueue_ = queue_.size( );
@@ -120,7 +172,7 @@ bool VideoStorageThread::popElement( QImage *& image )
 
   // If the queue is empty, this thread waits for a update.
   // If the update is a queue push the thread exits the while.
-  // If the update is a render stop the thread must end. In this
+  // If the update is a render stopButton the thread must end. In this
   // case this method returns false.
   while ( queue_.empty( ))
   {

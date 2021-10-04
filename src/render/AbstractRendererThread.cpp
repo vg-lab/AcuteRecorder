@@ -1,5 +1,5 @@
 //
-// Created by gaeqs on 12/3/21.
+// Created by Gael Rial Costas on 12/3/21.
 //
 
 #include <QtConcurrent/QtConcurrent>

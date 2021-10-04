@@ -1,5 +1,5 @@
 //
-// Created by gaeqs on 8/3/21.
+// Created by Gael Rial Costas on 8/3/21.
 //
 
 #ifndef QTRECORDER_VIDEOSTORAGETHREAD_H
@@ -28,6 +28,8 @@ class VideoStorageThread : public AbstractRendererThread
   std::string output_;
 
   QFuture< void > future_;
+
+  int expectedBytesPerLine;
 
   volatile int filesInQueue_;
 
@@ -87,6 +89,10 @@ public:
   bool setOutput( const std::string& output );
 
   bool start( ) override;
+
+  void stop( ) override;
+
+  bool setSize( const QSize& size ) override;
 };
 
 
