@@ -7,7 +7,7 @@
 
 #include <QLineEdit>
 
-#include <data/RecorderGeneralData.h>
+#include <RecorderGeneralData.h>
 
 class OutputTextField : public QLineEdit
 {

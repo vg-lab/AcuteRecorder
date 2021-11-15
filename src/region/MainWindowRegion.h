@@ -12,7 +12,7 @@
 #include <QWidget>
 #include <QVBoxLayout>
 
-#include <data/RecorderGeneralData.h>
+#include <RecorderGeneralData.h>
 #include <element/SelectionArea.h>
 #include <element/QueueSizeBar.h>
 #include <element/StartStopButton.h>

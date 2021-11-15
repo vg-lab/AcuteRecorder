@@ -5,7 +5,7 @@
 #include <iostream>
 #include "StartStopButton.h"
 
-#include <render/WidgetRenderThread.h>
+#include <WidgetRenderThread.h>
 #include <constant/Styles.h>
 
 StartStopButton::StartStopButton( QWidget *parent , RecorderGeneralData *data )

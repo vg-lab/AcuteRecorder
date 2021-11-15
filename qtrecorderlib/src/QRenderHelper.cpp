@@ -2,7 +2,7 @@
 // Created by Gael Rial Costas on 2/9/21.
 //
 
-#include "QRenderHelper.h"
+#include "../include/QRenderHelper.h"
 
 #include <iostream>
 

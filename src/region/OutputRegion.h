@@ -7,7 +7,7 @@
 
 #include <QWidget>
 
-#include <data/RecorderGeneralData.h>
+#include <RecorderGeneralData.h>
 #include <element/OutputTextField.h>
 #include <element/OutputFileButton.h>
 

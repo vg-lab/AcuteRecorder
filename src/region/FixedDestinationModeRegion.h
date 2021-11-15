@@ -9,7 +9,7 @@
 #include <QWidget>
 #include <QLineEdit>
 
-#include <data/RecorderGeneralData.h>
+#include <RecorderGeneralData.h>
 
 class FixedDestinationModeRegion : public QWidget
 {

@@ -8,7 +8,7 @@
 #include <QProgressBar>
 #include <QTimer>
 
-#include <data/RecorderGeneralData.h>
+#include <RecorderGeneralData.h>
 
 class QueueSizeBar : public QProgressBar
 {

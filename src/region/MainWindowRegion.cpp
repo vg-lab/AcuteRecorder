@@ -8,7 +8,7 @@
 #include <QApplication>
 
 #include <constant/Styles.h>
-#include <render/WidgetRenderThread.h>
+#include <WidgetRenderThread.h>
 
 MainWindowRegion::MainWindowRegion( QWidget *parent ,
                                     RecorderGeneralData *data ) :

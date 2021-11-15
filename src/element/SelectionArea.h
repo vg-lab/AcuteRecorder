@@ -9,7 +9,7 @@
 #include <QRubberBand>
 
 #include <util/PixmapHolder.h>
-#include <data/RecorderGeneralData.h>
+#include <RecorderGeneralData.h>
 
 /**
  * Represents the area where the user can select the area to record.

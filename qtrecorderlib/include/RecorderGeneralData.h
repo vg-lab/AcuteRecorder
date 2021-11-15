@@ -10,8 +10,8 @@
 #include <QScreen>
 #include <iostream>
 
-#include <render/AbstractRendererThread.h>
-#include <render/QRenderHelper.h>
+#include "AbstractRendererThread.h"
+#include "QRenderHelper.h"
 
 class WidgetRenderThread;
 
