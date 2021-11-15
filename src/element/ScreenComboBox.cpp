@@ -2,11 +2,13 @@
 // Created by Gael Rial Costas on 2/9/21.
 //
 
+#include "ScreenComboBox.h"
+
 #include <QApplication>
 #include <QScreen>
 #include <QObject>
-#include "ScreenComboBox.h"
-#include "../region/MainWindowRegion.h"
+
+#include <region/MainWindowRegion.h>
 
 ScreenComboBox::ScreenComboBox( QWidget *parent , RecorderGeneralData *data ,
                                 MainWindowRegion *mainWindowRegion )
@@ -16,14 +18,15 @@ ScreenComboBox::ScreenComboBox( QWidget *parent , RecorderGeneralData *data ,
   addItem( "Widget" );
 
   auto screens = QApplication::screens( );
-  for ( const auto& item : screens )
+  for ( const auto& item: screens )
   {
     addItem( item->manufacturer( ) + " - " + item->model( ));
   }
 
-  QObject::connect( this ,
-                    QOverload< int >::of( &QComboBox::currentIndexChanged ) ,
-                    this , &ScreenComboBox::onIndexChange );
+  QObject::connect(
+    this , SIGNAL( currentIndexChanged( int )) ,
+    this , SLOT( onIndexChange( int ))
+  );
 }
 
 RecorderGeneralData *ScreenComboBox::data( ) const
@@ -37,7 +40,7 @@ void ScreenComboBox::onIndexChange( int index )
   data_->screen = index == 0 ? nullptr : QApplication::screens( )[ index - 1 ];
 
   // We have to reset the viewport to avoid out-of-bounds renders!
-  data_->sourceViewport = ViewportI( 0 , 0 , 0 , 0 );
+  data_->sourceViewport = QRectF( 0 , 0 , 0 , 0 );
 
   // And, of course, disable the widget button in the selection mode region
   // if the source is a screen.

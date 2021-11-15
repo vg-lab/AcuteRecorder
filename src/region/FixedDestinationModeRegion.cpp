@@ -2,9 +2,11 @@
 // Created by Gael Rial Costas on 17/8/21.
 //
 
-#include <QHBoxLayout>
 #include "FixedDestinationModeRegion.h"
-#include "../constant/Styles.h"
+
+#include <QHBoxLayout>
+
+#include <constant/Styles.h>
 
 FixedDestinationModeRegion::FixedDestinationModeRegion(
   QWidget *parent ,
@@ -30,10 +32,10 @@ FixedDestinationModeRegion::FixedDestinationModeRegion(
   layout->addWidget( height_ );
 
 
-  QObject::connect( width_ , &QLineEdit::editingFinished ,
-                    this , &FixedDestinationModeRegion::onWidthChange );
-  QObject::connect( height_ , &QLineEdit::editingFinished ,
-                    this , &FixedDestinationModeRegion::onHeightChange );
+  QObject::connect( width_ , SIGNAL( editingFinished( )) ,
+                    this , SLOT( onWidthChange( )));
+  QObject::connect( height_ , SIGNAL( editingFinished( )) ,
+                    this , SLOT( onHeightChange( )));
 }
 
 RecorderGeneralData *FixedDestinationModeRegion::data( ) const

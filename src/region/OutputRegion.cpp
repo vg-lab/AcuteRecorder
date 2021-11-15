@@ -2,10 +2,12 @@
 // Created by Gael Rial Costas on 17/8/21.
 //
 
+#include "OutputRegion.h"
+
 #include <QHBoxLayout>
 #include <QLabel>
-#include "OutputRegion.h"
-#include "../constant/Styles.h"
+
+#include <constant/Styles.h>
 
 OutputRegion::OutputRegion( QWidget *parent , RecorderGeneralData *data )
 {

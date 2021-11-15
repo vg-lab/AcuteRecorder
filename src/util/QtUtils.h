@@ -5,8 +5,6 @@
 #define QTRECORDER_QTUTILS_H
 
 #include <QWidget>
-#include <iostream>
-
 
 namespace qt_utils
 {

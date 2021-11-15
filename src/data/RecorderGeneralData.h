@@ -9,9 +9,9 @@
 #include <QSize>
 #include <QScreen>
 #include <iostream>
-#include "../render/AbstractRendererThread.h"
-#include "ViewportI.h"
-#include "../render/QRenderHelper.h"
+
+#include <render/AbstractRendererThread.h>
+#include <render/QRenderHelper.h>
 
 class WidgetRenderThread;
 
@@ -34,7 +34,7 @@ struct RecorderGeneralData
 
   SelectionMode selectionMode = FULL;
   QWidget *selectedWidget = nullptr;
-  ViewportI sourceViewport;
+  QRectF sourceViewport;
 
   DestinationMode destinationMode = SCALED;
   QSize destinationSize = QSize( 1920 , 1080 );
@@ -45,7 +45,7 @@ struct RecorderGeneralData
 
   WidgetRenderThread *thread = nullptr;
 
-  QWidget *getFinalWidgetToRender( )
+  [[nodiscard]] QWidget *getFinalWidgetToRender( ) const
   {
     if ( selectionMode == WIDGET )
     {
@@ -55,48 +55,80 @@ struct RecorderGeneralData
     return renderingWidget;
   }
 
-  QRenderHelper getFinalRenderHelper( )
+  [[nodiscard]] QRenderHelper getFinalRenderHelper( ) const
   {
     if ( screen != nullptr )
     {
-      return { screen };
+      return QRenderHelper( screen );
     }
-    return { getFinalWidgetToRender( ) };
+    return QRenderHelper( getFinalWidgetToRender( ));
   }
 
-  ViewportI getFinalSourceViewport( )
+  [[nodiscard]] QRect getFinalSourceViewport( ) const
   {
-
     switch ( selectionMode )
     {
       case FULL:
         if ( screen != nullptr )
         {
           auto s = screen->size( );
-          return { 0 , 0 , s.width( ) , s.height( ) };
+          return {
+            0 ,
+            0 ,
+            s.width( ) ,
+            s.height( )
+          };
         }
-        return { 0 , 0 ,
-                 renderingWidget->width( ) ,
-                 renderingWidget->height( ) };
+        return {
+          0 ,
+          0 ,
+          renderingWidget->width( ) ,
+          renderingWidget->height( )
+        };
       case WIDGET:
-        return { 0 , 0 ,
-                 selectedWidget->width( ) ,
-                 selectedWidget->height( ) };
+        return {
+          0 ,
+          0 ,
+          selectedWidget->width( ) ,
+          selectedWidget->height( )
+        };
       case AREA:
       default:
-        return sourceViewport;
+        if ( screen != nullptr )
+        {
+          QSize size = screen->size( );
+          return {
+            static_cast<int>(sourceViewport.x( ) * size.width( )) ,
+            static_cast<int>(sourceViewport.y( ) * size.height( )) ,
+            static_cast<int>(sourceViewport.width( ) * size.width( )) ,
+            static_cast<int>(sourceViewport.height( ) * size.height( ))
+          };
+        }
+        QSize size = renderingWidget->size( );
+        return {
+          static_cast<int>(sourceViewport.x( ) * size.width( )) ,
+          static_cast<int>(sourceViewport.y( ) * size.height( )) ,
+          static_cast<int>(sourceViewport.width( ) * size.width( )) ,
+          static_cast<int>(sourceViewport.height( ) * size.height( ))
+        };
     }
   }
 
-  ViewportD getFinalRelativeViewport( )
+  [[nodiscard]] QRectF getFinalRelativeViewport( ) const
   {
-    auto size = screen == nullptr
-                ? getFinalWidgetToRender( )->size( )
-                : screen->size( );
-    return getFinalSourceViewport( ).relativize( size );
+    QSizeF size = screen == nullptr
+                  ? getFinalWidgetToRender( )->size( )
+                  : screen->size( );
+    QRectF fsv = getFinalSourceViewport( );
+    return {
+      fsv.x( ) / size.width( ) ,
+      fsv.y( ) / size.height( ) ,
+      fsv.width( ) / size.width( ) ,
+      fsv.height( ) / size.height( )
+    };
   }
 
-  QSize getFinalDestinationSize( )
+  [[nodiscard]] QSize getFinalDestinationSize( ) const
   {
     switch ( destinationMode )
     {
@@ -105,8 +137,10 @@ struct RecorderGeneralData
       case SCALED:
       default:
         auto s = getFinalSourceViewport( ).size( );
-        return { ( int ) ( s.width( ) * destinationScale.width( )) ,
-                 ( int ) ( s.height( ) * destinationScale.height( )) };
+        return {
+          static_cast<int>(( s.width( ) * destinationScale.width( ))) ,
+          static_cast<int>(( s.height( ) * destinationScale.height( )))
+        };
     }
   }
 

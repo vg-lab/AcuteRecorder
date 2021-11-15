@@ -1,6 +1,7 @@
 #include <QApplication>
-#include "region/MainWindowRegion.h"
-#include "constant/QtUtils.h"
+
+#include <region/MainWindowRegion.h>
+#include <util/QtUtils.h>
 
 namespace qt_recorder
 {
@@ -14,6 +15,7 @@ namespace qt_recorder
     auto *window = new MainWindowRegion( nullptr , data );
     data->recorderWidget = window;
     window->setStyleSheet( qt_utils::readStyle( ));
+    window->resize(600, 600);
     window->show( );
   }
 }

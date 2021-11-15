@@ -2,12 +2,13 @@
 // Created by Gael Rial Costas on 16/8/21.
 //
 
+#include "MainWindowRegion.h"
+
 #include <QComboBox>
 #include <QApplication>
-#include <QScreen>
-#include "MainWindowRegion.h"
-#include "../constant/Styles.h"
-#include "../render/WidgetRenderThread.h"
+
+#include <constant/Styles.h>
+#include <render/WidgetRenderThread.h>
 
 MainWindowRegion::MainWindowRegion( QWidget *parent ,
                                     RecorderGeneralData *data ) :
@@ -26,7 +27,7 @@ MainWindowRegion::MainWindowRegion( QWidget *parent ,
   startStopButton_ = new StartStopButton( this , data );
   queueSizeBar_ = new QueueSizeBar( this , data );
 
-  layout->addWidget( selectionArea_ );
+  layout->addWidget( selectionArea_, 1);
   layout->addStretch( );
   layout->addWidget( screenComboBox_ );
   layout->addWidget( selectionModeRegion_ );

@@ -7,12 +7,17 @@
 
 
 #include <QLineEdit>
-#include "../data/RecorderGeneralData.h"
+
+#include <data/RecorderGeneralData.h>
 
 class FPSTextField : public QLineEdit
 {
 
+Q_OBJECT
+
   RecorderGeneralData *data_;
+
+private slots:
 
   void onFPSChange( );
 

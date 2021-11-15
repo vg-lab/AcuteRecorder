@@ -7,19 +7,21 @@
 
 
 #include <QComboBox>
-#include "../data/RecorderGeneralData.h"
+#include <data/RecorderGeneralData.h>
 
 class MainWindowRegion;
 
 class ScreenComboBox : public QComboBox
 {
 
+Q_OBJECT
+
   RecorderGeneralData *data_;
   MainWindowRegion *mainWindowRegion_;
 
-protected:
+private slots:
 
-  void onIndexChange (int index);
+  void onIndexChange( int index );
 
 public:
 

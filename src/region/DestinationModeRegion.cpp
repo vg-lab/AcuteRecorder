@@ -2,11 +2,13 @@
 // Created by Gael Rial Costas on 17/8/21.
 //
 
+#include "DestinationModeRegion.h"
+
 #include <QHBoxLayout>
 #include <iostream>
 #include <QLabel>
-#include "DestinationModeRegion.h"
-#include "../constant/Styles.h"
+
+#include <constant/Styles.h>
 
 DestinationModeRegion::DestinationModeRegion( QWidget *parent ,
                                               RecorderGeneralData *data )

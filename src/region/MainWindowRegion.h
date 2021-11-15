@@ -5,17 +5,18 @@
 #ifndef QTRECORDER_MAINWINDOWREGION_H
 #define QTRECORDER_MAINWINDOWREGION_H
 
+#include "DestinationModeRegion.h"
+#include "SelectionModeRegion.h"
+#include "OutputRegion.h"
 
 #include <QWidget>
 #include <QVBoxLayout>
-#include "../data/RecorderGeneralData.h"
-#include "../element/SelectionArea.h"
-#include "../element/QueueSizeBar.h"
-#include "SelectionModeRegion.h"
-#include "../element/StartStopButton.h"
-#include "DestinationModeRegion.h"
-#include "OutputRegion.h"
-#include "../element/ScreenComboBox.h"
+
+#include <data/RecorderGeneralData.h>
+#include <element/SelectionArea.h>
+#include <element/QueueSizeBar.h>
+#include <element/StartStopButton.h>
+#include <element/ScreenComboBox.h>
 
 class MainWindowRegion : public QWidget
 {
@@ -38,19 +39,19 @@ public:
 
   MainWindowRegion( QWidget *parent , RecorderGeneralData *data );
 
-  RecorderGeneralData *data( ) const;
+  [[nodiscard]] RecorderGeneralData *data( ) const;
 
-  SelectionArea *selectionArea( ) const;
+  [[nodiscard]] SelectionArea *selectionArea( ) const;
 
-  SelectionModeRegion *selectionModeRegion( ) const;
+  [[nodiscard]] SelectionModeRegion *selectionModeRegion( ) const;
 
-  DestinationModeRegion *destinationModeRegion( ) const;
+  [[nodiscard]] DestinationModeRegion *destinationModeRegion( ) const;
 
-  OutputRegion *outputRegion( ) const;
+  [[nodiscard]] OutputRegion *outputRegion( ) const;
 
-  QueueSizeBar *queueSizeBar( ) const;
+  [[nodiscard]] QueueSizeBar *queueSizeBar( ) const;
 
-  StartStopButton *startStopButton( ) const;
+  [[nodiscard]] StartStopButton *startStopButton( ) const;
 
 };
 

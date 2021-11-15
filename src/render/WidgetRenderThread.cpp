@@ -3,10 +3,12 @@
 //
 
 #include "WidgetRenderThread.h"
-#include <QtConcurrent/QtConcurrent>
-#include <QPainter>
+
 #include <iostream>
 #include <thread>
+
+#include <QtConcurrent/QtConcurrent>
+#include <QPainter>
 
 /**
  * Prints a debug message with the average velocity of this render thread
@@ -38,14 +40,14 @@ WidgetRenderThread::WidgetRenderThread( RecorderGeneralData *data )
   relativeViewport_( data->getFinalRelativeViewport( ))
 {
 
-  std::cout << "Widget render thread" << std::endl;
-  std::cout << "Source viewport: " << relativeViewport_
-            << " (" << data->getFinalSourceViewport( ) << ")" << std::endl;
-  std::cout << "Size: " << size_.width( ) << ", "
-            << size_.height( ) << std::endl;
-  std::cout << "ST Size: " << storageThread_.size( ).width( ) << ", "
-            << storageThread_.size( ).height( ) << std::endl;
-  std::cout << "------------------------------" << std::endl;
+  qDebug( ) << "Widget render thread";
+  qDebug( ) << "Source viewport: " << relativeViewport_;
+  qDebug( ) << " (" << data->getFinalSourceViewport( ) << ")";
+  qDebug( ) << "Size: " << size_.width( ) << ", ";
+  qDebug( ) << size_.height( );
+  qDebug( ) << "ST Size: " << storageThread_.size( ).width( ) << ", ";
+  qDebug( ) << storageThread_.size( ).height( );
+  qDebug( ) << "------------------------------";
 
 }
 
