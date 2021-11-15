@@ -6,7 +6,8 @@
 #define QTRECORDER_OUTPUTTEXTFIELD_H
 
 #include <QLineEdit>
-#include "../data/RecorderGeneralData.h"
+
+#include <data/RecorderGeneralData.h>
 
 class OutputTextField : public QLineEdit
 {

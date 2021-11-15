@@ -3,10 +3,12 @@
 //
 
 #include "OutputTextField.h"
+
 #include <QLabel>
 #include <QPushButton>
 #include <QFileDialog>
-#include "../constant/Styles.h"
+
+#include <constant/Styles.h>
 
 OutputTextField::OutputTextField( QWidget *parent , RecorderGeneralData *data )
   : QLineEdit( parent ) , data_( data )

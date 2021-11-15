@@ -3,13 +3,15 @@
 //
 
 #include "VideoStorageThread.h"
-#include <QtConcurrent/QtConcurrent>
+
 #include <iostream>
+
+#include <QtConcurrent/QtConcurrent>
 
 const char *BASE_COMMAND_GPU = "ffmpeg -hwaccel cuda -vsync 0 -r %d -f rawvideo -s %dx%d -pix_fmt rgb24 -i - -c:v hevc_nvenc -f mp4 -preset medium -y %s";
 const char *BASE_COMMAND_CPU = "ffmpeg -vsync 0 -r %d -f rawvideo -s %dx%d -pix_fmt rgb24 -i - -c:v libx264 -f mp4 -preset fast -y %s";
 
-const int NVIDIA_MIN_DIMENSION = 145;
+constexpr int NVIDIA_MIN_DIMENSION = 145;
 
 /**
  * Generates a FFMPEG command used to encode a set of raw images to a mp4 video.

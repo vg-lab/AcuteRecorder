@@ -5,7 +5,6 @@
 #ifndef QTRECORDER_ABSTRACTRENDERERTHREAD_H
 #define QTRECORDER_ABSTRACTRENDERERTHREAD_H
 
-
 #include <QSize>
 #include <QFuture>
 

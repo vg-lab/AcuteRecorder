@@ -5,10 +5,10 @@
 #ifndef QTRECORDER_QUEUESIZEBAR_H
 #define QTRECORDER_QUEUESIZEBAR_H
 
-
 #include <QProgressBar>
 #include <QTimer>
-#include "../data/RecorderGeneralData.h"
+
+#include <data/RecorderGeneralData.h>
 
 class QueueSizeBar : public QProgressBar
 {

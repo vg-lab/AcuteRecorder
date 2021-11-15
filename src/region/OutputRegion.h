@@ -5,11 +5,11 @@
 #ifndef QTRECORDER_OUTPUTREGION_H
 #define QTRECORDER_OUTPUTREGION_H
 
-
 #include <QWidget>
-#include "../data/RecorderGeneralData.h"
-#include "../element/OutputTextField.h"
-#include "../element/OutputFileButton.h"
+
+#include <data/RecorderGeneralData.h>
+#include <element/OutputTextField.h>
+#include <element/OutputFileButton.h>
 
 class OutputRegion : public QWidget
 {

@@ -7,7 +7,8 @@
 
 
 #include <QPushButton>
-#include "../data/RecorderGeneralData.h"
+
+#include <data/RecorderGeneralData.h>
 
 class StartStopButton : public QPushButton
 {

@@ -1,121 +1,174 @@
 //
-// Created by Gael Rial Costas on 6/3/21.
+// Created by gaelr on 08/11/2021.
 //
+
+#include "SelectionArea.h"
 
 #include <QTimer>
 #include <QMouseEvent>
 #include <QPainter>
-#include <QScreen>
-#include "SelectionArea.h"
-#include "../constant/QtUtils.h"
 
-const double SCREEN_WIDTH = 800.0;
+#include <util/QtUtils.h>
 
-SelectionArea::SelectionArea( QWidget *parent , RecorderGeneralData *data )
-  : QLabel( parent ) ,
+constexpr int RESIZE_CHECK_TIMER_DELAY_MILLIS = 50;
+
+SelectionArea::SelectionArea( QWidget *parent ,
+                              RecorderGeneralData *data )
+  : PixmapHolder( parent ) ,
     data_( data ) ,
     band_( new QRubberBand( QRubberBand::Rectangle , this )) ,
+    areaFrom_( 0 , 0 ) ,
+    areaTo_( 0 , 0 ) ,
     dragging_( false )
 {
   setAlignment( Qt::AlignCenter );
 
   resizeCheckTimer_ = new QTimer( this );
 
-  QObject::connect( resizeCheckTimer_ , &QTimer::timeout ,
-                    this , &SelectionArea::onTimerTick );
+  QObject::connect(
+    resizeCheckTimer_ , SIGNAL( timeout( )) ,
+    this , SLOT( renderImage( ))
+  );
 
-  resizeCheckTimer_->start( 50 );
+  resizeCheckTimer_->start( RESIZE_CHECK_TIMER_DELAY_MILLIS );
 }
+
+// region mouse events
 
 void SelectionArea::mousePressEvent( QMouseEvent *event )
 {
-  dragging_ = false;
+  // This method is only used by the AREA selection mode.
+  // Here the widget has to grab the first point of the area.
   if ( data_->selectionMode != AREA ) return;
-  origin_ = event->pos( );
 
-  auto pixmapPoint = toPixmapPoint( origin_ );
-  if ( pixmapPoint.x( ) < 0
-       || pixmapPoint.y( ) < 0
-       || pixmapPoint.x( ) >= pixmap( )->width( )
-       || pixmapPoint.y( ) >= pixmap( )->height( ))
+  areaFrom_ = normalizePoint( event->pos( ));
+
+  // If the point is outside the image, return.
+  if (
+    areaFrom_.x( ) < 0 || areaFrom_.y( ) < 0 ||
+    areaFrom_.x( ) > 1 || areaFrom_.y( ) > 1 )
     return;
 
-  band_->setGeometry( QRect( origin_ , QSize( )));
+  areaTo_ = areaFrom_;
+  band_->setGeometry( QRect( event->pos( ) , QSize( )));
   dragging_ = true;
 }
 
 void SelectionArea::mouseMoveEvent( QMouseEvent *event )
 {
-  if ( !dragging_ ) return;
+  // Just like the press event, this method is only used by the AREA
+  // selection mode. Here the widget calculates the second point.
+  if ( data_->selectionMode != AREA ) return;
+  areaTo_ = normalizePoint( event->pos( ));
 
-  auto pmp = toPixmapPoint( event->pos( ));
-  pmp.setX( std::min( std::max( pmp.x( ) , 0 ) , pixmap( )->width( ) - 1 ));
-  pmp.setY( std::min( std::max( pmp.y( ) , 0 ) , pixmap( )->height( ) - 1 ));
+  // We have to clamp the point!
+  areaTo_.setX(
+    std::clamp( static_cast<float>(areaTo_.x( )) , 0.0f , 1.0f )
+  );
 
-  auto rect = QRect( origin_ , fromPixmapPoint( pmp )).normalized( );
+  areaTo_.setY(
+    std::clamp( static_cast<float>(areaTo_.y( )) , 0.0f , 1.0f )
+  );
+
+  // Update the viewport. Updating it here assures consistency with the
+  // #refreshSelectionMode( ) method.+
+  data_->sourceViewport = QRectF( areaFrom_ , areaTo_ );
+
+  QRect rect(
+    denormalizePoint( data_->sourceViewport.topLeft( )).toPoint( ) ,
+    denormalizePoint( data_->sourceViewport.bottomRight( )).toPoint( )
+  );
   band_->setGeometry( rect );
 }
 
 void SelectionArea::mouseReleaseEvent( QMouseEvent *event )
 {
-  if ( data_->selectionMode == AREA )
+  switch ( data_->selectionMode )
   {
-    if ( !dragging_ ) return;
+    case AREA:
+      if ( !dragging_ ) break;
+      // We don't have to update the viewport: it was already been set
+      // in the move event.
+      dragging_ = false;
+      break;
+    case WIDGET:
+    {
+      // Get the mouse position in normalized coordinates.
+      QPointF normalizedPoint = normalizePoint( event->pos( ));
 
+      // Transforms the point to widget coordinates.
+      QSize ws = data_->renderingWidget->size( );
+      QPoint widgetPoint(
+        static_cast<int>(( normalizedPoint.x( ) * ws.width( ))) ,
+        static_cast<int>(( normalizedPoint.y( ) * ws.height( )))
+      );
 
-    auto ratio = data_->screen == nullptr
-                 ? 1
-                 : data_->screen->size( ).width( ) / SCREEN_WIDTH;
-
-    auto g = band_->geometry( );
-    auto from = toPixmapPoint( g.topLeft( )) * ratio;
-    auto gSize = g.size( ) * ratio;
-
-    data_->sourceViewport =
-      ViewportI( from.x( ) , from.y( ) , gSize.width( ) , gSize.height( ));
-
-    dragging_ = false;
-  }
-  else if ( data_->selectionMode == WIDGET )
-  {
-    data_->selectedWidget = qt_utils::findDeepestChildWithPoint(
-      data_->renderingWidget ,
-      toPixmapPoint( event->pos( )) ,
-      data_->selectedWidget );
-
-    refreshSelectionMode( );
+      // Search the clicked widget, ignoring the already selected one.
+      data_->selectedWidget = qt_utils::findDeepestChildWithPoint(
+        data_->renderingWidget ,
+        widgetPoint ,
+        data_->selectedWidget
+      );
+    }
+      break;
+    case FULL:
+      break;
   }
 }
 
+// endregion
 
-void SelectionArea::resizeEvent( QResizeEvent *event )
+void SelectionArea::renderImage( )
 {
-  renderImage( );
+  if ( data_->screen != nullptr )
+  {
+    // It's stupid to scale a screen's image. Just send it to the holder! :)
+    auto screen = data_->screen;
+    setHolderPixmap( screen->grabWindow( 0 ));
+  }
+  else
+  {
+    // First we have to find the optimal scale for the render.
+    QSize thisSize = size( );
+    QSize wSize = data_->renderingWidget->size( );
+    QSize size = QSize(
+      thisSize.height( ) * wSize.width( ) / wSize.width( ) ,
+      thisSize.height( )
+    );
+    QImage image( size , QImage::Format_RGB32 );
+    QPainter painter( &image );
+
+    // Now that we have the optimal scale, use it in the painter.
+    painter.scale(
+      static_cast<float>( size.width( )) / static_cast<float>( wSize.width( )) ,
+      static_cast<float>( size.height( )) / static_cast<float>( wSize.height( ))
+    );
+
+    // Now we render it and send it to the holder.
+    data_->renderingWidget->render( &painter );
+    QPixmap map;
+    map.convertFromImage( image , Qt::ColorOnly );
+    setHolderPixmap( map );
+  }
+
+  // Just in case the rendering widget was resized, refresh the selection.
+  refreshSelectionMode( );
 }
 
 void SelectionArea::refreshSelectionMode( )
 {
-
   switch ( data_->selectionMode )
   {
     case FULL:
+      // The FULL mode just hides the selection.
       band_->hide( );
       break;
     case AREA:
     {
-      auto source = data_->sourceViewport;
-
-
-      auto ratio = data_->screen == nullptr
-                   ? 1
-                   : data_->screen->size( ).width( ) / SCREEN_WIDTH;
-
-      auto sourceStart = fromPixmapPoint(
-        QPoint( source.x / ratio , source.y / ratio ));
-      band_->setGeometry( sourceStart.x( ) ,
-                          sourceStart.y( ) ,
-                          source.width / ratio ,
-                          source.height / ratio );
+      if ( dragging_ ) break;
+      QPointF min = denormalizePoint( data_->sourceViewport.topLeft( ));
+      QPointF max = denormalizePoint( data_->sourceViewport.bottomRight( ));
+      band_->setGeometry( QRect( min.toPoint( ) , max.toPoint( )));
       band_->show( );
     }
       break;
@@ -124,73 +177,65 @@ void SelectionArea::refreshSelectionMode( )
       auto widget = data_->selectedWidget;
       if ( widget != nullptr )
       {
-        auto global = fromPixmapPoint(
-          widget->mapTo( data_->renderingWidget , QPoint( )));
-        band_->setGeometry(
-          global.x( ) , global.y( ) , widget->width( ) , widget->height( ));
+
+        // We have to transform the size of the widget from
+        // widget's coordinates to screen coordinates.
+        QSize s = data_->renderingWidget->size( );
+        QPointF min = widget->mapTo( data_->renderingWidget , QPoint( ));
+        QPointF max = min +
+                      QPoint( widget->width( ) , widget->height( ));
+
+        min.setX( min.x( ) / s.width( ));
+        min.setY( min.y( ) / s.height( ));
+        max.setX( max.x( ) / s.width( ));
+        max.setY( max.y( ) / s.height( ));
+
+        min = denormalizePoint( min );
+        max = denormalizePoint( max );
+
+        band_->setGeometry( QRect(
+          min.toPoint( ) ,
+          max.toPoint( )
+        ));
         band_->show( );
       }
-      break;
     }
+      break;
   }
 }
 
-QPoint SelectionArea::toPixmapPoint( const QPoint& localPoint )
+QPointF SelectionArea::normalizePoint( const QPointF& point )
 {
-  int extra = ( width( ) - pixmap( )->width( )) / 2;
-  return { localPoint.x( ) - extra , localPoint.y( ) };
+
+  // ExtraX and extraY represents the blank space in this area.
+  // We have to remove it from the normalized coordinates if we
+  // want the algorithm to work properly!
+  auto w = static_cast<float>( width( ));
+  auto h = static_cast<float>(height( ));
+  float extraX = ( w - static_cast<float>( pixmap( )->width( ))) / w;
+  float extraY = ( h - static_cast<float>( pixmap( )->height( ))) / h;
+
+  QPointF p = point;
+  p = QPointF( p.x( ) / w , p.y( ) / h );
+  p.setX(( p.x( ) - extraX / 2 ) / ( 1 - extraX ));
+  p.setY(( p.y( ) - extraY / 2 ) / ( 1 - extraY ));
+  return p;
 }
 
-QPoint SelectionArea::fromPixmapPoint( const QPoint& localPoint )
-{
-  int extra = ( width( ) - pixmap( )->width( )) / 2;
-  return { localPoint.x( ) + extra , localPoint.y( ) };
-}
-
-void SelectionArea::onTimerTick( )
-{
-  renderImage( );
-  checkRenderArea( );
-}
-
-void SelectionArea::renderImage( )
+QPointF SelectionArea::denormalizePoint( const QPointF& point )
 {
 
-  if ( data_->screen != nullptr )
-  {
-    auto screen = data_->screen;
-    auto map = screen->grabWindow( 0 );
-    map = map.scaledToWidth( SCREEN_WIDTH , Qt::SmoothTransformation );
-    setPixmap( map );
-  }
-  else
-  {
-    auto size = data_->renderingWidget->size( );
-    QImage image( size , QImage::Format_RGB32 );
-    QPainter painter( &image );
-    data_->renderingWidget->render( &painter );
-    QPixmap map;
-    map.convertFromImage( image , Qt::ColorOnly );
-    setPixmap( map );
-  }
+  // ExtraX and extraY represents the blank space in this area.
+  // We have to remove it from the normalized coordinates if we
+  // want the algorithm to work properly!
+  auto w = static_cast<float>( width( ));
+  auto h = static_cast<float>( height( ));
+  float extraX = ( w - static_cast<float>(pixmap( )->width( ))) / w;
+  float extraY = ( h - static_cast<float>(pixmap( )->height( ))) / h;
 
-  if ( !dragging_ )
-  {
-    refreshSelectionMode( );
-  }
-}
-
-void SelectionArea::checkRenderArea( )
-{
-  // Don't check when the source is a screen!
-  if(data_->screen != nullptr) return;
-
-  auto v = data_->sourceViewport;
-  auto ps = pixmap( )->size( );
-
-  v.x = std::min( v.x , ps.width( ));
-  v.y = std::min( v.y , ps.height( ));
-  v.width = std::min( v.width + v.x , ps.width( ) - 1 ) - v.x;
-  v.height = std::min( v.height + v.y , ps.height( ) - 1 ) - v.y;
-  data_->sourceViewport = v;
+  QPointF p = point;
+  p.setX( p.x( ) * ( 1 - extraX ) + extraX / 2 );
+  p.setY( p.y( ) * ( 1 - extraY ) + extraY / 2 );
+  p = QPointF( p.x( ) * w , p.y( ) * h );
+  return p;
 }

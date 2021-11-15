@@ -5,14 +5,16 @@
 #ifndef QTRECORDER_WIDGETRENDERTHREAD_H
 #define QTRECORDER_WIDGETRENDERTHREAD_H
 
+#include "VideoStorageThread.h"
+#include "QRenderHelper.h"
+
+#include <chrono>
 
 #include <QSize>
 #include <QWidget>
 #include <QTimer>
-#include <chrono>
-#include "VideoStorageThread.h"
-#include "../data/RecorderGeneralData.h"
-#include "QRenderHelper.h"
+
+#include <data/RecorderGeneralData.h>
 
 typedef std::chrono::time_point< std::chrono::system_clock , std::chrono::nanoseconds > TimeStamp;
 
@@ -31,7 +33,7 @@ class WidgetRenderThread : public AbstractRendererThread
 
   TimeStamp start_;
   int imagesRendered_;
-  ViewportD relativeViewport_;
+  QRectF relativeViewport_;
 
   void run( ) override;
 

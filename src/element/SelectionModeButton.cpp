@@ -3,7 +3,8 @@
 //
 
 #include "SelectionModeButton.h"
-#include "../constant/Styles.h"
+
+#include <constant/Styles.h>
 
 SelectionModeButton::SelectionModeButton( QString name , QWidget *parent ,
                                           SelectionMode selectionMode ,

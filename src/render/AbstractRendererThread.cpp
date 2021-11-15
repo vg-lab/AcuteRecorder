@@ -2,7 +2,6 @@
 // Created by Gael Rial Costas on 12/3/21.
 //
 
-#include <QtConcurrent/QtConcurrent>
 #include "AbstractRendererThread.h"
 
 AbstractRendererThread::AbstractRendererThread( const QSize& size , int fps ) :

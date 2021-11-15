@@ -5,12 +5,12 @@
 #ifndef QTRECORDER_SELECTIONMODEREGION_H
 #define QTRECORDER_SELECTIONMODEREGION_H
 
-
 #include <QWidget>
-#include "../data/RecorderGeneralData.h"
-#include "../element/SelectionArea.h"
-#include "../element/SelectionModeButton.h"
-#include "../element/FPSTextField.h"
+
+#include <data/RecorderGeneralData.h>
+#include <element/SelectionArea.h>
+#include <element/SelectionModeButton.h>
+#include <element/FPSTextField.h>
 
 class SelectionModeButton;
 

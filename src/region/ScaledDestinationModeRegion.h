@@ -5,17 +5,21 @@
 #ifndef QTRECORDER_SCALEDDESTINATIONMODEREGION_H
 #define QTRECORDER_SCALEDDESTINATIONMODEREGION_H
 
-
 #include <QWidget>
 #include <QLineEdit>
-#include "../data/RecorderGeneralData.h"
+
+#include <data/RecorderGeneralData.h>
 
 class ScaledDestinationModeRegion : public QWidget
 {
 
+Q_OBJECT
+
   RecorderGeneralData *data_;
   QLineEdit *width_;
   QLineEdit *height_;
+
+private slots:
 
   void onWidthChange( );
 

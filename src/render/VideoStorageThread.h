@@ -5,13 +5,13 @@
 #ifndef QTRECORDER_VIDEOSTORAGETHREAD_H
 #define QTRECORDER_VIDEOSTORAGETHREAD_H
 
+#include "AbstractRendererThread.h"
 
 #include <QQueue>
 #include <QImage>
 #include <QMutex>
 #include <QWaitCondition>
 #include <QFuture>
-#include "AbstractRendererThread.h"
 
 /**
  * This thread executes a FFMPEG command that converts the given raw images

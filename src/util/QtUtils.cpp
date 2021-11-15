@@ -36,7 +36,7 @@ namespace qt_utils
 
   QString readStyle( )
   {
-    QFile file( "style.css" );
+    QFile file( ":/style.css" );
 
     if ( !file.open( QFile::ReadOnly | QFile::Text )) return "";
     QTextStream in( &file );

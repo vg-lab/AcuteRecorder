@@ -4,7 +4,8 @@
 
 #include <QFileDialog>
 #include "OutputFileButton.h"
-#include "../constant/Styles.h"
+
+#include <constant/Styles.h>
 
 OutputFileButton::OutputFileButton( QWidget *parent ,
                                     OutputTextField *outputTextField )

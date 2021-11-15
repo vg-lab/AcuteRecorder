@@ -6,7 +6,8 @@
 #define QTRECORDER_DESTINATIONMODEBUTTON_H
 
 #include <QRadioButton>
-#include "../data/RecorderGeneralData.h"
+
+#include <data/RecorderGeneralData.h>
 
 class DestinationModeRegion;
 

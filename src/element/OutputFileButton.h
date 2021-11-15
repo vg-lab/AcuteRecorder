@@ -5,9 +5,9 @@
 #ifndef QTRECORDER_OUTPUTFILEBUTTON_H
 #define QTRECORDER_OUTPUTFILEBUTTON_H
 
+#include "OutputTextField.h"
 
 #include <QPushButton>
-#include "OutputTextField.h"
 
 class OutputFileButton : public QPushButton
 {

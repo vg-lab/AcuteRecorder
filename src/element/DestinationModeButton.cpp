@@ -3,8 +3,9 @@
 //
 
 #include "DestinationModeButton.h"
-#include "../region/DestinationModeRegion.h"
-#include "../constant/Styles.h"
+
+#include <constant/Styles.h>
+#include <region/DestinationModeRegion.h>
 
 DestinationModeButton::DestinationModeButton( const QString& text ,
                                               QWidget *parent ,

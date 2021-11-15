@@ -3,7 +3,8 @@
 //
 
 #include "FPSTextField.h"
-#include "../constant/Styles.h"
+
+#include <constant/Styles.h>
 
 FPSTextField::FPSTextField( QWidget *parent , RecorderGeneralData *data )
   : QLineEdit( parent ) , data_( data )
@@ -11,8 +12,8 @@ FPSTextField::FPSTextField( QWidget *parent , RecorderGeneralData *data )
 
   setProperty( "class" , styles::FPS );
   setText( QString::number( data->fps ));
-  QObject::connect( this , &QLineEdit::editingFinished ,
-                    this , &FPSTextField::onFPSChange );
+  QObject::connect( this , SIGNAL( editingFinished( )) ,
+                    this , SLOT( onFPSChange( )));
 }
 
 void FPSTextField::onFPSChange( )

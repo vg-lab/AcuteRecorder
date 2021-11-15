@@ -2,9 +2,11 @@
 // Created by Gael Rial Costas on 17/8/21.
 //
 
-#include <QHBoxLayout>
 #include "ScaledDestinationModeRegion.h"
-#include "../constant/Styles.h"
+
+#include <QHBoxLayout>
+
+#include <constant/Styles.h>
 
 ScaledDestinationModeRegion::ScaledDestinationModeRegion( QWidget *widget ,
                                                           RecorderGeneralData *data )
@@ -28,10 +30,10 @@ ScaledDestinationModeRegion::ScaledDestinationModeRegion( QWidget *widget ,
   layout->addWidget( width_ );
   layout->addWidget( height_ );
 
-  QObject::connect( width_ , &QLineEdit::editingFinished ,
-                    this , &ScaledDestinationModeRegion::onWidthChange );
-  QObject::connect( height_ , &QLineEdit::editingFinished ,
-                    this , &ScaledDestinationModeRegion::onHeightChange );
+  QObject::connect( width_ , SIGNAL( editingFinished( )) ,
+                    this , SLOT( onWidthChange( )));
+  QObject::connect( height_ , SIGNAL( editingFinished( )) ,
+                    this , SLOT( onHeightChange( )));
 }
 
 RecorderGeneralData *ScaledDestinationModeRegion::data( ) const

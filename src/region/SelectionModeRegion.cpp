@@ -2,10 +2,11 @@
 // Created by Gael Rial Costas on 16/8/21.
 //
 
-#include <QHBoxLayout>
 #include "SelectionModeRegion.h"
-#include "../constant/Styles.h"
-#include "../element/FPSTextField.h"
+
+#include <QHBoxLayout>
+
+#include <constant/Styles.h>
 
 SelectionModeRegion::SelectionModeRegion( QWidget *parent ,
                                           RecorderGeneralData *data ,

@@ -7,8 +7,9 @@
 
 
 #include <QRadioButton>
-#include "../data/RecorderGeneralData.h"
-#include "../region/SelectionModeRegion.h"
+
+#include <data/RecorderGeneralData.h>
+#include <region/SelectionModeRegion.h>
 
 class SelectionModeRegion;
 
