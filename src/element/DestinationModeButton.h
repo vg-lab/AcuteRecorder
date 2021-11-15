@@ -7,7 +7,7 @@
 
 #include <QRadioButton>
 
-#include <RecorderGeneralData.h>
+#include <data/RecorderGeneralData.h>
 
 class DestinationModeRegion;
 

@@ -8,7 +8,7 @@
 
 #include <QLineEdit>
 
-#include <RecorderGeneralData.h>
+#include <data/RecorderGeneralData.h>
 
 class FPSTextField : public QLineEdit
 {

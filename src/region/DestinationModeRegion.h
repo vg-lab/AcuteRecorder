@@ -11,7 +11,7 @@
 #include "FixedDestinationModeRegion.h"
 #include "ScaledDestinationModeRegion.h"
 
-#include <RecorderGeneralData.h>
+#include <data/RecorderGeneralData.h>
 #include <element/DestinationModeButton.h>
 
 class DestinationModeRegion : public QWidget

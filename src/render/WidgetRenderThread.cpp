@@ -2,7 +2,7 @@
 // Created by Gael Rial Costas on 8/3/21.
 //
 
-#include "../include/WidgetRenderThread.h"
+#include "WidgetRenderThread.h"
 
 #include <iostream>
 #include <thread>

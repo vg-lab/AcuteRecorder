@@ -7,7 +7,7 @@
 
 
 #include <QComboBox>
-#include <RecorderGeneralData.h>
+#include <data/RecorderGeneralData.h>
 
 class MainWindowRegion;
 

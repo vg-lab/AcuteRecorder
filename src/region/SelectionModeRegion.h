@@ -7,7 +7,7 @@
 
 #include <QWidget>
 
-#include <RecorderGeneralData.h>
+#include <data/RecorderGeneralData.h>
 #include <element/SelectionArea.h>
 #include <element/SelectionModeButton.h>
 #include <element/FPSTextField.h>

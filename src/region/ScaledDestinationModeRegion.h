@@ -8,7 +8,7 @@
 #include <QWidget>
 #include <QLineEdit>
 
-#include <RecorderGeneralData.h>
+#include <data/RecorderGeneralData.h>
 
 class ScaledDestinationModeRegion : public QWidget
 {

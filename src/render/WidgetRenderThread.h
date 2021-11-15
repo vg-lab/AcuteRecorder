@@ -14,7 +14,7 @@
 #include <QWidget>
 #include <QTimer>
 
-#include "RecorderGeneralData.h"
+#include <data/RecorderGeneralData.h>
 
 typedef std::chrono::time_point< std::chrono::system_clock , std::chrono::nanoseconds > TimeStamp;
 

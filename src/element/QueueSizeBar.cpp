@@ -7,7 +7,7 @@
 #include <QVariant>
 
 #include <constant/Styles.h>
-#include <WidgetRenderThread.h>
+#include <render/WidgetRenderThread.h>
 
 QueueSizeBar::QueueSizeBar( QWidget *parent , RecorderGeneralData *data )
   : QProgressBar( parent ) , timer_( new QTimer( this ))

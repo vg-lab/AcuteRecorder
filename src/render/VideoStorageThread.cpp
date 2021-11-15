@@ -2,7 +2,7 @@
 // Created by Gael Rial Costas on 8/3/21.
 //
 
-#include "../include/VideoStorageThread.h"
+#include "VideoStorageThread.h"
 
 #include <iostream>
 
