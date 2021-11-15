@@ -34,7 +34,7 @@ struct RecorderGeneralData
 
   SelectionMode selectionMode = FULL;
   QWidget *selectedWidget = nullptr;
-  QRectF sourceViewport = QRectF( 0 , 0 , 1 , 1 );
+  QRectF sourceViewport;
 
   DestinationMode destinationMode = SCALED;
   QSize destinationSize = QSize( 1920 , 1080 );
@@ -45,41 +45,105 @@ struct RecorderGeneralData
 
   WidgetRenderThread *thread = nullptr;
 
-  /**
-   * Returns the widget that the thread has to render.
-   * This method returns an unpredictable value if the
-   * selected source is not a widget.
-   * @return the widget to render.
-   */
-  [[nodiscard]] QWidget *getFinalWidgetToRender( ) const;
+  [[nodiscard]] QWidget *getFinalWidgetToRender( ) const
+  {
+    if ( selectionMode == WIDGET )
+    {
+      return selectedWidget;
+    }
 
-  /**
-   * Returns the QRenderHelper to used by the render thread.
-   *
-   * This QRenderHelper's configuration is created using this general data.
-   *
-   * @return the render helper.
-   */
-  [[nodiscard]] QRenderHelper getFinalRenderHelper( ) const;
+    return renderingWidget;
+  }
 
-  /**
-   * Returns the size of the final source.
-   * This may be the selected widget's size or the screen's size.
-   * @return the size.
-   */
-  [[nodiscard]] QSize getFinalSourceSize( ) const;
+  [[nodiscard]] QRenderHelper getFinalRenderHelper( ) const
+  {
+    if ( screen != nullptr )
+    {
+      return QRenderHelper( screen );
+    }
+    return QRenderHelper( getFinalWidgetToRender( ));
+  }
 
-  /**
-   * Returns the source viewport to use by the recorder.
-   * @return the source viewport.
-   */
-  [[nodiscard]] QRectF getFinalSourceViewport( ) const;
+  [[nodiscard]] QRect getFinalSourceViewport( ) const
+  {
+    switch ( selectionMode )
+    {
+      case FULL:
+        if ( screen != nullptr )
+        {
+          auto s = screen->size( );
+          return {
+            0 ,
+            0 ,
+            s.width( ) ,
+            s.height( )
+          };
+        }
+        return {
+          0 ,
+          0 ,
+          renderingWidget->width( ) ,
+          renderingWidget->height( )
+        };
+      case WIDGET:
+        return {
+          0 ,
+          0 ,
+          selectedWidget->width( ) ,
+          selectedWidget->height( )
+        };
+      case AREA:
+      default:
+        if ( screen != nullptr )
+        {
+          QSize size = screen->size( );
+          return {
+            static_cast<int>(sourceViewport.x( ) * size.width( )) ,
+            static_cast<int>(sourceViewport.y( ) * size.height( )) ,
+            static_cast<int>(sourceViewport.width( ) * size.width( )) ,
+            static_cast<int>(sourceViewport.height( ) * size.height( ))
+          };
+        }
+        QSize size = renderingWidget->size( );
+        return {
+          static_cast<int>(sourceViewport.x( ) * size.width( )) ,
+          static_cast<int>(sourceViewport.y( ) * size.height( )) ,
+          static_cast<int>(sourceViewport.width( ) * size.width( )) ,
+          static_cast<int>(sourceViewport.height( ) * size.height( ))
+        };
+    }
+  }
 
-  /**
-   * Returns the final size of the output.
-   * @return the size of the output.
-   */
-  [[nodiscard]] QSize getFinalDestinationSize( ) const;
+  [[nodiscard]] QRectF getFinalRelativeViewport( ) const
+  {
+    QSizeF size = screen == nullptr
+                  ? getFinalWidgetToRender( )->size( )
+                  : screen->size( );
+    QRectF fsv = getFinalSourceViewport( );
+    return {
+      fsv.x( ) / size.width( ) ,
+      fsv.y( ) / size.height( ) ,
+      fsv.width( ) / size.width( ) ,
+      fsv.height( ) / size.height( )
+    };
+  }
+
+  [[nodiscard]] QSize getFinalDestinationSize( ) const
+  {
+    switch ( destinationMode )
+    {
+      case FIXED:
+        return destinationSize;
+      case SCALED:
+      default:
+        auto s = getFinalSourceViewport( ).size( );
+        return {
+          static_cast<int>(( s.width( ) * destinationScale.width( ))) ,
+          static_cast<int>(( s.height( ) * destinationScale.height( )))
+        };
+    }
+  }
+
 };
 
 #endif //QTRECORDER_RECORDERGENERALDATA_H
