@@ -1,30 +1,11 @@
 cmake_minimum_required(VERSION 3.16.3)
 
-project(QtRecorderLib VERSION 1.0.0 DESCRIPTION "QtRecorder LIB")
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
-
-include_directories(qtrecorderlib/include)
-add_library(QtRecorderLib SHARED
+set(RECORDER_LIB_SOURCES
         qtrecorderlib/src/WidgetRenderThread.cpp
         qtrecorderlib/src/VideoStorageThread.cpp
         qtrecorderlib/src/AbstractRendererThread.cpp
-        qtrecorderlib/src/QRenderHelper.cpp)
-
-target_link_libraries(QtRecorderLib Qt5::Widgets)
-
-project(QtRecorder)
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
+        qtrecorderlib/src/QRenderHelper.cpp
+        qtrecorderlib/src/RecorderGeneralData.cpp)
 
 set(RECORDER_SOURCES
         src/main.cpp
@@ -46,8 +27,27 @@ set(RECORDER_SOURCES
         src/util/PixmapHolder.cpp
         src/element/SelectionArea.cpp)
 
+
+project(QtRecorderLib VERSION 1.0.0 DESCRIPTION "QtRecorder LIB")
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
+include_directories(qtrecorderlib/include)
+add_library(QtRecorderLib SHARED ${RECORDER_LIB_SOURCES})
+target_link_libraries(QtRecorderLib Qt5::Widgets)
+
+
+project(QtRecorder VERSION 1.0.0 DESCRIPTION "QtRecorder")
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
 include_directories(${CMAKE_SOURCE_DIR}/src)
 qt5_add_resources(RECORDER_SOURCES resources/resources_index.qrc)
 add_executable(QtRecorder ${RECORDER_SOURCES})
 target_link_libraries(QtRecorder QtRecorderLib)
-# target_link_libraries(QtRecorder Qt5::Widgets) No needed? Already linked in QtRecorderLib?

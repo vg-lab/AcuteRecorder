@@ -40,7 +40,7 @@ void ScreenComboBox::onIndexChange( int index )
   data_->screen = index == 0 ? nullptr : QApplication::screens( )[ index - 1 ];
 
   // We have to reset the viewport to avoid out-of-bounds renders!
-  data_->sourceViewport = QRectF( 0 , 0 , 0 , 0 );
+  data_->sourceViewport = QRectF( 0 , 0 , 1 , 1 );
 
   // And, of course, disable the widget button in the selection mode region
   // if the source is a screen.

@@ -37,16 +37,15 @@ WidgetRenderThread::WidgetRenderThread( RecorderGeneralData *data )
   start_( ) ,
   timer_( nullptr ) ,
   imagesRendered_( 0 ) ,
-  relativeViewport_( data->getFinalRelativeViewport( ))
+  relativeViewport_( data->getFinalSourceViewport() )
 {
 
   qDebug( ) << "Widget render thread";
   qDebug( ) << "Source viewport: " << relativeViewport_;
-  qDebug( ) << " (" << data->getFinalSourceViewport( ) << ")";
-  qDebug( ) << "Size: " << size_.width( ) << ", ";
-  qDebug( ) << size_.height( );
-  qDebug( ) << "ST Size: " << storageThread_.size( ).width( ) << ", ";
-  qDebug( ) << storageThread_.size( ).height( );
+  qDebug( ) << "S Size: " << data->getFinalSourceSize();
+  qDebug( ) << "D Size: " << size_;
+  qDebug( ) << "ST Size: " << storageThread_.size( ).width( ) << ", "
+            << storageThread_.size( ).height( );
   qDebug( ) << "------------------------------";
 
 }
