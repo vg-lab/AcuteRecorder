@@ -1,0 +1,69 @@
+stages:
+ - build
+
+Ubuntu:
+ stage: build
+ script:
+  - module load Qt-5.10.0
+  - export CMAKE_EXTRA_ARGS="-DCLONE_SUBPROJECTS=ON"
+  - export BUILD_GENERATOR="Ninja";
+  - bash .gitlab-ci.sh
+ except:
+  - master
+ tags:
+  - ubuntu
+
+Ubuntu-master:
+ stage: build
+ script:
+  - module load Qt-5.10.0
+  - export CMAKE_EXTRA_ARGS="-DCLONE_SUBPROJECTS=ON"
+  - export BUILD_GENERATOR="Ninja";
+  - bash .gitlab-ci.sh
+ only:
+  - master
+ tags:
+  - ubuntu
+
+OSX-master:
+ stage: build
+ script:
+  - module load Qt-5.12.10
+  - export CMAKE_EXTRA_ARGS="-DCLONE_SUBPROJECTS=ON -DGLUT_glut_LIBRARY=/usr/local/Cellar/freeglut/3.0.0/lib/libglut.dylib"
+  - export BUILD_GENERATOR="Ninja"
+  - export CMAKE_OSX_ARCHITECTURES=x86_64
+  - bash .gitlab-ci.sh
+ only:
+  - master
+ except:
+  - tags
+ tags:
+  - osx-sierra
+
+OSX:
+ stage: build
+ script:
+  - module load Qt-5.12.10
+  - export CMAKE_EXTRA_ARGS="-DCLONE_SUBPROJECTS=ON -DGLUT_glut_LIBRARY=/usr/local/Cellar/freeglut/3.0.0/lib/libglut.dylib"
+  - export BUILD_GENERATOR="Ninja";
+  - export CMAKE_OSX_ARCHITECTURES=x86_64
+  - bash .gitlab-ci.sh
+ tags:
+  - osx-sierra
+
+# Win7:
+#  stage: build
+#   script:
+#   - call %ENVFILESDIR%\Boost-1.72-vs14-x64.bat
+#   - call %ENVFILESDIR%\Qt-5.12-vs14.bat
+#   - call %ENVFILESDIR%\eigen-3.1.2-vs12-x64.bat
+#   - call %ENVFILESDIR%\glut-2.8.1.bat
+#   - call %ENVFILESDIR%\glew-2.1.0.bat
+#   - call %ENVFILESDIR%\glm.bat
+#   - call %ENVFILESDIR%\HDF5-1.8.17-vs12-x64.bat
+#   - call %ENVFILESDIR%\zeromq-4.2.1-vs14-x64
+#   - set BUILD_GENERATOR=Visual Studio 14 Win64
+#   - set CMAKE_EXTRA_ARGS=-DCLONE_SUBPROJECTS=ON -DCMAKE_POLICY_DEFAULT_CMP0074=NEW
+#   - '"c:\Program Files\Git\bin\bash.exe" --login  .gitlab-ci.sh'
+#  tags:
+#   - win7
