@@ -1,0 +1,7 @@
+Acute Recorder
+
+Copyright (c) 2021 Visualization And Graphics Labs (VGLab),
+                   Universidad Rey Juan Carlos, Spain
+
+All rights reserved.
+
