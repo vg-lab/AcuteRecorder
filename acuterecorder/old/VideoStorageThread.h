@@ -5,7 +5,7 @@
 #ifndef QTRECORDER_VIDEOSTORAGETHREAD_H
 #define QTRECORDER_VIDEOSTORAGETHREAD_H
 
-#include <acuterecorder/AbstractRendererThread.h>
+#include "AbstractRendererThread.h"
 
 #include <QQueue>
 #include <QImage>

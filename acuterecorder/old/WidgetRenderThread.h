@@ -5,8 +5,8 @@
 #ifndef QTRECORDER_WIDGETRENDERTHREAD_H
 #define QTRECORDER_WIDGETRENDERTHREAD_H
 
-#include <acuterecorder/VideoStorageThread.h>
-#include <acuterecorder/QRenderHelper.h>
+#include "VideoStorageThread.h"
+#include "QRenderHelper.h"
 
 #include <chrono>
 

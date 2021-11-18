@@ -11,8 +11,8 @@
 #include <iostream>
 #include <memory>
 
-#include <acuterecorder/AbstractRendererThread.h>
-#include <acuterecorder/QRenderHelper.h>
+#include "AbstractRendererThread.h"
+#include "QRenderHelper.h"
 
 class WidgetRenderThread;
 

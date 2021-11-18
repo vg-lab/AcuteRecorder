@@ -2,9 +2,9 @@
 // Created by Gael Rial Costas on 8/3/21.
 //
 
-#include <WidgetRenderThread.h>
-#include <RecorderGeneralData.h>
-#include <VideoStorageThread.h>
+#include <old/WidgetRenderThread.h>
+#include <old/RecorderGeneralData.h>
+#include <old/VideoStorageThread.h>
 
 #include <iostream>
 #include <thread>

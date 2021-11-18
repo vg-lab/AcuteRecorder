@@ -2,7 +2,7 @@
 // Created by Gael Rial Costas on 12/3/21.
 //
 
-#include <AbstractRendererThread.h>
+#include <old/AbstractRendererThread.h>
 
 AbstractRendererThread::AbstractRendererThread( const QSize& size , int fps ) :
   size_( size ) , fps_( fps ) , running_( false ) , finished_( true )

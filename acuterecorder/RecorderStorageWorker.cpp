@@ -1,17 +1,16 @@
 //
-// Created by Gael Rial Costas on 8/3/21.
+// Created by gaelr on 18/11/2021.
 //
 
-#include <VideoStorageThread.h>
+#include "RecorderStorageWorker.h"
 
-#include <iostream>
+#include <memory>
+#include <QImage>
 
-#include <QtConcurrent/QtConcurrent>
+const char *C_BASE_COMMAND_GPU = "ffmpeg -hwaccel cuda -vsync 0 -r %d -f rawvideo -s %dx%d -pix_fmt rgb24 -i - -c:v hevc_nvenc -f mp4 -preset medium -y %s";
+const char *C_BASE_COMMAND_CPU = "ffmpeg -vsync 0 -r %d -f rawvideo -s %dx%d -pix_fmt rgb24 -i - -c:v libx264 -f mp4 -preset fast -y %s";
 
-const char *BASE_COMMAND_GPU = "ffmpeg -hwaccel cuda -vsync 0 -r %d -f rawvideo -s %dx%d -pix_fmt rgb24 -i - -c:v hevc_nvenc -f mp4 -preset medium -y %s";
-const char *BASE_COMMAND_CPU = "ffmpeg -vsync 0 -r %d -f rawvideo -s %dx%d -pix_fmt rgb24 -i - -c:v libx264 -f mp4 -preset fast -y %s";
-
-constexpr int NVIDIA_MIN_DIMENSION = 145;
+constexpr int C_NVIDIA_MIN_DIMENSION = 145;
 
 /**
  * Generates a FFMPEG command used to encode a set of raw images to a mp4 video.
@@ -26,7 +25,7 @@ constexpr int NVIDIA_MIN_DIMENSION = 145;
  * @param output the output location.
  * @return the FFMPEG command to use.
  */
-std::string generateFFMPEGCommand( int fps , int width , int height ,
+std::string createFFMPEGCommand( int fps , int width , int height ,
                                    const std::string& output )
 {
   const int ARRAY_SIZE = 2048;
@@ -37,10 +36,10 @@ std::string generateFFMPEGCommand( int fps , int width , int height ,
   // This is because NVENC doesn't support video
   // encoding of such small dimensions.
   const char *command;
-  if ( width < NVIDIA_MIN_DIMENSION || height < NVIDIA_MIN_DIMENSION )
-    command = BASE_COMMAND_CPU;
+  if ( width < C_NVIDIA_MIN_DIMENSION || height < C_NVIDIA_MIN_DIMENSION )
+    command = C_BASE_COMMAND_CPU;
   else
-    command = BASE_COMMAND_GPU;
+    command = C_BASE_COMMAND_GPU;
 
   int size = snprintf( array , ARRAY_SIZE , command ,
                        fps , width , height , outputCString );
@@ -48,81 +47,36 @@ std::string generateFFMPEGCommand( int fps , int width , int height ,
   return { array , array + size };
 }
 
-VideoStorageThread::VideoStorageThread( const QSize& size , int fps ) :
-  AbstractRendererThread( size , fps ) ,
-  queue_( ) , file_( ) , mutex_( ) , notEmptyCondition_( ) ,
-  expectedBytesPerLine( size.width( ) * 3 ) ,
-  filesInQueue_( 0 )
+RecorderStorageWorker::RecorderStorageWorker(
+  const QSize& size , int fps , QString output ) :
+  size_( size ) ,
+  fps_( fps ) ,
+  output_( std::move( output )) ,
+  expectedBytesPerLine_( size.width( ) * 3 ) ,
+  mutex_( ) ,
+  notEmptyCondition_( ) ,
+  queue_( ) ,
+  running_( false )
 {
+
+
 }
 
-bool VideoStorageThread::setSize( const QSize& size )
+void RecorderStorageWorker::start( )
 {
-  if ( !AbstractRendererThread::setSize( size )) return false;
-  expectedBytesPerLine = size.width( ) * 3;
-  return true;
-}
+  if(running_) return;
+  running_ = true;
 
-bool VideoStorageThread::start( )
-{
-  if ( !AbstractRendererThread::start( )) return false;
-  future_ = QtConcurrent::run( [ = ]( )
-                               { run( ); } );
-  return true;
-}
-
-void VideoStorageThread::stop( )
-{
-  AbstractRendererThread::stop( );
-  notEmptyCondition_.wakeAll( );
-}
-
-void VideoStorageThread::join( )
-{
-  future_.waitForFinished( );
-}
-
-void VideoStorageThread::push( QImage *image )
-{
-  mutex_.lock( );
-  queue_.push_back( image );
-  mutex_.unlock( );
-
-  notEmptyCondition_.wakeAll( );
-}
-
-int VideoStorageThread::filesInQueue( ) const
-{
-  return filesInQueue_;
-}
-
-std::string VideoStorageThread::output( ) const
-{
-  return output_;
-}
-
-
-bool VideoStorageThread::setOutput( const std::string& output )
-{
-  if ( !finished_ ) return false;
-  output_ = output;
-  return true;
-}
-
-void VideoStorageThread::run( )
-{
   // Creates the FFMPEG command.
-  std::string cmd = generateFFMPEGCommand(
+  std::string cmd = createFFMPEGCommand(
     fps_ ,
     size_.width( ) ,
     size_.height( ) ,
-    "output.mp4" );
-
-  std::cout << "Opening FFMPEG" << std::endl;
-  std::cout << cmd << std::endl;
+    output_.toStdString() );
 
   // Creates the process for the command and opens a write pipe.
-  file_ = popen( cmd.c_str( ) , "w" );
+
+  FILE *file = popen( cmd.c_str( ) , "w" );
 
   QImage *image;
   while ( running_ || !queue_.empty( ))
@@ -134,13 +88,13 @@ void VideoStorageThread::run( )
 
     // Sends the image to FFMPEG.
     unsigned char *bytes = image->bits( );
-    int amount = image->byteCount();
+    int amount = image->byteCount( );
 
     // Qt images will always ceil the bytes per line to a multiple of four.
     // This is because QImage uses integers under the hood.
     // We need to get rid of these extra bytes or ffmpeg will implode!
     int bytesPerLine = image->bytesPerLine( );
-    int difference = bytesPerLine - expectedBytesPerLine;
+    int difference = bytesPerLine - expectedBytesPerLine_;
 
     if ( difference )
     {
@@ -148,27 +102,26 @@ void VideoStorageThread::run( )
       // the frame line per line.
       for ( int i = 0; i < size_.height( ); ++i )
       {
-        fwrite( bytes , expectedBytesPerLine ,
-                sizeof( unsigned char ) , file_ );
+        fwrite( bytes , expectedBytesPerLine_ ,
+                sizeof( unsigned char ) , file );
         bytes += bytesPerLine;
       }
     }
     else
     {
       // There are no extra bytes! Write the full frame.
-      fwrite( bytes , amount , sizeof( unsigned char ) , file_ );
+      fwrite( bytes , amount , sizeof( unsigned char ) , file );
     }
     delete image;
-
-    filesInQueue_ = queue_.size( );
   }
 
-  fclose( file_ );
+  fclose( file );
 
-  finished_ = true;
+  emit finished();
+
 }
 
-bool VideoStorageThread::popElement( QImage *& image )
+bool RecorderStorageWorker::popElement( QImage *& image )
 {
   mutex_.lock( );
 
@@ -190,7 +143,26 @@ bool VideoStorageThread::popElement( QImage *& image )
   image = queue_.front( );
 
   queue_.pop_front( );
+  emit fileQueueSizeChanged( queue_.size( ));
   mutex_.unlock( );
 
   return true;
+}
+
+void RecorderStorageWorker::stop( )
+{
+  running_ = false;
+
+  mutex_.lock( );
+  notEmptyCondition_.wakeAll();
+  mutex_.unlock( );
+}
+
+void RecorderStorageWorker::push( QImage *image )
+{
+  mutex_.lock( );
+  queue_.push_back( image );
+  mutex_.unlock( );
+
+  notEmptyCondition_.wakeAll( );
 }

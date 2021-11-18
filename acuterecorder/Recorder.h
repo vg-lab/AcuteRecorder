@@ -1,40 +1,45 @@
 //
-// Created by gaelr on 16/11/2021.
+// Created by gaelr on 18/11/2021.
 //
 
-#ifndef ACUTERECORDER_ACUTERECORDER_H
-#define ACUTERECORDER_ACUTERECORDER_H
+#ifndef ACUTERECORDER_RECORDER_H
+#define ACUTERECORDER_RECORDER_H
 
-struct RecorderGeneralData;
 
-namespace acute_recorder
+#include <QObject>
+#include "RecorderSettings.h"
+#include "RecorderStorageWorker.h"
+
+class RecorderSettings;
+
+class Recorder : public QObject
 {
 
-  /**
-   * Starts recording a video using the information in the
-   * given RecorderGeneralData.
-   *
-   * This function returns false if the given RecorderGeneralData
-   * is already being used to record another video.
-   *
-   * @param data the data.
-   * @return whether the operation was successful.
-   */
-  bool start_recording( RecorderGeneralData *data );
+Q_OBJECT
 
-  /**
-   * Stops the recording linked to the given RecorderGeneralData.
-   * After an invocation of this function,
-   * the given RecorderGeneralData is free to be reused.
-   *
-   * This function returns false if the given RecorderGeneralData
-   * is not being used to record any video.
-   *
-   * @param data the data.
-   * @return whether the operation was successful.
-   */
-  bool stop_recording( RecorderGeneralData *data );
+  RecorderSettings settings_;
+  bool active_;
+  RecorderStorageWorker storageWorker_;
 
-}
+public:
 
-#endif //ACUTERECORDER_ACUTERECORDER_H
+  explicit Recorder( RecorderSettings settings );
+
+  bool isRecording( ) const;
+
+public slots:
+
+  void takeFrame( );
+
+  void stop( );
+
+signals:
+
+  void bufferSizeChange( int value );
+
+  void finished( );
+
+};
+
+
+#endif //ACUTERECORDER_RECORDER_H
