@@ -41,6 +41,8 @@ public:
 
   bool isScreen( ) const;
 
+  QSize getSize () const;
+
   QImage * render( const QRectF& inputArea , const QSize& outputSize ) const;
 
 };

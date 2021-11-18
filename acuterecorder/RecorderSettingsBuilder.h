@@ -30,7 +30,7 @@ public:
 
   RecorderSettingsBuilder& outputSize( const QSize& size );
 
-  RecorderSettingsBuilder& outputScaledSize( const QSize scale );
+  RecorderSettingsBuilder& outputScaledSize( const QSizeF scale );
 
   RecorderSettingsBuilder& fps( int fps );
 

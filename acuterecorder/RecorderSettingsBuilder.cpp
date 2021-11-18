@@ -45,7 +45,7 @@ RecorderSettingsBuilder::outputSize( const QSize& size )
 }
 
 RecorderSettingsBuilder&
-RecorderSettingsBuilder::outputScaledSize( const QSize scale )
+RecorderSettingsBuilder::outputScaledSize( const QSizeF scale )
 {
   if ( !inputArea_.second )
   {
@@ -54,10 +54,18 @@ RecorderSettingsBuilder::outputScaledSize( const QSize scale )
     );
   }
 
+  if ( !input_.second )
+  {
+    throw std::invalid_argument(
+      "This method requires an input to be set."
+    );
+  }
+
+  QSize iSize = input_.first.getSize();
   QSizeF size = inputArea_.first.size( );
   outputSize_ = { QSize(
-    static_cast<int> (size.width( ) * scale.width( )) ,
-    static_cast<int> (size.height( ) * scale.height( ))
+    static_cast<int> (iSize.width() * size.width( ) * scale.width( )) ,
+    static_cast<int> (iSize.height() * size.height( ) * scale.height( ))
   ) , true };
   return *this;
 }

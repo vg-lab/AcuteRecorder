@@ -6,6 +6,7 @@
 
 #include <utility>
 #include <QThread>
+#include <QDebug>
 
 Recorder::Recorder( RecorderSettings settings ) :
   settings_( std::move( settings )) ,
@@ -13,15 +14,12 @@ Recorder::Recorder( RecorderSettings settings ) :
   storageWorker_( settings.getOutputSize( ) , settings.getFps( ) ,
                   settings.getOutputPath( ))
 {
+
   auto *thread = new QThread( );
   storageWorker_.moveToThread( thread );
 
-  connect( thread , SIGNAL( started( QPrivateSignal )) ,
-           &storageWorker_ , SLOT( start( )));
   connect( &storageWorker_ , SIGNAL( finished( )) ,
            thread , SLOT( quit( )));
-  connect( &storageWorker_ , SIGNAL( finished( )) ,
-           &storageWorker_ , SLOT( deleteLater( )));
   connect( thread , SIGNAL( finished( )) ,
            thread , SLOT( deleteLater( )));
 
@@ -34,8 +32,9 @@ Recorder::Recorder( RecorderSettings settings ) :
            &RecorderStorageWorker::finished ,
            [ & ]( )
            { emit finished( ); } );
-
   thread->start( );
+
+  QMetaObject::invokeMethod( &storageWorker_, "start");
 }
 
 bool Recorder::isRecording( ) const

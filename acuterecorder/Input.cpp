@@ -58,7 +58,7 @@ QImage * Input::render( const QRectF& inputArea , const QSize& outputSize ) cons
     static_cast<int>(inputArea.height( ) * inputSize.height( ))
   };
 
-  if ( widget_ == nullptr )
+  if ( widget_ != nullptr )
   {
     auto *image = new QImage( outputSize , QImage::Format_RGB888 );
     QPainter painter( image );
@@ -99,4 +99,14 @@ QImage * Input::render( const QRectF& inputArea , const QSize& outputSize ) cons
     return new QImage( pixmap.toImage( )
                          .convertToFormat( QImage::Format_RGB888 ));
   }
+}
+
+QSize Input::getSize( ) const
+{
+  if ( widget_ == nullptr && screen_ == nullptr )
+  {
+    throw std::logic_error( "Input is invalid: it has no widget or screen." );
+  }
+
+  return widget_ == nullptr ? screen_->size() : widget_->size();
 }

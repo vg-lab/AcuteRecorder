@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <QImage>
+#include <QDebug>
 
 const char *C_BASE_COMMAND_GPU = "ffmpeg -hwaccel cuda -vsync 0 -r %d -f rawvideo -s %dx%d -pix_fmt rgb24 -i - -c:v hevc_nvenc -f mp4 -preset medium -y %s";
 const char *C_BASE_COMMAND_CPU = "ffmpeg -vsync 0 -r %d -f rawvideo -s %dx%d -pix_fmt rgb24 -i - -c:v libx264 -f mp4 -preset fast -y %s";
@@ -67,12 +68,13 @@ void RecorderStorageWorker::start( )
   if(running_) return;
   running_ = true;
 
+
   // Creates the FFMPEG command.
   std::string cmd = createFFMPEGCommand(
     fps_ ,
     size_.width( ) ,
     size_.height( ) ,
-    output_.toStdString() );
+    "output.mp4");
 
   // Creates the process for the command and opens a write pipe.
 
