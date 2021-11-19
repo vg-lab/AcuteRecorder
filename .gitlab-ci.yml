@@ -54,10 +54,10 @@ OSX:
 Win7:
  stage: build
  script:
- - call %ENVFILESDIR%\Qt-5.12-vs14.bat
- - set BUILD_GENERATOR=Visual Studio 14 Win64
- - set CMAKE_EXTRA_ARGS=-DCLONE_SUBPROJECTS=ON -DCMAKE_POLICY_DEFAULT_CMP0074=NEW
- - '"c:\Program Files\Git\bin\bash.exe" --login  .gitlab-ci.sh'
-tags:
- - win7
+  - call %ENVFILESDIR%\Qt-5.12-vs14.bat
+  - set BUILD_GENERATOR=Visual Studio 14 Win64
+  - set CMAKE_EXTRA_ARGS=-DCLONE_SUBPROJECTS=ON -DCMAKE_POLICY_DEFAULT_CMP0074=NEW
+  - '"c:\Program Files\Git\bin\bash.exe" --login  .gitlab-ci.sh'
+ tags:
+  - win7
 
