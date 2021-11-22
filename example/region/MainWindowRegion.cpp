@@ -23,7 +23,7 @@ MainWindowRegion::MainWindowRegion( QWidget *parent ,
   selectionArea_ = new SelectionArea( this , data );
   screenComboBox_ = new ScreenComboBox( this , data , this );
   selectionModeRegion_ = new SelectionModeRegion( this , data , selectionArea_ );
-  destinationModeRegion_ = new DestinationModeRegion( this , data );
+  destinationModeRegion_ = new DestinationModeRegion( this );
   outputRegion_ = new OutputRegion( this , data );
   startStopButton_ = new StartStopButton( this , data );
   queueSizeBar_ = new QueueSizeBar( this , data );

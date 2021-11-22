@@ -10,32 +10,21 @@
 
 struct RecorderGeneralData;
 
+class QDoubleSpinBox;
+
 class ScaledDestinationModeRegion : public QWidget
 {
 
 Q_OBJECT
 
-  RecorderGeneralData *data_;
-  QLineEdit *width_;
-  QLineEdit *height_;
-
-private slots:
-
-  void onWidthChange( );
-
-  void onHeightChange( );
+  QDoubleSpinBox *width_;
+  QDoubleSpinBox *height_;
 
 public:
 
-  ScaledDestinationModeRegion( QWidget *widget ,
-                               RecorderGeneralData *data );
+  explicit ScaledDestinationModeRegion( QWidget *widget );
 
-
-  RecorderGeneralData *data( ) const;
-
-  QLineEdit *widthEdit( ) const;
-
-  QLineEdit *heightEdit( ) const;
+  QSizeF getDestinationScale( ) const;
 
 };
 

@@ -9,32 +9,22 @@
 #include <QWidget>
 #include <QLineEdit>
 
-struct RecorderGeneralData;
+
+class QSpinBox;
 
 class FixedDestinationModeRegion : public QWidget
 {
-  
+
 Q_OBJECT
 
-  RecorderGeneralData *data_;
-  QLineEdit *width_;
-  QLineEdit *height_;
-
-private slots:
-
-  void onWidthChange( );
-
-  void onHeightChange( );
+  QSpinBox *width_;
+  QSpinBox *height_;
 
 public:
 
-  FixedDestinationModeRegion( QWidget *parent , RecorderGeneralData *data );
+  explicit FixedDestinationModeRegion( QWidget *parent );
 
-  RecorderGeneralData *data( ) const;
-
-  QLineEdit *widthEdit( ) const;
-
-  QLineEdit *heightEdit( ) const;
+  QSize getDestinationSize( ) const;
 
 };
 

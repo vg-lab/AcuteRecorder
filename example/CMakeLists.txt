@@ -4,8 +4,7 @@ set(RECORDER_SOURCES
         element/OutputTextField.cpp
 		element/SelectionModeButton.cpp
 		element/StartStopButton.cpp
-		element/DestinationModeButton.cpp
-		element/OutputFileButton.cpp
+        element/OutputFileButton.cpp
 		element/FPSTextField.cpp
 		element/ScreenComboBox.cpp
 		element/SelectionArea.cpp
@@ -24,8 +23,7 @@ set(RECORDER_HEADERS
 		element/OutputTextField.h
 		element/SelectionModeButton.h
 		element/StartStopButton.h
-		element/DestinationModeButton.h
-		element/OutputFileButton.h
+        element/OutputFileButton.h
 		element/FPSTextField.h
 		element/ScreenComboBox.h
 		element/SelectionArea.h

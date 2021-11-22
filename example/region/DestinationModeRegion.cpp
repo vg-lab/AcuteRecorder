@@ -6,15 +6,22 @@
 
 #include "DestinationModeRegion.h"
 
-#include <QHBoxLayout>
 #include <iostream>
+#include <QHBoxLayout>
+#include <QRadioButton>
 #include <QLabel>
+
+#include <region/FixedDestinationModeRegion.h>
+#include <region/ScaledDestinationModeRegion.h>
 
 #include <constant/Styles.h>
 
-DestinationModeRegion::DestinationModeRegion( QWidget *parent ,
-                                              RecorderGeneralData *data )
-  : QWidget( parent ) , data_( data )
+DestinationModeRegion::DestinationModeRegion( QWidget *parent )
+  : QWidget( parent ) ,
+    fixed_( new QRadioButton( "Fixed" , this )) ,
+    scaled_( new QRadioButton( "Scaled" , this )) ,
+    fixedRegion_( new FixedDestinationModeRegion( this )) ,
+    scaleRegion_( new ScaledDestinationModeRegion( this ))
 {
 
   auto layout = new QHBoxLayout( this );
@@ -24,37 +31,49 @@ DestinationModeRegion::DestinationModeRegion( QWidget *parent ,
   setProperty( "class" , styles::REGION_DESTINATION_MODE );
   setLayout( layout );
 
-  fixedButton_ = new DestinationModeButton( "Fixed" , this , this , DestinationMode::FIXED );
-  scaleButton_ = new DestinationModeButton( "Scaled" , this , this , DestinationMode::SCALED );
-  fixedRegion_ = new FixedDestinationModeRegion( this , data );
-  scaleRegion_ = new ScaledDestinationModeRegion( this , data );
-
   auto label = new QLabel( "Output size:" );
   label->setProperty( "class" , styles::INFO_LABEL );
 
   layout->addWidget( label );
-  layout->addWidget( scaleButton_ );
-  layout->addWidget( fixedButton_ );
+  layout->addWidget( fixed_ );
+  layout->addWidget( scaled_ );
   layout->addWidget( scaleRegion_ );
   layout->addWidget( fixedRegion_ );
-  layout->addStretch();
+  layout->addStretch( );
 
   fixedRegion_->hide( );
 
-  scaleButton_->setChecked( true );
+  scaled_->setChecked( true );
+
+  QObject::connect(
+    fixed_ , &QRadioButton::toggled ,
+    this , &DestinationModeRegion::refreshRegion
+  );
 }
 
-RecorderGeneralData *DestinationModeRegion::data( ) const
+
+bool DestinationModeRegion::isFixedMode( ) const
 {
-  return data_;
+  return fixed_->isChecked( );
 }
 
-void DestinationModeRegion::refresh( )
+
+QSize DestinationModeRegion::getFixedSize( ) const
 {
-  const bool fixed = data_->destinationMode == DestinationMode::FIXED;
+  return fixedRegion_->getDestinationSize( );
+}
+
+QSizeF DestinationModeRegion::getScaledSize( ) const
+{
+  return scaleRegion_->getDestinationScale( );
+}
+
+
+void DestinationModeRegion::refreshRegion( )
+{
 
   // Hide, the show. Showing before hiding resizes the window.
-  if ( fixed )
+  if ( isFixedMode( ))
   {
     scaleRegion_->hide( );
     fixedRegion_->show( );
