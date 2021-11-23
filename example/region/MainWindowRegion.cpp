@@ -70,6 +70,10 @@ MainWindowRegion::MainWindowRegion( QWidget *parent , QWidget *root ) :
 
 void MainWindowRegion::closeEvent( QCloseEvent * )
 {
+  if(recorder_ != nullptr) {
+    recorder_->stop();
+  }
+
   emit terminated( );
 }
 

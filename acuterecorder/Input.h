@@ -7,13 +7,9 @@
 
 
 class QWidget;
-
 class QScreen;
-
 class QRectF;
-
 class QSize;
-
 class QImage;
 
 enum class InputType

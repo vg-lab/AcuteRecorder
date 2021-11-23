@@ -7,6 +7,7 @@
 #include <QHBoxLayout>
 #include <QRadioButton>
 #include <QLabel>
+#include <QVariant>
 
 #include <region/FixedDestinationModeRegion.h>
 #include <region/ScaledDestinationModeRegion.h>

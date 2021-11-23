@@ -2,8 +2,9 @@
 // Created by gaelr on 18/11/2021.
 //
 
-#include <QRectF>
 #include "RecorderSettings.h"
+
+#include <QRectF>
 
 RecorderSettings::RecorderSettings( const Input& input ,
                                     const QRectF& inputArea ,

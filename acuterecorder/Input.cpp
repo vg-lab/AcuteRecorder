@@ -2,11 +2,12 @@
 // Created by gaelr on 18/11/2021.
 //
 
+#include "Input.h"
+
 #include <QSize>
 #include <QWidget>
 #include <QScreen>
 #include <QPainter>
-#include "Input.h"
 
 Input::Input( ) :
   widget_( nullptr ) ,

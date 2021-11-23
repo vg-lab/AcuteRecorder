@@ -2,10 +2,11 @@
 // Created by gaelr on 18/11/2021.
 //
 
+#include "RecorderSettingsBuilder.h"
+
 #include <QSize>
 #include <QRectF>
 #include <stdexcept>
-#include "RecorderSettingsBuilder.h"
 
 RecorderSettingsBuilder::RecorderSettingsBuilder( )
 {

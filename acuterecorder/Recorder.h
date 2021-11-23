@@ -7,6 +7,7 @@
 
 
 #include <QObject>
+
 #include "RecorderSettings.h"
 #include "RecorderStorageWorker.h"
 
