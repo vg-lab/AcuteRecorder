@@ -8,12 +8,8 @@
 
 #include <QWidget>
 
-struct RecorderGeneralData;
-
 class QRadioButton;
-
 class FixedDestinationModeRegion;
-
 class ScaledDestinationModeRegion;
 
 class DestinationModeRegion : public QWidget

@@ -76,10 +76,13 @@ void MainWindowRegion::closeEvent( QCloseEvent * )
 void MainWindowRegion::startRecording( )
 {
   if ( recorder_ != nullptr ) return;
-  auto screen = selectionArea_->getSelectedScreen( );
+
+  // First we have to create our configuration. We can do it directly
+  // or using the builder.
 
   RecorderSettingsBuilder builder = RecorderSettingsBuilder( );
 
+  auto screen = selectionArea_->getSelectedScreen( );
   if ( screen != nullptr )
   {
     builder.input( screen );
@@ -102,8 +105,12 @@ void MainWindowRegion::startRecording( )
     builder.outputScaledSize( destinationModeRegion_->getScaledSize( ));
   }
 
+  // We create the config and the recorder.
   RecorderSettings settings = builder.build( );
   recorder_ = new Recorder( settings );
+
+  // The recorder is ready to go, we just have to create a timer that
+  // signals the recorder to take a frame!
 
   auto *timer = new QTimer( recorder_ );
   QObject::connect(
@@ -114,24 +121,30 @@ void MainWindowRegion::startRecording( )
     recorder_ , &Recorder::finished ,
     timer , &QObject::deleteLater
   );
-
   timer->start( 1000 / settings.getFps( ));
-  startStopButton_->onStart( );
+
+  // Signal this region when the recorder finishes recording.
+  // Warning! The recorder won't stop automatically when you
+  // use Recorder::stop(). You have to wait for the  image queue
+  // to be empty.
+  QObject::connect(
+    recorder_ , &Recorder::finished ,
+    this , &MainWindowRegion::deleteRecorder
+  );
+
+  // Queue size
+
+  QObject::connect(
+    recorder_ , &Recorder::bufferSizeChange ,
+    queueSizeBar_ , &QProgressBar::setValue
+  );
 
   QObject::connect(
     recorder_ , &Recorder::finished ,
     startStopButton_ , &StartStopButton::onFinish
   );
 
-  QObject::connect(
-    recorder_ , &Recorder::finished ,
-    this , &MainWindowRegion::deleteRecorder
-  );
-
-  QObject::connect(
-    recorder_ , &Recorder::bufferSizeChange ,
-    queueSizeBar_ , &QProgressBar::setValue
-  );
+  startStopButton_->onStart( );
 }
 
 void MainWindowRegion::stopRecording( )

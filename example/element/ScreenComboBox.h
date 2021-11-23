@@ -5,10 +5,7 @@
 #ifndef QTRECORDER_SCREENCOMBOBOX_H
 #define QTRECORDER_SCREENCOMBOBOX_H
 
-
 #include <QComboBox>
-
-class MainWindowRegion;
 
 class QScreen;
 

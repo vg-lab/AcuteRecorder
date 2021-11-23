@@ -5,10 +5,7 @@
 #ifndef QTRECORDER_FIXEDDESTINATIONMODEREGION_H
 #define QTRECORDER_FIXEDDESTINATIONMODEREGION_H
 
-
 #include <QWidget>
-#include <QLineEdit>
-
 
 class QSpinBox;
 

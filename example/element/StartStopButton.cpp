@@ -2,9 +2,8 @@
 // Created by Gael Rial Costas on 16/8/21.
 //
 
-#include <acuterecorder/acuterecorder.h>
-
 #include "StartStopButton.h"
+
 #include <QVariant>
 
 #include <constant/Styles.h>

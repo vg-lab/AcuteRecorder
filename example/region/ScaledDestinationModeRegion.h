@@ -6,9 +6,6 @@
 #define QTRECORDER_SCALEDDESTINATIONMODEREGION_H
 
 #include <QWidget>
-#include <QLineEdit>
-
-struct RecorderGeneralData;
 
 class QDoubleSpinBox;
 

@@ -2,8 +2,6 @@
 // Created by Gael Rial Costas on 17/8/21.
 //
 
-#include <acuterecorder/acuterecorder.h>
-
 #include "FixedDestinationModeRegion.h"
 
 #include <QHBoxLayout>

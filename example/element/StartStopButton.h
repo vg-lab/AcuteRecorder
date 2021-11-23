@@ -7,8 +7,6 @@
 
 #include <QPushButton>
 
-struct RecorderGeneralData;
-
 class StartStopButton;
 
 class StartStopButton : public QPushButton

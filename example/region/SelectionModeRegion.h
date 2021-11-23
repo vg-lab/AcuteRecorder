@@ -9,9 +9,7 @@
 #include <util/SelectionMode.h>
 
 class QScreen;
-
 class QRadioButton;
-
 class QSpinBox;
 
 class SelectionModeRegion : public QWidget

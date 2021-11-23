@@ -5,11 +5,8 @@
 #ifndef QTRECORDER_SELECTIONAREA_H
 #define QTRECORDER_SELECTIONAREA_H
 
-
 #include <QRubberBand>
 #include <QRectF>
-
-#include <acuterecorder/acuterecorder.h>
 
 #include <util/PixmapHolder.h>
 #include <util/SelectionMode.h>

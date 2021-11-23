@@ -2,11 +2,8 @@
 // Created by Gael Rial Costas on 17/8/21.
 //
 
-#include <acuterecorder/acuterecorder.h>
-
 #include "DestinationModeRegion.h"
 
-#include <iostream>
 #include <QHBoxLayout>
 #include <QRadioButton>
 #include <QLabel>

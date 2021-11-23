@@ -2,15 +2,11 @@
 // Created by Gael Rial Costas on 2/9/21.
 //
 
-#include <acuterecorder/acuterecorder.h>
-
 #include "ScreenComboBox.h"
 
 #include <QApplication>
 #include <QScreen>
 #include <QObject>
-
-#include <region/MainWindowRegion.h>
 
 ScreenComboBox::ScreenComboBox( QWidget *parent )
   : QComboBox( parent )
