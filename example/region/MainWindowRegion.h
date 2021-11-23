@@ -15,6 +15,7 @@ class DestinationModeRegion;
 class OutputRegion;
 class StartStopButton;
 class Recorder;
+class QProgressBar;
 
 class MainWindowRegion : public QWidget
 {
@@ -26,6 +27,7 @@ Q_OBJECT
   DestinationModeRegion *destinationModeRegion_;
   OutputRegion *outputRegion_;
   StartStopButton *startStopButton_;
+  QProgressBar* queueSizeBar_;
 
   Recorder *recorder_;
 

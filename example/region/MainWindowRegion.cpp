@@ -9,6 +9,7 @@
 #include <QApplication>
 #include <QScreen>
 #include <QTimer>
+#include <QProgressBar>
 
 #include <element/SelectionArea.h>
 #include <element/ScreenComboBox.h>
@@ -34,6 +35,9 @@ MainWindowRegion::MainWindowRegion( QWidget *parent , QWidget *root ) :
   destinationModeRegion_ = new DestinationModeRegion( this );
   outputRegion_ = new OutputRegion( this );
   startStopButton_ = new StartStopButton( this );
+  queueSizeBar_ = new QProgressBar( this );
+
+  queueSizeBar_->setProperty( "class" , styles::QUEUE_SIZE_BAR );
 
   layout->addWidget( selectionArea_ , 1 );
   layout->addStretch( );
@@ -42,6 +46,7 @@ MainWindowRegion::MainWindowRegion( QWidget *parent , QWidget *root ) :
   layout->addWidget( destinationModeRegion_ );
   layout->addWidget( outputRegion_ );
   layout->addWidget( startStopButton_ );
+  layout->addWidget( queueSizeBar_ );
 
 
   QObject::connect(
@@ -122,6 +127,11 @@ void MainWindowRegion::startRecording( )
     recorder_ , &Recorder::finished ,
     this , &MainWindowRegion::deleteRecorder
   );
+
+  QObject::connect(
+    recorder_ , &Recorder::bufferSizeChange ,
+    queueSizeBar_ , &QProgressBar::setValue
+  );
 }
 
 void MainWindowRegion::stopRecording( )
@@ -145,6 +155,12 @@ void MainWindowRegion::toggleRecording( )
 
 void MainWindowRegion::deleteRecorder( )
 {
+
+  QObject::disconnect(
+    recorder_ , &Recorder::bufferSizeChange ,
+    queueSizeBar_ , &QProgressBar::setValue
+  );
+
   recorder_->deleteLater( );
   recorder_ = nullptr;
 }
