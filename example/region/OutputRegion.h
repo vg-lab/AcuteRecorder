@@ -6,24 +6,24 @@
 #define QTRECORDER_OUTPUTREGION_H
 
 #include <QWidget>
+#include <QString>
 
-#include <element/OutputTextField.h>
-#include <element/OutputFileButton.h>
-
-struct RecorderGeneralData;
+class QLineEdit;
 
 class OutputRegion : public QWidget
 {
-  OutputTextField *outputTextField_;
-  OutputFileButton *outputFileButton_;
+  QLineEdit *outputTextField_;
 
 public:
 
-  OutputRegion( QWidget *parent , RecorderGeneralData *data );
+  explicit OutputRegion( QWidget *parent );
 
-  OutputTextField *outputTextField( ) const;
+  QString getOutputPath( );
 
-  OutputFileButton *outputFileButton( ) const;
+
+private slots:
+
+  void openFileDialog( );
 
 };
 

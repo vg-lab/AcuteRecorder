@@ -1,5 +1,7 @@
 #include <QApplication>
 
+#include <QLabel>
+
 #include <region/MainWindowRegion.h>
 #include <util/QtUtils.h>
 
@@ -8,13 +10,9 @@ namespace acute_recorder
 
   void initRecorder( QWidget *widgetToRender )
   {
-    auto data = new RecorderGeneralData( );
-    data->renderingWidget = widgetToRender;
-    data->selectedWidget = widgetToRender;
 
-    auto *window = new MainWindowRegion( nullptr , data );
+    auto *window = new MainWindowRegion( nullptr , widgetToRender );
     window->setWindowTitle("Acute Recorder");
-    data->recorderWidget = window;
     window->setStyleSheet( qt_utils::readStyle( ));
     window->resize(600, 600);
     window->show( );

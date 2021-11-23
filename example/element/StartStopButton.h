@@ -13,20 +13,16 @@ class StartStopButton;
 
 class StartStopButton : public QPushButton
 {
-  RecorderGeneralData *data_;
-  Recorder *recorder_;
-  bool recording_;
-  QTimer *timer_;
-
-  void run( );
 
 public:
 
-  StartStopButton( QWidget *parent , RecorderGeneralData *data );
+  explicit StartStopButton( QWidget *parent );
 
 public slots:
 
   void onFinish( );
+
+  void onStart( );
 };
 
 

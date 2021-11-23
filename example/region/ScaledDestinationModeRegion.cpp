@@ -24,8 +24,8 @@ ScaledDestinationModeRegion::ScaledDestinationModeRegion( QWidget *parent )
   setProperty( "class" , styles::REGION_FIXED_DESTINATION_MODE );
   setLayout( layout );
 
-  width_->setMinimum( 0.0001 );
-  height_->setMinimum( 0.0001 );
+  width_->setMinimum( 0.01 );
+  height_->setMinimum( 0.01 );
 
   width_->setValue(1);
   height_->setValue(1);

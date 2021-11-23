@@ -34,7 +34,7 @@ public:
 
   RecorderSettingsBuilder& fps( int fps );
 
-  RecorderSettings build( );
+  RecorderSettings build( ) const;
 
 };
 

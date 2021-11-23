@@ -5,13 +5,18 @@
 #include "SelectionModeRegion.h"
 
 #include <QHBoxLayout>
+#include <QRadioButton>
+#include <QSpinBox>
+#include <QLabel>
 
 #include <constant/Styles.h>
 
-SelectionModeRegion::SelectionModeRegion( QWidget *parent ,
-                                          RecorderGeneralData *data ,
-                                          SelectionArea *selectionArea )
-  : QWidget( parent ) , data_( data ) , selectionArea_( selectionArea )
+SelectionModeRegion::SelectionModeRegion( QWidget *parent )
+  : QWidget( parent ) ,
+    fullButton_( new QRadioButton( "Full" , this )) ,
+    areaButton_( new QRadioButton( "Area" , this )) ,
+    widgetButton_( new QRadioButton( "Widget" , this )) ,
+    fpsSpinBox_( new QSpinBox( this ))
 {
   auto layout = new QHBoxLayout( this );
   layout->setAlignment( Qt::AlignAbsolute );
@@ -20,9 +25,10 @@ SelectionModeRegion::SelectionModeRegion( QWidget *parent ,
   setProperty( "class" , styles::REGION_SELECTION_MODE );
   setLayout( layout );
 
-  fullButton_ = new SelectionModeButton( "Full" , this , SelectionMode::FULL , this );
-  areaButton_ = new SelectionModeButton( "Area" , this , SelectionMode::AREA , this );
-  widgetButton_ = new SelectionModeButton( "Widget" , this , SelectionMode::WIDGET , this );
+  fullButton_->setProperty( "class" , styles::SELECTION_RADIO_BUTTON );
+  areaButton_->setProperty( "class" , styles::SELECTION_RADIO_BUTTON );
+  widgetButton_->setProperty( "class" , styles::SELECTION_RADIO_BUTTON );
+
   fullButton_->setChecked( true );
 
   auto label = new QLabel( "Source:" );
@@ -31,8 +37,10 @@ SelectionModeRegion::SelectionModeRegion( QWidget *parent ,
   auto fpsLabel = new QLabel( "FPS:" );
   fpsLabel->setProperty( "class" , styles::SECONDARY_INFO_LABEL );
 
-  fpsTextField_ = new FPSTextField( this , data_ );
-  fpsTextField_->setProperty( "class" , styles::FPS );
+  fpsSpinBox_->setProperty( "class" , styles::FPS );
+  fpsSpinBox_->setMinimum( 1 );
+  fpsSpinBox_->setMaximum( 1000 );
+  fpsSpinBox_->setValue( 60 );
 
   layout->addWidget( label );
   layout->addWidget( fullButton_ );
@@ -40,23 +48,44 @@ SelectionModeRegion::SelectionModeRegion( QWidget *parent ,
   layout->addWidget( widgetButton_ );
   layout->addSpacing( 10 );
   layout->addWidget( fpsLabel );
-  layout->addWidget( fpsTextField_ );
+  layout->addWidget( fpsSpinBox_ );
   layout->addStretch( );
+
+  QObject::connect(
+    fullButton_ , &QRadioButton::toggled ,
+    this , &SelectionModeRegion::refreshSelectionMode
+  );
+  QObject::connect(
+    areaButton_ , &QRadioButton::toggled ,
+    this , &SelectionModeRegion::refreshSelectionMode
+  );
+  QObject::connect(
+    widgetButton_ , &QRadioButton::toggled ,
+    this , &SelectionModeRegion::refreshSelectionMode
+  );
 }
 
-SelectionArea *SelectionModeRegion::selectionArea( ) const
+SelectionMode SelectionModeRegion::getSelectionMode( ) const
 {
-  return selectionArea_;
+  if ( fullButton_->isChecked( ))
+  {
+    return SelectionMode::FULL;
+  }
+  if ( areaButton_->isChecked( ))
+  {
+    return SelectionMode::AREA;
+  }
+  return SelectionMode::WIDGET;
 }
 
-RecorderGeneralData *SelectionModeRegion::data( ) const
+int SelectionModeRegion::getFPS( ) const
 {
-  return data_;
+  return fpsSpinBox_->value( );
 }
 
-void SelectionModeRegion::refreshWidget( )
+void SelectionModeRegion::changeScreen( QScreen *screen )
 {
-  if ( data_->screen == nullptr )
+  if ( screen == nullptr )
   {
     widgetButton_->setEnabled( true );
   }
@@ -68,4 +97,9 @@ void SelectionModeRegion::refreshWidget( )
     }
     widgetButton_->setEnabled( false );
   }
+}
+
+void SelectionModeRegion::refreshSelectionMode( )
+{
+  emit selectionModeChanged( getSelectionMode( ));
 }

@@ -7,10 +7,14 @@
 
 
 #include <QRubberBand>
+#include <QRectF>
 
 #include <acuterecorder/acuterecorder.h>
 
 #include <util/PixmapHolder.h>
+#include <util/SelectionMode.h>
+
+class QScreen;
 
 /**
  * Represents the area where the user can select the area to record.
@@ -22,7 +26,11 @@ class SelectionArea : public PixmapHolder
 
 Q_OBJECT
 
-  RecorderGeneralData *data_;
+  SelectionMode mode_;
+  QWidget *rootWidget_;
+  QWidget *selectedWidget_;
+  QScreen *screen_;
+  QRectF sourceViewport_;
 
   QRubberBand *band_;
   QPointF areaFrom_ , areaTo_;
@@ -55,7 +63,33 @@ public:
    * @param data the general data of the recorder.
    * It will be modified by this area.
    */
-  SelectionArea( QWidget *parent , RecorderGeneralData *data );
+  explicit SelectionArea( QWidget *parent , QWidget *rootWidget );
+
+  /**
+   * Returns the selected widget.
+   *
+   * This method should not be used if getSelectedScreen() is not null.
+   *
+   * @return the selected widget.
+   */
+  QWidget *getSelectedWidget( ) const;
+
+  /**
+   * Returns the selected screen.
+   *
+   * If no screen is selected, this method returns
+   * null and getSelectedWidget() should be used.
+   *
+   * @return the selected screen.
+   */
+  QScreen *getSelectedScreen( ) const;
+
+  /**
+   * Returns the viewport to use in the recording.
+   *
+   * @return the viewport.
+   */
+  QRectF getViewport( ) const;
 
   /**
    * Refresh the selection tool of this area.
@@ -90,6 +124,12 @@ public:
    * @return the point in screen coordinates.
    */
   QPointF denormalizePoint( const QPointF& point );
+
+public slots:
+
+  void changeScreen( QScreen *screen );
+
+  void changeMode( SelectionMode mode );
 
 };
 

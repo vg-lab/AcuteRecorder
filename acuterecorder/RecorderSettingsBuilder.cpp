@@ -4,6 +4,7 @@
 
 #include <QSize>
 #include <QRectF>
+#include <stdexcept>
 #include "RecorderSettingsBuilder.h"
 
 RecorderSettingsBuilder::RecorderSettingsBuilder( )
@@ -61,11 +62,11 @@ RecorderSettingsBuilder::outputScaledSize( const QSizeF scale )
     );
   }
 
-  QSize iSize = input_.first.getSize();
+  QSize iSize = input_.first.getSize( );
   QSizeF size = inputArea_.first.size( );
   outputSize_ = { QSize(
-    static_cast<int> (iSize.width() * size.width( ) * scale.width( )) ,
-    static_cast<int> (iSize.height() * size.height( ) * scale.height( ))
+    static_cast<int> (iSize.width( ) * size.width( ) * scale.width( )) ,
+    static_cast<int> (iSize.height( ) * size.height( ) * scale.height( ))
   ) , true };
   return *this;
 }
@@ -77,34 +78,34 @@ RecorderSettingsBuilder& RecorderSettingsBuilder::fps( int fps )
   return *this;
 }
 
-RecorderSettings RecorderSettingsBuilder::build( )
+RecorderSettings RecorderSettingsBuilder::build( ) const
 {
   if ( !input_.second )
   {
-    std::invalid_argument( "Input has not been set!" );
+    throw std::invalid_argument( "Input has not been set!" );
   }
   if ( !inputArea_.second )
   {
-    std::invalid_argument( "Input area has not been set!" );
+    throw std::invalid_argument( "Input area has not been set!" );
   }
   if ( !outputPath_.second )
   {
-    std::invalid_argument( "Output path has not been set!" );
+    throw std::invalid_argument( "Output path has not been set!" );
   }
   if ( !outputSize_.second )
   {
-    std::invalid_argument( "Output size has not been set!" );
+    throw std::invalid_argument( "Output size has not been set!" );
   }
   if ( !fps_.second )
   {
-    std::invalid_argument( "FPS has not been set!" );
+    throw std::invalid_argument( "FPS has not been set!" );
   }
 
-  return RecorderSettings(
+  return {
     input_.first ,
     inputArea_.first ,
     outputPath_.first ,
     outputSize_.first ,
     fps_.first
-  );
+  };
 }

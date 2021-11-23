@@ -2,40 +2,55 @@
 // Created by Gael Rial Costas on 17/8/21.
 //
 
-#include <acuterecorder/acuterecorder.h>
-
 #include "OutputRegion.h"
 
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QFileDialog>
 
 #include <constant/Styles.h>
 
-OutputRegion::OutputRegion( QWidget *p , RecorderGeneralData *d )
-: QWidget(p)
+OutputRegion::OutputRegion( QWidget *p ) : QWidget( p )
 {
   auto layout = new QHBoxLayout( this );
 
   setProperty( "class" , styles::REGION_OUTPUT );
   setLayout( layout );
 
-  outputTextField_ = new OutputTextField( this , d );
-  outputFileButton_ = new OutputFileButton( this , outputTextField_ );
+  outputTextField_ = new QLineEdit( this );
+  auto button = new QPushButton( "Select" , this );
+
+  outputTextField_->setProperty( "class" , styles::OUTPUT_TEXT_FIELD );
+  button->setProperty( "class" , styles::OUTPUT_FILE_BUTTON );
 
   auto label = new QLabel( "Output:" );
   label->setProperty( "class" , styles::INFO_LABEL );
 
   layout->addWidget( label );
   layout->addWidget( outputTextField_ );
-  layout->addWidget( outputFileButton_ );
+  layout->addWidget( button );
+
+  QObject::connect(
+    button , &QPushButton::pressed ,
+    this , &OutputRegion::openFileDialog
+  );
 }
 
-OutputTextField *OutputRegion::outputTextField( ) const
+QString OutputRegion::getOutputPath( )
 {
-  return outputTextField_;
+  return outputTextField_->text( );
 }
 
-OutputFileButton *OutputRegion::outputFileButton( ) const
+void OutputRegion::openFileDialog( )
 {
-  return outputFileButton_;
+  auto result = QFileDialog::getSaveFileName(
+    this ,
+    "Select output" ,
+    "~/" ,
+    "*.mp4"
+  );
+  if ( result.isEmpty( )) return;
+  outputTextField_->setText( result );
 }

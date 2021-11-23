@@ -20,12 +20,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR}/include)
 
 set(ACUTERECORDER_SOURCES
-        old/WidgetRenderThread.cpp
-        old/VideoStorageThread.cpp
-        old/AbstractRendererThread.cpp
-        old/QRenderHelper.cpp
-        old/RecorderGeneralData.cpp
-        old/Recorder.cpp
         Input.cpp
         RecorderSettings.cpp
         RecorderSettingsBuilder.cpp
@@ -35,12 +29,6 @@ set(ACUTERECORDER_SOURCES
 
 set(ACUTERECORDER_PUBLIC_HEADERS
         ${PROJECT_BINARY_DIR}/include/acuterecorder/version.h
-        old/WidgetRenderThread.h
-        old/VideoStorageThread.h
-        old/AbstractRendererThread.h
-        old/QRenderHelper.h
-        old/RecorderGeneralData.h
-        old/Recorder.h
         Input.h
         RecorderSettings.h
         RecorderSettingsBuilder.h
