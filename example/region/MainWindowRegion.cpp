@@ -85,7 +85,7 @@ void MainWindowRegion::startRecording( )
   // First we have to create our configuration. We can do it directly
   // or using the builder.
 
-  RecorderSettingsBuilder builder = RecorderSettingsBuilder( );
+  RecorderSettings builder = RecorderSettings( );
 
   auto screen = selectionArea_->getSelectedScreen( );
   if ( screen != nullptr )
@@ -111,8 +111,7 @@ void MainWindowRegion::startRecording( )
   }
 
   // We create the config and the recorder.
-  RecorderSettings settings = builder.build( );
-  recorder_ = new Recorder( settings );
+  recorder_ = new Recorder( builder );
 
   // The recorder is ready to go, we just have to create a timer that
   // signals the recorder to take a frame!
@@ -126,7 +125,7 @@ void MainWindowRegion::startRecording( )
     recorder_ , SIGNAL( finished( )) ,
     timer , SLOT( deleteLater( ))
   );
-  timer->start( 1000 / settings.getFps( ));
+  timer->start( 1000 / builder.getFPS( ));
 
   // Signal this region when the recorder finishes recording.
   // Warning! The recorder won't stop automatically when you

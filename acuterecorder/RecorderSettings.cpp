@@ -5,64 +5,127 @@
 #include "RecorderSettings.h"
 
 #include <QRectF>
-#include <utility>
-#include <QDebug>
+#include <stdexcept>
 
-RecorderSettings::RecorderSettings( const Input& input ,
-                                    const QRectF& inputArea ,
-                                    QString  outputPath ,
-                                    const QSize& outputSize , int fps )
-  : input_( input ) , inputArea_( inputArea ) , outputPath_(std::move( outputPath )) ,
-    outputSize_( outputSize ) , fps_( fps )
+RecorderSettings::RecorderSettings( )
 {
+
 }
 
-const Input& RecorderSettings::getInput( ) const
+RecorderSettings& RecorderSettings::input( QWidget *widget )
 {
-  return input_;
+  input_ = { Input( widget ) , true };
+  return *this;
 }
 
-void RecorderSettings::setInput( const Input& input )
+RecorderSettings& RecorderSettings::input( QScreen *screen )
 {
-  input_ = input;
+  input_ = { Input( screen ) , true };
+  return *this;
 }
 
-const QRectF& RecorderSettings::getInputArea( ) const
+RecorderSettings&
+RecorderSettings::inputArea( const QRectF& area )
 {
-  return inputArea_;
+  inputArea_ = { area , true };
+  return *this;
 }
 
-void RecorderSettings::setInputArea( const QRectF& inputArea )
+RecorderSettings&
+RecorderSettings::outputPath( const QString& path )
 {
-  inputArea_ = inputArea;
+  outputPath_ = { path , true };
+  return *this;
 }
 
-const QString& RecorderSettings::getOutputPath( ) const
+RecorderSettings
+RecorderSettings::outputSize( const QSize& size )
 {
-  return outputPath_;
+  outputSize_ = { size , true };
+  return *this;
 }
 
-void RecorderSettings::setOutputPath( const QString& outputPath )
+RecorderSettings
+RecorderSettings::outputScaledSize( const QSizeF scale )
 {
-  outputPath_ = outputPath;
+  if ( !inputArea_.second )
+  {
+    throw std::invalid_argument(
+      "This method requires an input area to be set."
+    );
+  }
+
+  if ( !input_.second )
+  {
+    throw std::invalid_argument(
+      "This method requires an input to be set."
+    );
+  }
+
+  QSize iSize = input_.first.getSize( );
+  QSizeF size = inputArea_.first.size( );
+  outputSize_ = { QSize(
+    static_cast<int> (iSize.width( ) * size.width( ) * scale.width( )) ,
+    static_cast<int> (iSize.height( ) * size.height( ) * scale.height( ))
+  ) , true };
+  return *this;
 }
 
-const QSize& RecorderSettings::getOutputSize( ) const
+
+RecorderSettings& RecorderSettings::fps( int fps )
 {
-  return outputSize_;
+  fps_ = { fps , true };
+  return *this;
 }
 
-void RecorderSettings::setOutputSize( const QSize& outputSize )
+Input RecorderSettings::getInput( ) const
 {
-  outputSize_ = outputSize;
+  if ( !input_.second )
+  {
+    throw std::invalid_argument( "Input has not been set!" );
+  }
+
+  return input_.first;
 }
 
-int RecorderSettings::getFps( ) const
+QRectF RecorderSettings::getInputArea( ) const
 {
-  return fps_;
+  if ( !inputArea_.second )
+  {
+    throw std::invalid_argument( "Input area has not been set!" );
+  }
+  return inputArea_.first;
 }
 
-void RecorderSettings::setFps( int fps )
+QString RecorderSettings::getOutputPath( ) const
 {
-  fps_ = fps;
+  if ( !outputPath_.second )
+  {
+    throw std::invalid_argument( "Output path has not been set!" );
+  }
+  return outputPath_.first;
+}
+
+QSize RecorderSettings::getOutputSize( ) const
+{
+  if ( !outputSize_.second )
+  {
+    throw std::invalid_argument( "Output size has not been set!" );
+  }
+  return outputSize_.first;
+}
+
+int RecorderSettings::getFPS( ) const
+{
+  if ( !fps_.second )
+  {
+    throw std::invalid_argument( "FPS has not been set!" );
+  }
+  return fps_.first;
+}
+
+bool RecorderSettings::isValid( ) const
+{
+  return input_.second && inputArea_.second && outputPath_.second
+         && outputSize_.second && fps_.second;
 }

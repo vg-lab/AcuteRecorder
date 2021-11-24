@@ -4,14 +4,13 @@
 
 #include "Recorder.h"
 
-#include <utility>
 #include <QThread>
 #include <QDebug>
 
 Recorder::Recorder( RecorderSettings settings ) :
   settings_( std::move( settings )) ,
   active_( true ) ,
-  storageWorker_( settings_.getOutputSize( ) , settings_.getFps( ) ,
+  storageWorker_( settings_.getOutputSize( ) , settings_.getFPS( ) ,
                   settings_.getOutputPath( ))
 {
 
@@ -51,6 +50,7 @@ void Recorder::stop( )
 
 void Recorder::takeFrame( )
 {
+  if(!active_) return;
   auto input = settings_.getInputArea( );
   auto output = settings_.getOutputSize( );
   auto image = settings_.getInput( ).render( input , output );

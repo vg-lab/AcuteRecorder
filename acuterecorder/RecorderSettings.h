@@ -5,6 +5,7 @@
 #ifndef ACUTERECORDER_RECORDERSETTINGS_H
 #define ACUTERECORDER_RECORDERSETTINGS_H
 
+#include <utility>
 #include <QRectF>
 #include <QString>
 #include <QSize>
@@ -12,90 +13,90 @@
 #include "Input.h"
 
 /**
- * Represents the configuration of a Recorder.
+ * Represents a builder that creates RecorderSettings.
+ *
+ * You must fill all parameter of the builder to be capable of creating settings.
  */
 class RecorderSettings
 {
 
-  Input input_;
-  QRectF inputArea_;
-  QString outputPath_;
-  QSize outputSize_;
-  int fps_;
+  std::pair< Input , bool > input_{ Input( ) , false };
+  std::pair< QRectF , bool > inputArea_{{ 0 , 0 , 0 , 0 } , false };
+  std::pair< QString , bool > outputPath_{ QString( ) , false };
+  std::pair< QSize , bool > outputSize_{{ 0 , 0 } , false };
+  std::pair< int , bool > fps_{ 0 , false };
 
 public:
 
   /**
-   * Creates the configuration.
-   * @param input the input to use.
-   * @param inputArea the normalized input area to render.
-   * @param outputPath the path of the video.
-   * @param outputSize the output size of the video.
-   * @param fps the FPS of the video.
+   * Creates the builder.
    */
-  RecorderSettings( const Input& input , const QRectF& inputArea ,
-                    QString  outputPath , const QSize& outputSize ,
-                    int fps );
+  RecorderSettings( );
 
   /**
-   * Returns the input to record.
-   * @return the input.
+   * Makes the given widget the input of the settings.
+   * @param widget the widget.
+   * @return this builder.
    */
-  const Input& getInput( ) const;
+  RecorderSettings& input( QWidget *widget );
 
   /**
-   * Sets the input to record.
-   * @param input the input.
+   * Makes the given screen the input of the settings.
+   * @param screen the screen.
+   * @return this builder.
    */
-  void setInput( const Input& input );
+  RecorderSettings& input( QScreen *screen );
+
+  Input getInput( ) const;
 
   /**
-   * Returns the normalized area of the input to record.
-   * @return the normalized area of the input.
+   * Sets the input area of the settings.
+   * @param area the input area.
+   * @return this builder.
    */
-  const QRectF& getInputArea( ) const;
+  RecorderSettings& inputArea( const QRectF& area );
+
+  QRectF getInputArea( ) const;
 
   /**
-   * Sets the normalized area of the input to record.
-   * @param inputArea the normalized area.
+   * Sets the video output path of the settings.
+   * @param path the output path.
+   * @return this builder.
    */
-  void setInputArea( const QRectF& inputArea );
+  RecorderSettings& outputPath( const QString& path );
+
+  QString getOutputPath( ) const;
 
   /**
-   * Returns the path of the video.
-   * @return the path of the video.
+   * Sets the size of the output video, in pixels.
+   * @param size the size of the output video.
+   * @return this builder.
    */
-  const QString& getOutputPath( ) const;
+  RecorderSettings outputSize( const QSize& size );
 
   /**
-   * Sets the path of the video.
-   * @param outputPath the path.
+   * Sets as the size of the output video the
+   * input size scaled by the given scale.
+   *S
+   * You must setup the input and the input area before using this method!
+   *
+   * @param scale the scale.
+   * @return this builder.
    */
-  void setOutputPath( const QString& outputPath );
+  RecorderSettings outputScaledSize( QSizeF scale );
 
-  /**
-   * Returns the size of the output video.
-   * @return the size.
-   */
-  const QSize& getOutputSize( ) const;
-
-  /**
-   * Sets the size of the output video.
-   * @param outputSize the size.
-   */
-  void setOutputSize( const QSize& outputSize );
-
-  /**
-   * Returns the FPS of the output video.
-   * @return the FPS.
-   */
-  int getFps( ) const;
+  QSize getOutputSize( ) const;
 
   /**
    * Sets the FPS of the output video.
-   * @param fps tge FPS.
+   * @param fps the FPS.
+   * @return this builder.
    */
-  void setFps( int fps );
+  RecorderSettings& fps( int fps );
+
+  int getFPS( ) const;
+
+  bool isValid( ) const;
 
 };
 

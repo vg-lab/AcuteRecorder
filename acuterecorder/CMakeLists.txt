@@ -22,7 +22,6 @@ include_directories(${CMAKE_BINARY_DIR}/include)
 set(ACUTERECORDER_SOURCES
         Input.cpp
         RecorderSettings.cpp
-        RecorderSettingsBuilder.cpp
         Recorder.cpp
         RecorderStorageWorker.cpp
         )
@@ -31,7 +30,6 @@ set(ACUTERECORDER_PUBLIC_HEADERS
         ${PROJECT_BINARY_DIR}/include/acuterecorder/version.h
         Input.h
         RecorderSettings.h
-        RecorderSettingsBuilder.h
         Recorder.h
         RecorderStorageWorker.h
         )
