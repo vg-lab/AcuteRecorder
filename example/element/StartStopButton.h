@@ -12,6 +12,8 @@ class StartStopButton;
 class StartStopButton : public QPushButton
 {
 
+Q_OBJECT
+
 public:
 
   explicit StartStopButton( QWidget *parent );

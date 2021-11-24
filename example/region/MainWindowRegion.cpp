@@ -70,8 +70,9 @@ MainWindowRegion::MainWindowRegion( QWidget *parent , QWidget *root ) :
 
 void MainWindowRegion::closeEvent( QCloseEvent * )
 {
-  if(recorder_ != nullptr) {
-    recorder_->stop();
+  if ( recorder_ != nullptr )
+  {
+    recorder_->stop( );
   }
 
   emit terminated( );
@@ -118,12 +119,12 @@ void MainWindowRegion::startRecording( )
 
   auto *timer = new QTimer( recorder_ );
   QObject::connect(
-    timer , &QTimer::timeout ,
-    recorder_ , &Recorder::takeFrame
+    timer , SIGNAL( timeout( )) ,
+    recorder_ , SLOT( takeFrame( ))
   );
   QObject::connect(
-    recorder_ , &Recorder::finished ,
-    timer , &QObject::deleteLater
+    recorder_ , SIGNAL( finished( )) ,
+    timer , SLOT( deleteLater( ))
   );
   timer->start( 1000 / settings.getFps( ));
 
@@ -132,20 +133,20 @@ void MainWindowRegion::startRecording( )
   // use Recorder::stop(). You have to wait for the  image queue
   // to be empty.
   QObject::connect(
-    recorder_ , &Recorder::finished ,
-    this , &MainWindowRegion::deleteRecorder
+    recorder_ , SIGNAL( finished( )) ,
+    this , SLOT( deleteRecorder( ))
   );
 
   // Queue size
 
   QObject::connect(
-    recorder_ , &Recorder::bufferSizeChange ,
-    queueSizeBar_ , &QProgressBar::setValue
+    recorder_ , SIGNAL( bufferSizeChange( int )) ,
+    queueSizeBar_ , SLOT( setValue( int ))
   );
 
   QObject::connect(
-    recorder_ , &Recorder::finished ,
-    startStopButton_ , &StartStopButton::onFinish
+    recorder_ , SIGNAL( finished( )) ,
+    startStopButton_ , SLOT( onFinish( ))
   );
 
   startStopButton_->onStart( );
@@ -172,12 +173,6 @@ void MainWindowRegion::toggleRecording( )
 
 void MainWindowRegion::deleteRecorder( )
 {
-
-  QObject::disconnect(
-    recorder_ , &Recorder::bufferSizeChange ,
-    queueSizeBar_ , &QProgressBar::setValue
-  );
-
   recorder_->deleteLater( );
   recorder_ = nullptr;
 }

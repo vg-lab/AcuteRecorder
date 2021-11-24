@@ -87,7 +87,7 @@ void RecorderStorageWorker::start( )
   // Creates the process for the command and opens a write pipe.
 
   auto process = new QProcess( this );
-  process->start( QString( "ffmpeg" ) , arguments , QIODevice::WriteOnly );
+  process->start( QString( "ffmpeg" ) , arguments , QIODevice::ReadWrite );
 
   QImage *image;
   while ( running_ || !queue_.empty( ))
@@ -120,12 +120,18 @@ void RecorderStorageWorker::start( )
     else
     {
       // There are no extra bytes! Write the full frame.
+
       process->write( bytes , amount * sizeof( char ));
     }
     delete image;
   }
 
-  process->close( );
+  process->closeWriteChannel();
+  process->waitForFinished();
+
+  qDebug() << process->readAllStandardOutput();
+  qDebug() << process->readAllStandardError();
+
   emit finished( );
 
 }
