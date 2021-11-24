@@ -44,20 +44,45 @@ Q_OBJECT
 
 public:
 
+  /**
+   * Creates the storage worker.
+   * @param size the size of each frame.
+   * @param fps the FPS of the video.
+   * @param output the output path of the video.
+   */
   RecorderStorageWorker( const QSize& size , int fps , QString output );
 
+  /**
+   * Sends a frame to the storage.
+   * @param image the frame.
+   */
   void push( QImage *image );
 
 public slots:
 
+  /**
+   * Starts the worker.
+   * This method does nothing if the worker is already running.
+   */
   void start( );
 
+  /**
+   * Stops the worker.
+   * This method does nothing if the worker is not running.
+   */
   void stop( );
 
 signals:
 
+  /**
+   * Notifies the termination of the worker.
+   */
   void finished( );
 
+  /**
+   * Notifies a change in the buffer of the worker.
+   * @param size the size of the buffer.
+   */
   void fileQueueSizeChanged( int size );
 
 };

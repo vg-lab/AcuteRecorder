@@ -7,9 +7,13 @@
 
 
 class QWidget;
+
 class QScreen;
+
 class QRectF;
+
 class QSize;
+
 class QImage;
 
 enum class InputType
@@ -17,6 +21,13 @@ enum class InputType
   INVALID , SCREEN , WIDGET
 };
 
+/**
+ * Represents an video source.
+ *
+ * Instances of this class may wrap a QWidget or a QScreen.
+ *
+ * Use Input::render() to take a screenshot.
+ */
 class Input
 {
 
@@ -25,21 +36,66 @@ class Input
 
 public:
 
+  /**
+   * Creates an invalid input.
+   *
+   * This input cannot be used to take screenshots.
+   * Use it only as a placeholder.
+   */
   explicit Input( );
 
+  /**
+   * Creates an input that wraps a QWidget.
+   * @param widget the widget.
+   */
   explicit Input( QWidget *widget );
 
+  /**
+   * Creates an input tha wraps a QScreen.
+   * @param screen the screen.
+   */
   explicit Input( QScreen *screen );
 
+  /**
+   * Returns the type of this input.
+   *
+   * If the type is INVALID, this input can't be used to take screenshots.
+   *
+   * @return the input type.
+   */
   InputType getType( ) const;
 
+  /**
+   * Returns whether this input represents a QWidget.
+   *
+   * @return whether this input represents a QWidget.
+   */
   bool isWidget( ) const;
 
+  /**
+   * Returns whether this input represents a QScreen.
+   *
+   * @return whether this input represents a QScreen.
+   */
   bool isScreen( ) const;
 
-  QSize getSize () const;
+  /**
+   * Returns the size of the represented element.
+   *
+   * @return the size.
+   */
+  QSize getSize( ) const;
 
-  QImage * render( const QRectF& inputArea , const QSize& outputSize ) const;
+  /**
+   * Takes a screenshot of the represented QWidget or QScreen.
+   *
+   * @param inputArea the area of the element to render as a normalized
+   *                  viewport.
+   * @param outputSize the size of the output. The render will be stretched
+   *                    to fit this size.
+   * @return the QImage representing the screeshot.
+   */
+  QImage *render( const QRectF& inputArea , const QSize& outputSize ) const;
 
 };
 

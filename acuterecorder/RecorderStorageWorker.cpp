@@ -74,7 +74,7 @@ void RecorderStorageWorker::start( )
     fps_ ,
     size_.width( ) ,
     size_.height( ) ,
-    "output.mp4");
+    output_.toStdString());
 
   // Creates the process for the command and opens a write pipe.
 
