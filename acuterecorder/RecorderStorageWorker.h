@@ -11,10 +11,11 @@
 #include <QQueue>
 #include <QMutex>
 #include <QWaitCondition>
+#include <QThread>
 
 class QImage;
 
-class RecorderStorageWorker : public QObject
+class RecorderStorageWorker : public QThread
 {
 
 Q_OBJECT
@@ -29,7 +30,7 @@ Q_OBJECT
   QWaitCondition notEmptyCondition_;
 
   QQueue< QImage * > queue_;
-  volatile bool running_ ;
+  volatile bool running_;
 
   /**
    * Pops an image from the queue. This method blocks the thread
@@ -42,6 +43,12 @@ Q_OBJECT
    */
   bool popElement( QImage *& image );
 
+  /**
+   * Starts the worker.
+   * This method does nothing if the worker is already running.
+   */
+  void run( ) override;
+
 public:
 
   /**
@@ -50,7 +57,8 @@ public:
    * @param fps the FPS of the video.
    * @param output the output path of the video.
    */
-  RecorderStorageWorker( const QSize& size , int fps , QString output );
+  RecorderStorageWorker( QObject* object,
+                         const QSize& size , int fps , QString output );
 
   /**
    * Sends a frame to the storage.
@@ -61,23 +69,12 @@ public:
 public slots:
 
   /**
-   * Starts the worker.
-   * This method does nothing if the worker is already running.
-   */
-  void start( );
-
-  /**
    * Stops the worker.
    * This method does nothing if the worker is not running.
    */
   void stop( );
 
 signals:
-
-  /**
-   * Notifies the termination of the worker.
-   */
-  void finished( );
 
   /**
    * Notifies a change in the buffer of the worker.

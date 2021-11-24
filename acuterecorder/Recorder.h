@@ -29,7 +29,7 @@ Q_OBJECT
 
   RecorderSettings settings_;
   bool active_;
-  RecorderStorageWorker storageWorker_;
+  RecorderStorageWorker* storageWorker_;
 
 public:
 

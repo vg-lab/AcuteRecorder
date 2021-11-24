@@ -57,7 +57,8 @@ QStringList createFFMPEGArguments( int fps , int width , int height ,
 }
 
 RecorderStorageWorker::RecorderStorageWorker(
-  const QSize& size , int fps , QString output ) :
+  QObject *object , const QSize& size , int fps , QString output ) :
+  QThread( object ) ,
   size_( size ) ,
   fps_( fps ) ,
   output_( std::move( output )) ,
@@ -71,7 +72,7 @@ RecorderStorageWorker::RecorderStorageWorker(
 
 }
 
-void RecorderStorageWorker::start( )
+void RecorderStorageWorker::run( )
 {
   if ( running_ ) return;
   running_ = true;
@@ -86,7 +87,7 @@ void RecorderStorageWorker::start( )
 
   // Creates the process for the command and opens a write pipe.
 
-  auto process = new QProcess( this );
+  auto process = new QProcess(  );
   process->start( QString( "ffmpeg" ) , arguments , QIODevice::ReadWrite );
 
   QImage *image;
@@ -126,13 +127,12 @@ void RecorderStorageWorker::start( )
     delete image;
   }
 
-  process->closeWriteChannel();
-  process->waitForFinished();
+  process->closeWriteChannel( );
+  process->waitForFinished( );
+  process->deleteLater();
 
-  qDebug() << process->readAllStandardOutput();
-  qDebug() << process->readAllStandardError();
-
-  emit finished( );
+  qDebug( ) << process->readAllStandardOutput( );
+  qDebug( ) << process->readAllStandardError( );
 
 }
 
