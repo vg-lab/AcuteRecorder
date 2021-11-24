@@ -25,6 +25,8 @@ OutputRegion::OutputRegion( QWidget *p ) : QWidget( p )
   outputTextField_->setProperty( "class" , styles::OUTPUT_TEXT_FIELD );
   button->setProperty( "class" , styles::OUTPUT_FILE_BUTTON );
 
+  outputTextField_->setText("output.mp4");
+
   auto label = new QLabel( "Output:" );
   label->setProperty( "class" , styles::INFO_LABEL );
 

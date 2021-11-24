@@ -23,7 +23,7 @@ Q_OBJECT
   int fps_;
   QString output_;
 
-  int expectedBytesPerLine_;
+  qint64 expectedBytesPerLine_;
 
   QMutex mutex_;
   QWaitCondition notEmptyCondition_;

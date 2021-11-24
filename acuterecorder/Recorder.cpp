@@ -11,8 +11,8 @@
 Recorder::Recorder( RecorderSettings settings ) :
   settings_( std::move( settings )) ,
   active_( true ) ,
-  storageWorker_( settings.getOutputSize( ) , settings.getFps( ) ,
-                  settings.getOutputPath( ))
+  storageWorker_( settings_.getOutputSize( ) , settings_.getFps( ) ,
+                  settings_.getOutputPath( ))
 {
 
   auto *thread = new QThread( );

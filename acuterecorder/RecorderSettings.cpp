@@ -5,14 +5,17 @@
 #include "RecorderSettings.h"
 
 #include <QRectF>
+#include <utility>
+#include <QDebug>
 
 RecorderSettings::RecorderSettings( const Input& input ,
                                     const QRectF& inputArea ,
-                                    const QString& outputPath ,
+                                    QString  outputPath ,
                                     const QSize& outputSize , int fps )
-  : input_( input ) , inputArea_( inputArea ) , outputPath_( outputPath ) ,
+  : input_( input ) , inputArea_( inputArea ) , outputPath_(std::move( outputPath )) ,
     outputSize_( outputSize ) , fps_( fps )
-{ }
+{
+}
 
 const Input& RecorderSettings::getInput( ) const
 {

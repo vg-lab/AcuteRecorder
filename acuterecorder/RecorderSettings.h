@@ -34,7 +34,7 @@ public:
    * @param fps the FPS of the video.
    */
   RecorderSettings( const Input& input , const QRectF& inputArea ,
-                    const QString& outputPath , const QSize& outputSize ,
+                    QString  outputPath , const QSize& outputSize ,
                     int fps );
 
   /**

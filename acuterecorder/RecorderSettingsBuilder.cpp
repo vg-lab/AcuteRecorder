@@ -4,7 +4,6 @@
 
 #include "RecorderSettingsBuilder.h"
 
-#include <QSize>
 #include <QRectF>
 #include <stdexcept>
 
@@ -102,11 +101,11 @@ RecorderSettings RecorderSettingsBuilder::build( ) const
     throw std::invalid_argument( "FPS has not been set!" );
   }
 
-  return {
+  return RecorderSettings(
     input_.first ,
     inputArea_.first ,
     outputPath_.first ,
     outputSize_.first ,
     fps_.first
-  };
+  );
 }

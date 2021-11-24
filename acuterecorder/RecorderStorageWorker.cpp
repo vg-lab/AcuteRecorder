@@ -7,9 +7,10 @@
 #include <memory>
 #include <QImage>
 #include <QDebug>
+#include <QProcess>
 
-const char *C_BASE_COMMAND_GPU = "ffmpeg -hwaccel cuda -vsync 0 -r %d -f rawvideo -s %dx%d -pix_fmt rgb24 -i - -c:v hevc_nvenc -f mp4 -preset medium -y %s";
-const char *C_BASE_COMMAND_CPU = "ffmpeg -vsync 0 -r %d -f rawvideo -s %dx%d -pix_fmt rgb24 -i - -c:v libx264 -f mp4 -preset fast -y %s";
+//const char *C_BASE_COMMAND_GPU = "ffmpeg -hwaccel cuda -vsync 0 -r %d -f rawvideo -s %dx%d -pix_fmt rgb24 -i - -c:v hevc_nvenc -f mp4 -preset medium -y %s";
+//const char *C_BASE_COMMAND_CPU = "ffmpeg -vsync 0 -r %d -f rawvideo -s %dx%d -pix_fmt rgb24 -i - -c:v libx264 -f mp4 -preset fast -y %s";
 
 constexpr int C_NVIDIA_MIN_DIMENSION = 145;
 
@@ -21,31 +22,38 @@ constexpr int C_NVIDIA_MIN_DIMENSION = 145;
  * All raw images must match the given width and height.
  *
  * @param fps the framerate of the video.
- * @param width the width of the video.
+ * @param width the width of the video.S
  * @param height the height of the video.
  * @param output the output location.
  * @return the FFMPEG command to use.
  */
-std::string createFFMPEGCommand( int fps , int width , int height ,
-                                   const std::string& output )
+QStringList createFFMPEGArguments( int fps , int width , int height ,
+                                   const QString& output )
 {
-  const int ARRAY_SIZE = 2048;
-  const char *outputCString = output.c_str( );
-  char array[ARRAY_SIZE];
 
+  QStringList arguments;
   // If the width or height are less than 145 pixels, use CPU encoding.
   // This is because NVENC doesn't support video
   // encoding of such small dimensions.
-  const char *command;
   if ( width < C_NVIDIA_MIN_DIMENSION || height < C_NVIDIA_MIN_DIMENSION )
-    command = C_BASE_COMMAND_CPU;
+  {
+    arguments << "-vsync" << "0" << "-r" << QString::number( fps );
+    arguments << "-f" << "rawvideo" << "-s";
+    arguments << QString::number( width ) + "x" + QString::number( height );
+    arguments << "-pix_fmt" << "rgb24" << "-i" << "-" << "-c:v" << "libx264";
+    arguments << "-f" << "mp4" << "-preset" << "fast" << "-y" << output;
+  }
   else
-    command = C_BASE_COMMAND_GPU;
+  {
+    arguments << "-hwaccel" << "cuda";
+    arguments << "-vsync" << "0" << "-r" << QString::number( fps );
+    arguments << "-f" << "rawvideo" << "-s";
+    arguments << QString::number( width ) + "x" + QString::number( height );
+    arguments << "-pix_fmt" << "rgb24" << "-i" << "-" << "-c:v" << "hevc_nvenc";
+    arguments << "-f" << "mp4" << "-preset" << "medium" << "-y" << output;
+  }
 
-  int size = snprintf( array , ARRAY_SIZE , command ,
-                       fps , width , height , outputCString );
-
-  return { array , array + size };
+  return arguments;
 }
 
 RecorderStorageWorker::RecorderStorageWorker(
@@ -65,20 +73,21 @@ RecorderStorageWorker::RecorderStorageWorker(
 
 void RecorderStorageWorker::start( )
 {
-  if(running_) return;
+  if ( running_ ) return;
   running_ = true;
 
 
   // Creates the FFMPEG command.
-  std::string cmd = createFFMPEGCommand(
+  QStringList arguments = createFFMPEGArguments(
     fps_ ,
     size_.width( ) ,
     size_.height( ) ,
-    output_.toStdString());
+    output_ );
 
   // Creates the process for the command and opens a write pipe.
 
-  FILE *file = popen( cmd.c_str( ) , "w" );
+  auto process = new QProcess( this );
+  process->start( QString( "ffmpeg" ) , arguments , QIODevice::WriteOnly );
 
   QImage *image;
   while ( running_ || !queue_.empty( ))
@@ -89,14 +98,14 @@ void RecorderStorageWorker::start( )
     if ( !popElement( image )) break;
 
     // Sends the image to FFMPEG.
-    unsigned char *bytes = image->bits( );
-    int amount = image->byteCount( );
+    char *bytes = ( char * ) image->bits( );
+    auto amount = static_cast<qint64>(image->byteCount( ));
 
     // Qt images will always ceil the bytes per line to a multiple of four.
     // This is because QImage uses integers under the hood.
     // We need to get rid of these extra bytes or ffmpeg will implode!
     int bytesPerLine = image->bytesPerLine( );
-    int difference = bytesPerLine - expectedBytesPerLine_;
+    qint64 difference = bytesPerLine - expectedBytesPerLine_;
 
     if ( difference )
     {
@@ -104,22 +113,20 @@ void RecorderStorageWorker::start( )
       // the frame line per line.
       for ( int i = 0; i < size_.height( ); ++i )
       {
-        fwrite( bytes , expectedBytesPerLine_ ,
-                sizeof( unsigned char ) , file );
+        process->write( bytes , expectedBytesPerLine_ * sizeof( char ));
         bytes += bytesPerLine;
       }
     }
     else
     {
       // There are no extra bytes! Write the full frame.
-      fwrite( bytes , amount , sizeof( unsigned char ) , file );
+      process->write( bytes , amount * sizeof( char ));
     }
     delete image;
   }
 
-  fclose( file );
-
-  emit finished();
+  process->close( );
+  emit finished( );
 
 }
 
@@ -156,7 +163,7 @@ void RecorderStorageWorker::stop( )
   running_ = false;
 
   mutex_.lock( );
-  notEmptyCondition_.wakeAll();
+  notEmptyCondition_.wakeAll( );
   mutex_.unlock( );
 }
 
@@ -164,6 +171,7 @@ void RecorderStorageWorker::push( QImage *image )
 {
   mutex_.lock( );
   queue_.push_back( image );
+  emit fileQueueSizeChanged( queue_.size( ));
   mutex_.unlock( );
 
   notEmptyCondition_.wakeAll( );
