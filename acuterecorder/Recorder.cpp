@@ -9,7 +9,6 @@
 
 Recorder::Recorder( RecorderSettings settings ) :
   settings_( std::move( settings )) ,
-  active_( true ) ,
   storageWorker_( nullptr )
 {
 
@@ -46,21 +45,16 @@ Recorder::Recorder( RecorderSettings settings ) :
   }
 }
 
-bool Recorder::isRecording( ) const
-{
-  return active_;
-}
-
 void Recorder::stop( )
 {
-  if ( !active_ ) return;
-  active_ = false;
+  if ( !isRecording() ) return;
+
   storageWorker_->stop( );
 }
 
 void Recorder::takeFrame( )
 {
-  if ( !active_ ) return;
+  if ( !isRecording() ) return;
   auto input = settings_.getInputArea( );
   auto output = settings_.getOutputSize( );
   auto image = settings_.getInput( ).render( input , output );

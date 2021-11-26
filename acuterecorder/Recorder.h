@@ -24,15 +24,11 @@ class RecorderSettings;
  */
 class Recorder : public QObject
 {
-
 Q_OBJECT
-
   RecorderSettings settings_;
-  bool active_;
   RecorderStorageWorker* storageWorker_;
 
 public:
-
   /**
    * Crates the Recorder.
    *
@@ -50,10 +46,10 @@ public:
    *
    * @return whether this recorder is recording.
    */
-  bool isRecording( ) const;
+  inline bool isRecording( ) const
+  { return storageWorker_->isRunning(); }
 
 public slots:
-
   /**
    * Signals the Recorder, making it to record a frame.
    *

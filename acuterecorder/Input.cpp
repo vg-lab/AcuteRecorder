@@ -30,7 +30,7 @@ Input::Input( QScreen *screen ) :
 
 InputType Input::getType( ) const
 {
-  if ( widget_ == nullptr && screen_ == nullptr ) return InputType::INVALID;
+  if ( !widget_ && !screen_ ) return InputType::INVALID;
   return widget_ == nullptr ? InputType::SCREEN : InputType::WIDGET;
 }
 
@@ -61,7 +61,7 @@ QImage * Input::render( const QRectF& inputArea , const QSize& outputSize ) cons
 
   if ( widget_ != nullptr )
   {
-    auto *image = new QImage( outputSize , QImage::Format_RGB888 );
+    auto image = new QImage( outputSize , QImage::Format_RGB888 );
     QPainter painter( image );
 
     // This scales the widget to fit the image.

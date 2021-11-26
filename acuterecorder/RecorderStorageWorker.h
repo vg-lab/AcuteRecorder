@@ -43,11 +43,12 @@ Q_OBJECT
    */
   bool popElement( QImage *& image );
 
+protected:
   /**
    * Starts the worker.
    * This method does nothing if the worker is already running.
    */
-  void run( ) override;
+  virtual void run( ) override;
 
 public:
 

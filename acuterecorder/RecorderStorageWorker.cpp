@@ -30,7 +30,6 @@ constexpr int C_NVIDIA_MIN_DIMENSION = 145;
 QStringList createFFMPEGArguments( int fps , int width , int height ,
                                    const QString& output )
 {
-
   QStringList arguments;
   // If the width or height are less than 145 pixels, use CPU encoding.
   // This is because NVENC doesn't support video
@@ -68,8 +67,6 @@ RecorderStorageWorker::RecorderStorageWorker(
   queue_( ) ,
   running_( false )
 {
-
-
 }
 
 void RecorderStorageWorker::run( )
@@ -133,7 +130,6 @@ void RecorderStorageWorker::run( )
 
   qDebug( ) << process->readAllStandardOutput( );
   qDebug( ) << process->readAllStandardError( );
-
 }
 
 bool RecorderStorageWorker::popElement( QImage *& image )

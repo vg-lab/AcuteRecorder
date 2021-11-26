@@ -7,6 +7,7 @@
 
 #include <QWidget>
 #include <QVBoxLayout>
+#include <QTimer>
 
 class SelectionArea;
 class ScreenComboBox;
@@ -30,6 +31,7 @@ Q_OBJECT
   QProgressBar* queueSizeBar_;
 
   Recorder *recorder_;
+  QTimer timer_;
 
 signals:
 

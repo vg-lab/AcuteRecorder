@@ -8,8 +8,9 @@
 
 #include <QApplication>
 #include <QScreen>
-#include <QTimer>
 #include <QProgressBar>
+#include <QMessageBox>
+#include <QFileInfo>
 
 #include <element/SelectionArea.h>
 #include <element/ScreenComboBox.h>
@@ -110,22 +111,44 @@ void MainWindowRegion::startRecording( )
     builder.outputScaledSize( destinationModeRegion_->getScaledSize( ));
   }
 
+  if(!builder.isValid())
+  {
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle(tr("Invalid configuration"));
+    msgBox.setText(tr("Some recording options are unset or invalid."));
+    msgBox.setIcon(QMessageBox::Icon::Critical);
+    msgBox.exec();
+    return;
+  }
+
+  QFileInfo outputVideo{builder.getOutputPath()};
+  if(outputVideo.exists())
+  {
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle(tr("Output video exists"));
+    msgBox.setText(tr("The output video '%1' already exists. Overwrite?.").arg(outputVideo.absoluteFilePath()));
+    msgBox.setStandardButtons(QMessageBox::Cancel|QMessageBox::Ok);
+    msgBox.setDefaultButton(QMessageBox::Ok);
+    msgBox.setIcon(QMessageBox::Icon::Critical);
+    const auto result = msgBox.exec();
+
+    if(result != QMessageBox::Ok) return;
+  }
+
+  screenComboBox_->setEnabled(false);
+  selectionModeRegion_->setEnabled(false);
+  destinationModeRegion_->setEnabled(false);
+  outputRegion_->setEnabled(false);
+
   // We create the config and the recorder.
   recorder_ = new Recorder( builder );
 
-  // The recorder is ready to go, we just have to create a timer that
+  // The recorder is ready to go, we just have to start the timer that
   // signals the recorder to take a frame!
 
-  auto *timer = new QTimer( recorder_ );
-  QObject::connect(
-    timer , SIGNAL( timeout( )) ,
-    recorder_ , SLOT( takeFrame( ))
-  );
-  QObject::connect(
-    recorder_ , SIGNAL( finished( )) ,
-    timer , SLOT( deleteLater( ))
-  );
-  timer->start( 1000 / builder.getFPS( ));
+  QObject::connect( &timer_ , SIGNAL( timeout( )) ,
+                    recorder_ , SLOT( takeFrame( )) );
+  timer_.start( 1000 / builder.getFPS( ));
 
   // Signal this region when the recorder finishes recording.
   // Warning! The recorder won't stop automatically when you
@@ -154,8 +177,17 @@ void MainWindowRegion::startRecording( )
 void MainWindowRegion::stopRecording( )
 {
   if ( recorder_ == nullptr ) return;
+  timer_.stop();
+  QObject::disconnect( &timer_ , SIGNAL( timeout( )) ,
+                       recorder_ , SLOT( takeFrame( )) );
+
   recorder_->stop( );
   recorder_ = nullptr;
+
+  screenComboBox_->setEnabled(true);
+  selectionModeRegion_->setEnabled(true);
+  destinationModeRegion_->setEnabled(true);
+  outputRegion_->setEnabled(true);
 }
 
 void MainWindowRegion::toggleRecording( )
