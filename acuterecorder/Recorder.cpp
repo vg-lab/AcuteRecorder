@@ -10,31 +10,40 @@
 Recorder::Recorder( RecorderSettings settings ) :
   settings_( std::move( settings )) ,
   active_( true ) ,
-  storageWorker_(
-    new RecorderStorageWorker(
+  storageWorker_( nullptr )
+{
+
+  if ( !settings_.isValid( ))
+  {
+    qDebug( )
+      << "[Recorder] Recorder settings are not valid. Aborting construction";
+    settings_.sendInvalidParametersDebugMessage( );
+  }
+  else
+  {
+    storageWorker_ = new RecorderStorageWorker(
       this ,
       settings_.getOutputSize( ) ,
       settings_.getFPS( ) ,
       settings_.getOutputPath( )
-    )
-  )
-{
+    );
 
-  QObject::connect(
-    storageWorker_ , SIGNAL( finished( )) ,
-    storageWorker_ , SLOT( deleteLater( ))
-  );
+    QObject::connect(
+      storageWorker_ , SIGNAL( finished( )) ,
+      storageWorker_ , SLOT( deleteLater( ))
+    );
 
-  connect( storageWorker_ ,
-           &RecorderStorageWorker::fileQueueSizeChanged ,
-           [ & ]( int value )
-           { emit bufferSizeChange( value ); } );
+    connect( storageWorker_ ,
+             &RecorderStorageWorker::fileQueueSizeChanged ,
+             [ & ]( int value )
+             { emit bufferSizeChange( value ); } );
 
-  connect( storageWorker_ ,
-           &QThread::finished ,
-           [ & ]( )
-           { emit finished( ); } );
-  storageWorker_->start( );
+    connect( storageWorker_ ,
+             &QThread::finished ,
+             [ & ]( )
+             { emit finished( ); } );
+    storageWorker_->start( );
+  }
 }
 
 bool Recorder::isRecording( ) const

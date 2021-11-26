@@ -47,6 +47,13 @@ public:
    */
   RecorderSettings& input( QScreen *screen );
 
+  /**
+   * Returns the input of this recorder.
+   *
+   * This is the wrapper of the given QWidget or QScreen.
+   *
+   * @return the input.
+   */
   Input getInput( ) const;
 
   /**
@@ -56,6 +63,13 @@ public:
    */
   RecorderSettings& inputArea( const QRectF& area );
 
+  /**
+   * Returns the input area of the recorder.
+   *
+   * This is a normalized area (from 0 to 1).
+   *
+   * @return the input area.
+   */
   QRectF getInputArea( ) const;
 
   /**
@@ -65,6 +79,13 @@ public:
    */
   RecorderSettings& outputPath( const QString& path );
 
+  /**
+   * Returns the output path of the settings.
+   *
+   * This is the path where the output video will be stored.
+   *
+   * @return the output path.
+   */
   QString getOutputPath( ) const;
 
   /**
@@ -77,7 +98,7 @@ public:
   /**
    * Sets as the size of the output video the
    * input size scaled by the given scale.
-   *S
+   *
    * You must setup the input and the input area before using this method!
    *
    * @param scale the scale.
@@ -85,6 +106,11 @@ public:
    */
   RecorderSettings outputScaledSize( QSizeF scale );
 
+  /**
+   * Returns the size of the output video, in pixels.
+   *
+   * @return the size.
+   */
   QSize getOutputSize( ) const;
 
   /**
@@ -94,9 +120,23 @@ public:
    */
   RecorderSettings& fps( int fps );
 
+  /**
+   * Returns the FPS of the output video.
+   * @return the FPS.
+   */
   int getFPS( ) const;
 
+  /**
+   * Returns whether this recorder has all its values set.
+   * @return whether this recorder has all its values set.
+   */
   bool isValid( ) const;
+
+  /**
+   * Sends a debug message containing information about all
+   * invalid parameters in these settings.
+   */
+  void sendInvalidParametersDebugMessage( ) const;
 
 };
 

@@ -5,7 +5,7 @@
 #include "RecorderSettings.h"
 
 #include <QRectF>
-#include <stdexcept>
+#include <QDebug>
 
 RecorderSettings::RecorderSettings( )
 {
@@ -48,18 +48,19 @@ RecorderSettings::outputSize( const QSize& size )
 RecorderSettings
 RecorderSettings::outputScaledSize( const QSizeF scale )
 {
+
   if ( !inputArea_.second )
   {
-    throw std::invalid_argument(
-      "This method requires an input area to be set."
-    );
+    qDebug( )
+      << "RecorderSettings:outputScaledSize requires the input area to be set!";
+    return *this;
   }
 
   if ( !input_.second )
   {
-    throw std::invalid_argument(
-      "This method requires an input to be set."
-    );
+    qDebug( )
+      << "RecorderSettings:outputScaledSize requires the input to be set!";
+    return *this;
   }
 
   QSize iSize = input_.first.getSize( );
@@ -80,47 +81,26 @@ RecorderSettings& RecorderSettings::fps( int fps )
 
 Input RecorderSettings::getInput( ) const
 {
-  if ( !input_.second )
-  {
-    throw std::invalid_argument( "Input has not been set!" );
-  }
-
   return input_.first;
 }
 
 QRectF RecorderSettings::getInputArea( ) const
 {
-  if ( !inputArea_.second )
-  {
-    throw std::invalid_argument( "Input area has not been set!" );
-  }
   return inputArea_.first;
 }
 
 QString RecorderSettings::getOutputPath( ) const
 {
-  if ( !outputPath_.second )
-  {
-    throw std::invalid_argument( "Output path has not been set!" );
-  }
   return outputPath_.first;
 }
 
 QSize RecorderSettings::getOutputSize( ) const
 {
-  if ( !outputSize_.second )
-  {
-    throw std::invalid_argument( "Output size has not been set!" );
-  }
   return outputSize_.first;
 }
 
 int RecorderSettings::getFPS( ) const
 {
-  if ( !fps_.second )
-  {
-    throw std::invalid_argument( "FPS has not been set!" );
-  }
   return fps_.first;
 }
 
@@ -128,4 +108,13 @@ bool RecorderSettings::isValid( ) const
 {
   return input_.second && inputArea_.second && outputPath_.second
          && outputSize_.second && fps_.second;
+}
+
+void RecorderSettings::sendInvalidParametersDebugMessage( ) const
+{
+  if ( !input_.second )qDebug( ) << "Input is not set!";
+  if ( !inputArea_.second )qDebug( ) << "Input area is not set!";
+  if ( !outputPath_.second )qDebug( ) << "Output path is not set!";
+  if ( !outputSize_.second )qDebug( ) << "Output size is not set!";
+  if ( !fps_.second )qDebug( ) << "FPS is not set!";
 }
