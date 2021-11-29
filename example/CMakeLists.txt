@@ -1,12 +1,6 @@
 set(RECORDER_SOURCES
         main.cpp
-        element/QueueSizeBar.cpp
-        element/OutputTextField.cpp
-		element/SelectionModeButton.cpp
 		element/StartStopButton.cpp
-		element/DestinationModeButton.cpp
-		element/OutputFileButton.cpp
-		element/FPSTextField.cpp
 		element/ScreenComboBox.cpp
 		element/SelectionArea.cpp
         region/MainWindowRegion.cpp
@@ -20,13 +14,7 @@ set(RECORDER_SOURCES
 		resources/resources_index.qrc)
 
 set(RECORDER_HEADERS
-		element/QueueSizeBar.h
-		element/OutputTextField.h
-		element/SelectionModeButton.h
 		element/StartStopButton.h
-		element/DestinationModeButton.h
-		element/OutputFileButton.h
-		element/FPSTextField.h
 		element/ScreenComboBox.h
 		element/SelectionArea.h
 		region/MainWindowRegion.h
@@ -35,7 +23,8 @@ set(RECORDER_HEADERS
 		region/ScaledDestinationModeRegion.h
 		region/OutputRegion.h
 		util/QtUtils.h
-		util/PixmapHolder.h)
+		util/PixmapHolder.h
+		util/SelectionMode.h)
 		
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})		
 include_directories(${ACUTERECORDER_INCLUDE_DIR})

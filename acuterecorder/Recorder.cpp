@@ -1,27 +1,62 @@
 //
-// Created by gaelr on 16/11/2021.
+// Created by gaelr on 18/11/2021.
 //
 
-#include <acuterecorder/RecorderGeneralData.h>
-#include <acuterecorder/WidgetRenderThread.h>
-#include <Recorder.h>
+#include "Recorder.h"
 
-namespace acute_recorder
+#include <QThread>
+#include <QDebug>
+
+Recorder::Recorder( RecorderSettings settings ) :
+  settings_( std::move( settings )) ,
+  storageWorker_( nullptr )
 {
-  bool start_recording( RecorderGeneralData *data )
-  {
-    if ( data->isRecording( )) return false;
-    data->thread = std::make_shared<WidgetRenderThread>( data );
-    data->thread->start( );
-    return true;
-  }
 
-  bool stop_recording( RecorderGeneralData *data )
+  if ( !settings_.isValid( ))
   {
-    if ( !data->isRecording( )) return false;
-    data->thread->stop( );
-    data->thread->storeManager( )->join( );
-    data->thread = nullptr;
-    return true;
+    qDebug( )
+      << "[Recorder] Recorder settings are not valid. Aborting construction";
+    settings_.sendInvalidParametersDebugMessage( );
   }
+  else
+  {
+    storageWorker_ = new RecorderStorageWorker(
+      this ,
+      settings_.getOutputSize( ) ,
+      settings_.getFPS( ) ,
+      settings_.getOutputPath( )
+    );
+
+    QObject::connect(
+      storageWorker_ , SIGNAL( finished( )) ,
+      storageWorker_ , SLOT( deleteLater( ))
+    );
+
+    connect( storageWorker_ ,
+             &RecorderStorageWorker::fileQueueSizeChanged ,
+             [ & ]( int value )
+             { emit bufferSizeChange( value ); } );
+
+    connect( storageWorker_ ,
+             &QThread::finished ,
+             [ & ]( )
+             { emit finished( ); } );
+    storageWorker_->start( );
+  }
+}
+
+void Recorder::stop( )
+{
+  if ( !isRecording() ) return;
+
+  storageWorker_->stop( );
+}
+
+void Recorder::takeFrame( )
+{
+  if ( !isRecording() ) return;
+  auto input = settings_.getInputArea( );
+  auto output = settings_.getOutputSize( );
+  auto image = settings_.getInput( ).render( input , output );
+  storageWorker_->push( image );
 }

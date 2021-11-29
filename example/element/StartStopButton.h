@@ -7,17 +7,22 @@
 
 #include <QPushButton>
 
-struct RecorderGeneralData;
+class StartStopButton;
 
 class StartStopButton : public QPushButton
 {
-  RecorderGeneralData *data_;
 
-  void run( );
+Q_OBJECT
 
 public:
 
-  StartStopButton( QWidget *parent , RecorderGeneralData *data );
+  explicit StartStopButton( QWidget *parent );
+
+public slots:
+
+  void onFinish( );
+
+  void onStart( );
 };
 
 

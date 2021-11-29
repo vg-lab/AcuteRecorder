@@ -6,36 +6,42 @@
 #define QTRECORDER_SELECTIONMODEREGION_H
 
 #include <QWidget>
+#include <util/SelectionMode.h>
 
-#include <acuterecorder/acuterecorder.h>
-
-#include <element/SelectionArea.h>
-#include <element/SelectionModeButton.h>
-#include <element/FPSTextField.h>
-
-class SelectionModeButton;
+class QScreen;
+class QRadioButton;
+class QSpinBox;
 
 class SelectionModeRegion : public QWidget
 {
 
-  RecorderGeneralData *data_;
-  SelectionArea *selectionArea_;
+Q_OBJECT
 
-  SelectionModeButton *fullButton_;
-  SelectionModeButton *areaButton_;
-  SelectionModeButton *widgetButton_;
-  FPSTextField *fpsTextField_;
+  QRadioButton *fullButton_;
+  QRadioButton *areaButton_;
+  QRadioButton *widgetButton_;
+  QSpinBox *fpsSpinBox_;
 
 public:
 
-  SelectionModeRegion( QWidget *parent , RecorderGeneralData *data ,
-                       SelectionArea *selectionArea );
+  explicit SelectionModeRegion( QWidget *parent );
 
-  RecorderGeneralData *data( ) const;
+  SelectionMode getSelectionMode( ) const;
 
-  SelectionArea *selectionArea( ) const;
+  int getFPS( ) const;
 
-  void refreshWidget( );
+public slots:
+
+  void changeScreen( QScreen *screen );
+
+private slots:
+
+  void refreshSelectionMode( );
+
+signals:
+
+  void selectionModeChanged( SelectionMode mode );
+
 };
 
 

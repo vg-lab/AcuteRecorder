@@ -8,30 +8,34 @@
 
 #include <QWidget>
 
-#include <region/FixedDestinationModeRegion.h>
-#include <region/ScaledDestinationModeRegion.h>
-#include <element/DestinationModeButton.h>
-
-struct RecorderGeneralData;
+class QRadioButton;
+class FixedDestinationModeRegion;
+class ScaledDestinationModeRegion;
 
 class DestinationModeRegion : public QWidget
 {
 
-  RecorderGeneralData *data_;
+Q_OBJECT
 
-  DestinationModeButton *scaleButton_;
-  DestinationModeButton *fixedButton_;
+  QRadioButton *fixed_;
+  QRadioButton *scaled_;
 
   FixedDestinationModeRegion *fixedRegion_;
   ScaledDestinationModeRegion *scaleRegion_;
 
 public:
 
-  DestinationModeRegion( QWidget *parent , RecorderGeneralData *data );
+  explicit DestinationModeRegion( QWidget *parent );
 
-  RecorderGeneralData *data( ) const;
+  bool isFixedMode( ) const;
 
-  void refresh( );
+  QSize getFixedSize( ) const;
+
+  QSizeF getScaledSize( ) const;
+
+public slots:
+
+  void refreshRegion( );
 
 };
 

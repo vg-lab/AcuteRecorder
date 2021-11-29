@@ -5,20 +5,15 @@
 #ifndef QTRECORDER_SCREENCOMBOBOX_H
 #define QTRECORDER_SCREENCOMBOBOX_H
 
-
 #include <QComboBox>
 
-struct RecorderGeneralData;
-
-class MainWindowRegion;
+class QScreen;
 
 class ScreenComboBox : public QComboBox
 {
 
 Q_OBJECT
 
-  RecorderGeneralData *data_;
-  MainWindowRegion *mainWindowRegion_;
 
 private slots:
 
@@ -26,10 +21,12 @@ private slots:
 
 public:
 
-  ScreenComboBox( QWidget *parent , RecorderGeneralData *data ,
-                  MainWindowRegion *mainWindowRegion );
+  explicit ScreenComboBox( QWidget *parent );
 
-  RecorderGeneralData *data( ) const;
+signals:
+
+  void screenChanged( QScreen *screen );
+
 };
 
 
