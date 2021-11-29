@@ -5,6 +5,7 @@
 #ifndef ACUTERECORDER_RECORDER_H
 #define ACUTERECORDER_RECORDER_H
 
+#include <acuterecorder/api.h>
 
 #include <QObject>
 
@@ -22,7 +23,7 @@ class RecorderSettings;
  * The Recorder will automatically render the input element and store the
  * screenshot in the video.
  */
-class Recorder : public QObject
+class ACUTERECORDER_API Recorder : public QObject
 {
 Q_OBJECT
   RecorderSettings settings_;

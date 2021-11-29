@@ -5,6 +5,8 @@
 #ifndef ACUTERECORDER_RECORDERSETTINGS_H
 #define ACUTERECORDER_RECORDERSETTINGS_H
 
+#include <acuterecorder/api.h>
+
 #include <utility>
 #include <QRectF>
 #include <QString>
@@ -17,7 +19,7 @@
  *
  * You must fill all parameter of the builder to be capable of creating settings.
  */
-class RecorderSettings
+class ACUTERECORDER_API RecorderSettings
 {
 
   std::pair< Input , bool > input_{ Input( ) , false };

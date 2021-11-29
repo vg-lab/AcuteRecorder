@@ -5,6 +5,7 @@
 #ifndef ACUTERECORDER_OUTPUT_H
 #define ACUTERECORDER_OUTPUT_H
 
+#include <acuterecorder/api.h>
 
 class QWidget;
 
@@ -28,7 +29,7 @@ enum class InputType
  *
  * Use Input::render() to take a screenshot.
  */
-class Input
+class ACUTERECORDER_API Input
 {
 
   QWidget *widget_;
