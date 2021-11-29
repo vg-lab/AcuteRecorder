@@ -44,8 +44,8 @@ DestinationModeRegion::DestinationModeRegion( QWidget *parent )
   scaled_->setChecked( true );
 
   QObject::connect(
-    fixed_ , &QRadioButton::toggled ,
-    this , &DestinationModeRegion::refreshRegion
+    fixed_ , SIGNAL( toggled( bool )) ,
+    this , SLOT( refreshRegion( ))
   );
 }
 

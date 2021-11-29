@@ -51,21 +51,21 @@ MainWindowRegion::MainWindowRegion( QWidget *parent , QWidget *root ) :
 
 
   QObject::connect(
-    screenComboBox_ , &ScreenComboBox::screenChanged ,
-    selectionArea_ , &SelectionArea::changeScreen
+    screenComboBox_ , SIGNAL( screenChanged( QScreen * )) ,
+    selectionArea_ , SLOT( changeScreen( QScreen * ))
   );
   QObject::connect(
-    screenComboBox_ , &ScreenComboBox::screenChanged ,
-    selectionModeRegion_ , &SelectionModeRegion::changeScreen
+    screenComboBox_ , SIGNAL( screenChanged( QScreen * )) ,
+    selectionModeRegion_ , SLOT( changeScreen( QScreen * ))
   );
   QObject::connect(
-    selectionModeRegion_ , &SelectionModeRegion::selectionModeChanged ,
-    selectionArea_ , &SelectionArea::changeMode
+    selectionModeRegion_ , SIGNAL( selectionModeChanged( SelectionMode )) ,
+    selectionArea_ , SLOT( changeMode( SelectionMode ))
   );
 
   QObject::connect(
-    startStopButton_ , &QPushButton::clicked ,
-    this , &MainWindowRegion::toggleRecording
+    startStopButton_ , SIGNAL( clicked( bool )) ,
+    this , SLOT( toggleRecording( ))
   );
 }
 
@@ -111,34 +111,36 @@ void MainWindowRegion::startRecording( )
     builder.outputScaledSize( destinationModeRegion_->getScaledSize( ));
   }
 
-  if(!builder.isValid())
+  if ( !builder.isValid( ))
   {
-    QMessageBox msgBox(this);
-    msgBox.setWindowTitle(tr("Invalid configuration"));
-    msgBox.setText(tr("Some recording options are unset or invalid."));
-    msgBox.setIcon(QMessageBox::Icon::Critical);
-    msgBox.exec();
+    QMessageBox msgBox( this );
+    msgBox.setWindowTitle( tr( "Invalid configuration" ));
+    msgBox.setText( tr( "Some recording options are unset or invalid." ));
+    msgBox.setIcon( QMessageBox::Icon::Critical );
+    msgBox.exec( );
     return;
   }
 
-  QFileInfo outputVideo{builder.getOutputPath()};
-  if(outputVideo.exists())
+  QFileInfo outputVideo{ builder.getOutputPath( ) };
+  if ( outputVideo.exists( ))
   {
-    QMessageBox msgBox(this);
-    msgBox.setWindowTitle(tr("Output video exists"));
-    msgBox.setText(tr("The output video '%1' already exists. Overwrite?.").arg(outputVideo.absoluteFilePath()));
-    msgBox.setStandardButtons(QMessageBox::Cancel|QMessageBox::Ok);
-    msgBox.setDefaultButton(QMessageBox::Ok);
-    msgBox.setIcon(QMessageBox::Icon::Critical);
-    const auto result = msgBox.exec();
+    QMessageBox msgBox( this );
+    msgBox.setWindowTitle( tr( "Output video exists" ));
+    msgBox.setText(
+      tr( "The output video '%1' already exists. Overwrite?." ).arg(
+        outputVideo.absoluteFilePath( )));
+    msgBox.setStandardButtons( QMessageBox::Cancel | QMessageBox::Ok );
+    msgBox.setDefaultButton( QMessageBox::Ok );
+    msgBox.setIcon( QMessageBox::Icon::Critical );
+    const auto result = msgBox.exec( );
 
-    if(result != QMessageBox::Ok) return;
+    if ( result != QMessageBox::Ok ) return;
   }
 
-  screenComboBox_->setEnabled(false);
-  selectionModeRegion_->setEnabled(false);
-  destinationModeRegion_->setEnabled(false);
-  outputRegion_->setEnabled(false);
+  screenComboBox_->setEnabled( false );
+  selectionModeRegion_->setEnabled( false );
+  destinationModeRegion_->setEnabled( false );
+  outputRegion_->setEnabled( false );
 
   // We create the config and the recorder.
   recorder_ = new Recorder( builder );
@@ -147,7 +149,7 @@ void MainWindowRegion::startRecording( )
   // signals the recorder to take a frame!
 
   QObject::connect( &timer_ , SIGNAL( timeout( )) ,
-                    recorder_ , SLOT( takeFrame( )) );
+                    recorder_ , SLOT( takeFrame( )));
   timer_.start( 1000 / builder.getFPS( ));
 
   // Signal this region when the recorder finishes recording.
@@ -177,17 +179,17 @@ void MainWindowRegion::startRecording( )
 void MainWindowRegion::stopRecording( )
 {
   if ( recorder_ == nullptr ) return;
-  timer_.stop();
+  timer_.stop( );
   QObject::disconnect( &timer_ , SIGNAL( timeout( )) ,
-                       recorder_ , SLOT( takeFrame( )) );
+                       recorder_ , SLOT( takeFrame( )));
 
   recorder_->stop( );
   recorder_ = nullptr;
 
-  screenComboBox_->setEnabled(true);
-  selectionModeRegion_->setEnabled(true);
-  destinationModeRegion_->setEnabled(true);
-  outputRegion_->setEnabled(true);
+  screenComboBox_->setEnabled( true );
+  selectionModeRegion_->setEnabled( true );
+  destinationModeRegion_->setEnabled( true );
+  outputRegion_->setEnabled( true );
 }
 
 void MainWindowRegion::toggleRecording( )

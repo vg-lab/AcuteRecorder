@@ -52,16 +52,16 @@ SelectionModeRegion::SelectionModeRegion( QWidget *parent )
   layout->addStretch( );
 
   QObject::connect(
-    fullButton_ , &QRadioButton::toggled ,
-    this , &SelectionModeRegion::refreshSelectionMode
+    fullButton_ , SIGNAL( toggled( bool )) ,
+    this , SLOT( refreshSelectionMode( ))
   );
   QObject::connect(
-    areaButton_ , &QRadioButton::toggled ,
-    this , &SelectionModeRegion::refreshSelectionMode
+    areaButton_ , SIGNAL( toggled( bool )) ,
+    this , SLOT( refreshSelectionMode( ))
   );
   QObject::connect(
-    widgetButton_ , &QRadioButton::toggled ,
-    this , &SelectionModeRegion::refreshSelectionMode
+    widgetButton_ , SIGNAL( toggled( bool )) ,
+    this , SLOT( refreshSelectionMode( ))
   );
 }
 

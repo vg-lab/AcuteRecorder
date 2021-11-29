@@ -12,6 +12,8 @@ class QLineEdit;
 
 class OutputRegion : public QWidget
 {
+Q_OBJECT
+
   QLineEdit *outputTextField_;
 
 public:

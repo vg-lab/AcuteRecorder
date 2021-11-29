@@ -15,6 +15,8 @@ class ScaledDestinationModeRegion;
 class DestinationModeRegion : public QWidget
 {
 
+Q_OBJECT
+
   QRadioButton *fixed_;
   QRadioButton *scaled_;
 
