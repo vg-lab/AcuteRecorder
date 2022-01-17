@@ -2,8 +2,8 @@
 // Created by gaelr on 18/11/2021.
 //
 
-#ifndef ACUTERECORDER_STORAGETHREAD_H
-#define ACUTERECORDER_STORAGETHREAD_H
+#ifndef ACUTERECORDER_FFMPEGSTORAGETHREAD_H
+#define ACUTERECORDER_FFMPEGSTORAGETHREAD_H
 
 
 #include <QObject>
@@ -13,9 +13,14 @@
 #include <QWaitCondition>
 #include <QThread>
 
+#include "RecorderStorageWorker.h"
+
 class QImage;
 
-class RecorderStorageWorker : public QThread
+/**
+ * This worker saves the frames in a .mp4 video using FFMPEG.
+ */
+class FFMPEGRecorderStorageWorker : public RecorderStorageWorker
 {
 
 Q_OBJECT
@@ -44,11 +49,8 @@ Q_OBJECT
   bool popElement( QImage *& image );
 
 protected:
-  /**
-   * Starts the worker.
-   * This method does nothing if the worker is already running.
-   */
-  virtual void run( ) override;
+
+  void run( ) override;
 
 public:
 
@@ -58,32 +60,20 @@ public:
    * @param fps the FPS of the video.
    * @param output the output path of the video.
    */
-  RecorderStorageWorker( QObject* object,
-                         const QSize& size , int fps , QString output );
+  FFMPEGRecorderStorageWorker( QObject *object ,
+                               const QSize& size , int fps , QString output );
 
-  /**
-   * Sends a frame to the storage.
-   * @param image the frame.
-   */
-  void push( QImage *image );
+  void push( QImage *image ) override;
 
 public slots:
 
-  /**
-   * Stops the worker.
-   * This method does nothing if the worker is not running.
-   */
-  void stop( );
+  void stop( ) override;
 
 signals:
 
-  /**
-   * Notifies a change in the buffer of the worker.
-   * @param size the size of the buffer.
-   */
-  void fileQueueSizeChanged( int size );
+  void fileQueueSizeChanged( int size ) override;
 
 };
 
 
-#endif //ACUTERECORDER_STORAGETHREAD_H
+#endif //ACUTERECORDER_FFMPEGSTORAGETHREAD_H

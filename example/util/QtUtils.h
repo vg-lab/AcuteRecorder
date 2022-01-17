@@ -1,4 +1,4 @@
-//
+//<acuterecorder/version.h><acuterecorder/version.h>
 // Created by Gael Rial Costas on 16/8/21.
 //
 #ifndef QTRECORDER_QTUTILS_H

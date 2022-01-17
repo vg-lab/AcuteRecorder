@@ -1,5 +1,5 @@
 # Copyright (c) 2012-2016 Stefan.Eilemann@epfl.ch
-# See doc/GitTargets.md for documentation
+# See docs/GitTargets.md for documentation
 
 # Targets:
 # * ${PROJECT_NAME}-branch: Create a new branch for developing the current

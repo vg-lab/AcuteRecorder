@@ -38,14 +38,14 @@ RecorderSettings::outputPath( const QString& path )
   return *this;
 }
 
-RecorderSettings
+RecorderSettings&
 RecorderSettings::outputSize( const QSize& size )
 {
   outputSize_ = { size , true };
   return *this;
 }
 
-RecorderSettings
+RecorderSettings&
 RecorderSettings::outputScaledSize( const QSizeF scale )
 {
 
@@ -69,6 +69,13 @@ RecorderSettings::outputScaledSize( const QSizeF scale )
     static_cast<int> (iSize.width( ) * size.width( ) * scale.width( )) ,
     static_cast<int> (iSize.height( ) * size.height( ) * scale.height( ))
   ) , true };
+  return *this;
+}
+
+
+RecorderSettings& RecorderSettings::storageWorker( const QString& worker )
+{
+  storageWorker_ = { worker , true };
   return *this;
 }
 
@@ -104,10 +111,16 @@ int RecorderSettings::getFPS( ) const
   return fps_.first;
 }
 
+QString RecorderSettings::getStorageWorker( ) const
+{
+  return storageWorker_.first;
+}
+
+
 bool RecorderSettings::isValid( ) const
 {
   return input_.second && inputArea_.second && outputPath_.second
-         && outputSize_.second && fps_.second;
+         && outputSize_.second && fps_.second && storageWorker_.second;
 }
 
 void RecorderSettings::sendInvalidParametersDebugMessage( ) const
@@ -117,4 +130,20 @@ void RecorderSettings::sendInvalidParametersDebugMessage( ) const
   if ( !outputPath_.second )qDebug( ) << "Output path is not set!";
   if ( !outputSize_.second )qDebug( ) << "Output size is not set!";
   if ( !fps_.second )qDebug( ) << "FPS is not set!";
+  if ( !storageWorker_.second )
+    qDebug( )
+      << "Storage worker is not set! "
+      << "Search an available worker using Recorder::getWorkerBuilders()";
+}
+
+RecorderSettings&
+RecorderSettings::setExtraSetting( const QString& key , const QVariant& value )
+{
+  extraSettings_[ key ] = value;
+  return *this;
+}
+
+QVariant RecorderSettings::getExtraSetting( const QString& key )
+{
+  return extraSettings_[ key ];
 }
