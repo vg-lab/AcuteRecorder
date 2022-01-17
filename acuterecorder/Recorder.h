@@ -8,11 +8,14 @@
 #include <acuterecorder/api.h>
 
 #include <QObject>
+#include <acuterecorder/worker/WorkerBuilder.h>
+#include <acuterecorder/worker/RecorderStorageWorker.h>
 
 #include "RecorderSettings.h"
-#include "RecorderStorageWorker.h"
 
 class RecorderSettings;
+
+typedef std::map< QString , WorkerBuilder * > WorkerBuilderMap;
 
 /**
  * Represents a Recorder.
@@ -26,10 +29,41 @@ class RecorderSettings;
 class ACUTERECORDER_API Recorder : public QObject
 {
 Q_OBJECT
+
+  static WorkerBuilderMap registeredWorkers_;
+
   RecorderSettings settings_;
-  RecorderStorageWorker* storageWorker_;
+  RecorderStorageWorker *storageWorker_;
 
 public:
+
+  /**
+   * Registers a new worker.
+   * @param worker the name of the worker.
+   * @param builder the builder of the worker.
+   */
+  static void registerWorker(
+    const QString& worker , WorkerBuilder *builder );
+
+  /**
+   * Unregisters a present worker.
+   * @param worker the name of the worker to remove.
+   */
+  static void unregisterWorker( const QString& worker );
+
+  /**
+   * Returns a vector with the registered workers.
+   * @return the workers.
+   */
+  static std::map< QString , WorkerBuilder * > getWorkerBuilders( );
+
+  /**
+   * Returns the worker builder that matches the given name.
+   * @param worker the name.
+   * @return the worker or null if not found.
+   */
+  static WorkerBuilder *getWorkerBuilder( const QString& worker );
+
   /**
    * Crates the Recorder.
    *
@@ -48,9 +82,10 @@ public:
    * @return whether this recorder is recording.
    */
   inline bool isRecording( ) const
-  { return storageWorker_->isRunning(); }
+  { return storageWorker_->isRunning( ); }
 
 public slots:
+
   /**
    * Signals the Recorder, making it to record a frame.
    *
@@ -85,6 +120,5 @@ signals:
   void finished( );
 
 };
-
 
 #endif //ACUTERECORDER_RECORDER_H

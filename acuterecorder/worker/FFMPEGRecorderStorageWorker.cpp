@@ -2,7 +2,7 @@
 // Created by gaelr on 18/11/2021.
 //
 
-#include "RecorderStorageWorker.h"
+#include "FFMPEGRecorderStorageWorker.h"
 
 #include <memory>
 #include <QImage>
@@ -36,6 +36,7 @@ QStringList createFFMPEGArguments( int fps , int width , int height ,
   // encoding of such small dimensions.
   if ( width < C_NVIDIA_MIN_DIMENSION || height < C_NVIDIA_MIN_DIMENSION )
   {
+    qDebug( ) << "CPU MODE";
     arguments << "-vsync" << "0" << "-r" << QString::number( fps );
     arguments << "-f" << "rawvideo" << "-s";
     arguments << QString::number( width ) + "x" + QString::number( height );
@@ -44,6 +45,7 @@ QStringList createFFMPEGArguments( int fps , int width , int height ,
   }
   else
   {
+    qDebug( ) << "GPU MODE";
     arguments << "-hwaccel" << "cuda";
     arguments << "-vsync" << "0" << "-r" << QString::number( fps );
     arguments << "-f" << "rawvideo" << "-s";
@@ -55,9 +57,9 @@ QStringList createFFMPEGArguments( int fps , int width , int height ,
   return arguments;
 }
 
-RecorderStorageWorker::RecorderStorageWorker(
+FFMPEGRecorderStorageWorker::FFMPEGRecorderStorageWorker(
   QObject *object , const QSize& size , int fps , QString output ) :
-  QThread( object ) ,
+  RecorderStorageWorker( object ) ,
   size_( size ) ,
   fps_( fps ) ,
   output_( std::move( output )) ,
@@ -69,28 +71,25 @@ RecorderStorageWorker::RecorderStorageWorker(
 {
 }
 
-void RecorderStorageWorker::run( )
+void FFMPEGRecorderStorageWorker::run( )
 {
   if ( running_ ) return;
   running_ = true;
 
-
   // Creates the FFMPEG command.
-  QStringList arguments = createFFMPEGArguments(
+  const QStringList arguments = createFFMPEGArguments(
     fps_ ,
     size_.width( ) ,
     size_.height( ) ,
     output_ );
 
   // Creates the process for the command and opens a write pipe.
-
-  auto process = new QProcess(  );
+  auto process = new QProcess( );
   process->start( QString( "ffmpeg" ) , arguments , QIODevice::ReadWrite );
 
-  QImage *image;
+  QImage *image = nullptr;
   while ( running_ || !queue_.empty( ))
   {
-
     // Pops an element from the queue. If this method returns
     // true the thread must end. If that happens we just break the while.
     if ( !popElement( image )) break;
@@ -102,8 +101,8 @@ void RecorderStorageWorker::run( )
     // Qt images will always ceil the bytes per line to a multiple of four.
     // This is because QImage uses integers under the hood.
     // We need to get rid of these extra bytes or ffmpeg will implode!
-    int bytesPerLine = image->bytesPerLine( );
-    qint64 difference = bytesPerLine - expectedBytesPerLine_;
+    const int bytesPerLine = image->bytesPerLine( );
+    const qint64 difference = bytesPerLine - expectedBytesPerLine_;
 
     if ( difference )
     {
@@ -118,7 +117,6 @@ void RecorderStorageWorker::run( )
     else
     {
       // There are no extra bytes! Write the full frame.
-
       process->write( bytes , amount * sizeof( char ));
     }
     delete image;
@@ -126,13 +124,13 @@ void RecorderStorageWorker::run( )
 
   process->closeWriteChannel( );
   process->waitForFinished( );
-  process->deleteLater();
+  process->deleteLater( );
 
   qDebug( ) << process->readAllStandardOutput( );
   qDebug( ) << process->readAllStandardError( );
 }
 
-bool RecorderStorageWorker::popElement( QImage *& image )
+bool FFMPEGRecorderStorageWorker::popElement( QImage *& image )
 {
   mutex_.lock( );
 
@@ -151,16 +149,15 @@ bool RecorderStorageWorker::popElement( QImage *& image )
     }
   }
 
-  image = queue_.front( );
+  image = queue_.takeFirst();
 
-  queue_.pop_front( );
   emit fileQueueSizeChanged( queue_.size( ));
   mutex_.unlock( );
 
   return true;
 }
 
-void RecorderStorageWorker::stop( )
+void FFMPEGRecorderStorageWorker::stop( )
 {
   running_ = false;
 
@@ -169,7 +166,7 @@ void RecorderStorageWorker::stop( )
   mutex_.unlock( );
 }
 
-void RecorderStorageWorker::push( QImage *image )
+void FFMPEGRecorderStorageWorker::push( QImage *image )
 {
   mutex_.lock( );
   queue_.push_back( image );

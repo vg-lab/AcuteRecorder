@@ -21,7 +21,7 @@
 # * NAME_PACKAGE_USE_ABI         add ABI version to package name (default: OFF)
 #
 # Input with defaults
-# * CPACK_COMPONENTS_ALL         default: apps dev doc examples lib unspecified
+# * CPACK_COMPONENTS_ALL         default: apps dev docs examples lib unspecified
 # * CPACK_PACKAGE_FILE_NAME      default: follow platform-specific convention
 # * CPACK_RESOURCE_FILE_LICENSE  default: ${PROJECT_SOURCE_DIR}/LICENSE.txt
 #

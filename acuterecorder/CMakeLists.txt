@@ -23,7 +23,12 @@ set(ACUTERECORDER_SOURCES
         Input.cpp
         RecorderSettings.cpp
         Recorder.cpp
-        RecorderStorageWorker.cpp
+        worker/RecorderStorageWorker.cpp
+        worker/FFMPEGRecorderStorageWorker.cpp
+        worker/ImageRecorderStorageWorker.cpp
+        worker/WorkerBuilder.cpp
+        worker/FFMPEGWorkerBuilder.cpp
+        worker/ImageWorkerBuilder.cpp
         )
 
 set(ACUTERECORDER_PUBLIC_HEADERS
@@ -31,7 +36,12 @@ set(ACUTERECORDER_PUBLIC_HEADERS
         Input.h
         RecorderSettings.h
         Recorder.h
-        RecorderStorageWorker.h
+        worker/RecorderStorageWorker.h
+        worker/FFMPEGRecorderStorageWorker.h
+        worker/ImageRecorderStorageWorker.h
+        worker/WorkerBuilder.h
+        worker/FFMPEGWorkerBuilder.h
+        worker/ImageWorkerBuilder.h
         )
 
 set(ACUTERECORDER_HEADERS

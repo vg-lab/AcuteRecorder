@@ -12,7 +12,7 @@
 # - BLUEGENE - if machine is BlueGene
 # - LINUX - if machine is Linux
 # - LINUX_PPC - if machine is PowerPC Linux
-# - COMMON_DOC_DIR - folder for documentation, share/${PROJECT_NAME}/doc
+# - COMMON_DOC_DIR - folder for documentation, share/${PROJECT_NAME}/docs
 # - COMMON_OSX_TARGET_VERSION - OS X target version
 #
 # Output targets

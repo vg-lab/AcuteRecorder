@@ -14,12 +14,14 @@ namespace styles
   const QString START_STOP_BUTTON = "start-stop-button";
   const QString QUEUE_SIZE_BAR = "queue-size-bar";
   const QString INFO_LABEL = "info-label";
+  const QString SUB_INFO_LABEL = "sub-info-label";
   const QString SECONDARY_INFO_LABEL = "secondary-info-label";
   const QString FIXED_WIDTH = "fixed-width";
   const QString FIXED_HEIGHT = "fixed-height";
   const QString SCALED_WIDTH = "scaled-width";
   const QString SCALED_HEIGHT = "scaled-height";
   const QString FPS = "fps";
+  const QString WORKERS = "workers";
 
   const QString SELECTION_RADIO_BUTTON = "selection-radio-button";
   const QString DESTINATION_RADIO_BUTTON = "destination-radio-button";

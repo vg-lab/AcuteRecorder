@@ -3,6 +3,12 @@
     max-width: 100px;
 }
 
+.sub-info-label {
+    min-width: 60px;
+    max-width: 60px;
+}
+
+
 .region-fixed-destination-mode > QLineEdit,
 .region-scaled-destination-mode > QLineEdit {
     max-width: 70px;

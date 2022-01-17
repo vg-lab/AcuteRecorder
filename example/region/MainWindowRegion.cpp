@@ -101,6 +101,7 @@ void MainWindowRegion::startRecording( )
   builder.inputArea( selectionArea_->getViewport( ));
   builder.fps( selectionModeRegion_->getFPS( ));
   builder.outputPath( outputRegion_->getOutputPath( ));
+  builder.storageWorker( outputRegion_->getWorkerName( ));
 
   if ( destinationModeRegion_->isFixedMode( ))
   {
@@ -122,7 +123,7 @@ void MainWindowRegion::startRecording( )
   }
 
   QFileInfo outputVideo{ builder.getOutputPath( ) };
-  if ( outputVideo.exists( ))
+  if ( outputVideo.exists( ) && !outputRegion_->isFolderMode())
   {
     QMessageBox msgBox( this );
     msgBox.setWindowTitle( tr( "Output video exists" ));
@@ -157,19 +158,19 @@ void MainWindowRegion::startRecording( )
   // use Recorder::stop(). You have to wait for the  image queue
   // to be empty.
   QObject::connect(
-    recorder_ , SIGNAL( finished( )) ,
-    this , SLOT( deleteRecorder( ))
+    recorder_, SIGNAL( finished( )) ,
+    this , SLOT( deleteRecorder())
   );
 
   // Queue size
 
   QObject::connect(
-    recorder_ , SIGNAL( bufferSizeChange( int )) ,
+    recorder_, SIGNAL( bufferSizeChange( int )) ,
     queueSizeBar_ , SLOT( setValue( int ))
   );
 
   QObject::connect(
-    recorder_ , SIGNAL( finished( )) ,
+    recorder_, SIGNAL( finished( )) ,
     startStopButton_ , SLOT( onFinish( ))
   );
 
@@ -183,18 +184,21 @@ void MainWindowRegion::stopRecording( )
   QObject::disconnect( &timer_ , SIGNAL( timeout( )) ,
                        recorder_ , SLOT( takeFrame( )));
 
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+
   recorder_->stop( );
-  recorder_ = nullptr;
 
   screenComboBox_->setEnabled( true );
   selectionModeRegion_->setEnabled( true );
   destinationModeRegion_->setEnabled( true );
   outputRegion_->setEnabled( true );
+
+  QApplication::restoreOverrideCursor();
 }
 
 void MainWindowRegion::toggleRecording( )
 {
-  if ( recorder_ == nullptr )
+  if ( !recorder_ )
   {
     startRecording( );
   }
@@ -204,8 +208,8 @@ void MainWindowRegion::toggleRecording( )
   }
 }
 
-void MainWindowRegion::deleteRecorder( )
+void MainWindowRegion::deleteRecorder()
 {
-  recorder_->deleteLater( );
+  if(recorder_) recorder_->deleteLater();
   recorder_ = nullptr;
 }

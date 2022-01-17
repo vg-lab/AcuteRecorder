@@ -6,10 +6,12 @@
 #define ACUTERECORDER_RECORDERSETTINGS_H
 
 #include <acuterecorder/api.h>
+#include <map>
 
 #include <utility>
 #include <QRectF>
 #include <QString>
+#include <QVariant>
 #include <QSize>
 
 #include "Input.h"
@@ -22,11 +24,15 @@
 class ACUTERECORDER_API RecorderSettings
 {
 
+
   std::pair< Input , bool > input_{ Input( ) , false };
   std::pair< QRectF , bool > inputArea_{{ 0 , 0 , 0 , 0 } , false };
   std::pair< QString , bool > outputPath_{ QString( ) , false };
   std::pair< QSize , bool > outputSize_{{ 0 , 0 } , false };
   std::pair< int , bool > fps_{ 0 , false };
+  std::pair< QString , bool > storageWorker_{ "" , false };
+
+  std::map< QString , QVariant > extraSettings_;
 
 public:
 
@@ -95,7 +101,7 @@ public:
    * @param size the size of the output video.
    * @return this builder.
    */
-  RecorderSettings outputSize( const QSize& size );
+  RecorderSettings& outputSize( const QSize& size );
 
   /**
    * Sets as the size of the output video the
@@ -106,7 +112,7 @@ public:
    * @param scale the scale.
    * @return this builder.
    */
-  RecorderSettings outputScaledSize( QSizeF scale );
+  RecorderSettings& outputScaledSize( QSizeF scale );
 
   /**
    * Returns the size of the output video, in pixels.
@@ -127,6 +133,42 @@ public:
    * @return the FPS.
    */
   int getFPS( ) const;
+
+  /**
+   * Sets the name of the storage worker of the recorder to build.
+   *
+   * You can retrieve all storage workers using Recorder::getWorkerBuilders().
+   *
+   * @param worker the worker. Example: ffmpeg
+   * @return this builder.
+   */
+  RecorderSettings& storageWorker( const QString& worker );
+
+  /**
+   * Returns the name of storage worker of the recorder to build.
+   *
+   * You can retrieve all storage workers using Recorder::getWorkerBuilders().
+   *
+   * @return the name of the storage worker.
+   */
+  QString getStorageWorker( ) const;
+
+  /**
+ * Returns the extra settings value inside these settings that matches
+ * the given key.
+ * @param key the key.
+ * @return the value.
+ */
+  QVariant getExtraSetting( const QString& key );
+
+  /**
+   * Sets a extra settings value inside these settings.
+   * @param key the key of the setting.
+   * @param value the value of the setting.
+   * @return this builder.
+   */
+  RecorderSettings&
+  setExtraSetting( const QString& key , const QVariant& value );
 
   /**
    * Returns whether this recorder has all its values set.
