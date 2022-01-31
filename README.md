@@ -23,7 +23,7 @@ AcuteRecorder has been successfully built and used on Ubuntu 20.04/18.04, Window
 and Windows 11 using Ubuntu 20.04 on WSL/WSLg.
 
 ```bash
-git clone --recursive https://github.com/AcuteRecorder.git AcuteRecorder
+git clone --recursive https://github.com/vg-lab/AcuteRecorder.git AcuteRecorder
 mkdir AcuteRecorder/build && cd AcuteRecorder/build
 cmake .. -DCMAKE_BUILD_TYPE=Release -DCLONE_SUBPROJECTS=ON
 make
