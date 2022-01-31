@@ -1,5 +1,5 @@
 //
-// Created by gaelr on 18/11/2021.
+// Created by Gael Rial Costas on 18/11/2021.
 //
 
 #ifndef ACUTERECORDER_FFMPEGSTORAGETHREAD_H
@@ -63,15 +63,11 @@ public:
   FFMPEGRecorderStorageWorker( QObject *object ,
                                const QSize& size , int fps , QString output );
 
-  void push( QImage *image ) override;
+  virtual void push( QImage *image ) override;
 
 public slots:
 
-  void stop( ) override;
-
-signals:
-
-  void fileQueueSizeChanged( int size ) override;
+  virtual void stop( ) override;
 
 };
 

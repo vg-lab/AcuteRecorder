@@ -1,5 +1,5 @@
 //
-// Created by gaelr on 18/11/2021.
+// Created by Gael Rial Costas on 18/11/2021.
 //
 
 #ifndef ACUTERECORDER_RECORDER_H
@@ -105,6 +105,11 @@ public slots:
    *
    */
   void stop( );
+
+  /**
+   * Blocks the calling thread until this recording has finished.
+   */
+  void wait( );
 
 signals:
 

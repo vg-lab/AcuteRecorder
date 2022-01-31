@@ -5,34 +5,28 @@
 #ifndef QTRECORDER_MAINWINDOWREGION_H
 #define QTRECORDER_MAINWINDOWREGION_H
 
-#include <acuterecorder/Recorder.h>
-
 #include <QWidget>
 #include <QVBoxLayout>
 #include <QTimer>
 
-class SelectionArea;
-class ScreenComboBox;
-class SelectionModeRegion;
-class DestinationModeRegion;
-class OutputRegion;
+class RecorderSettingsWidget;
+
 class StartStopButton;
+
 class QProgressBar;
+
+class Recorder;
 
 class MainWindowRegion : public QWidget
 {
 Q_OBJECT
 
-  SelectionArea *selectionArea_;
-  ScreenComboBox *screenComboBox_;
-  SelectionModeRegion *selectionModeRegion_;
-  DestinationModeRegion *destinationModeRegion_;
-  OutputRegion *outputRegion_;
+  RecorderSettingsWidget *settingsWidget_;
   StartStopButton *startStopButton_;
-  QProgressBar* queueSizeBar_;
+  QProgressBar *queueSizeBar_;
 
   // this should be unique_ptr, unable to do it because CMake common.
-  Recorder* recorder_;
+  Recorder *recorder_;
   QTimer timer_;
 
 signals:
@@ -56,7 +50,8 @@ public slots:
   void toggleRecording( );
 
 private slots:
-  void deleteRecorder();
+
+  void deleteRecorder( );
 
 };
 

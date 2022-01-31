@@ -5,12 +5,15 @@
 #ifndef QTRECORDER_DESTINATIONMODEREGION_H
 #define QTRECORDER_DESTINATIONMODEREGION_H
 
-
 #include <QWidget>
 
 class QRadioButton;
+
 class FixedDestinationModeRegion;
+
 class ScaledDestinationModeRegion;
+
+struct RSWParameters;
 
 class DestinationModeRegion : public QWidget
 {
@@ -25,7 +28,8 @@ Q_OBJECT
 
 public:
 
-  explicit DestinationModeRegion( QWidget *parent );
+  explicit DestinationModeRegion( QWidget *parent ,
+                                  const RSWParameters& parameters );
 
   bool isFixedMode( ) const;
 

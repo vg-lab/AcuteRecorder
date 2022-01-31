@@ -1,5 +1,5 @@
 //
-// Created by gaelr on 08/11/2021.
+// Created by Gael Rial Costas on 08/11/2021.
 //
 
 #include "SelectionArea.h"
@@ -9,16 +9,17 @@
 #include <QPainter>
 #include <QScreen>
 
-#include <util/QtUtils.h>
+#include <dialog/util/APIUtils.h>
 
-constexpr int RESIZE_CHECK_TIMER_DELAY_MILLIS = 50;
+constexpr int UPDATE_MILLIS = 50;
 
-SelectionArea::SelectionArea( QWidget *parent , QWidget *rootWidget )
+SelectionArea::SelectionArea( QWidget *parent ,
+                              QWidget *rootWidget ,
+                              SelectionMode selectionMode )
   : PixmapHolder( parent ) ,
-    mode_( SelectionMode::FULL ) ,
-    rootWidget_( rootWidget ) ,
+    mode_( selectionMode ) ,
+    input_( rootWidget ) ,
     selectedWidget_( rootWidget ) ,
-    screen_( nullptr ) ,
     sourceViewport_( 0 , 0 , 1 , 1 ) ,
     band_( new QRubberBand( QRubberBand::Rectangle , this )) ,
     areaFrom_( 0 , 0 ) ,
@@ -27,14 +28,13 @@ SelectionArea::SelectionArea( QWidget *parent , QWidget *rootWidget )
 {
   setAlignment( Qt::AlignCenter );
 
-  resizeCheckTimer_ = new QTimer( this );
+  auto timer = new QTimer(this);
+  connect(timer, SIGNAL(timeout()), this, SLOT(renderImage()));
+  connect(this, SIGNAL(destroyed(QObject*)), timer, SLOT(deleteLater()));
 
-  QObject::connect(
-    resizeCheckTimer_ , SIGNAL( timeout( )) ,
-    this , SLOT( renderImage( ))
-  );
-
-  resizeCheckTimer_->start( RESIZE_CHECK_TIMER_DELAY_MILLIS );
+  timer->setSingleShot(false);
+  timer->setInterval(UPDATE_MILLIS);
+  timer->start();
 }
 
 // region mouse events
@@ -82,7 +82,7 @@ void SelectionArea::mouseMoveEvent( QMouseEvent *event )
   // #refreshSelectionMode( ) method.+
   sourceViewport_ = QRectF( areaFrom_ , areaTo_ );
 
-  QRect rect(
+  const QRect rect(
     denormalizePoint( sourceViewport_.topLeft( )).toPoint( ) ,
     denormalizePoint( sourceViewport_.bottomRight( )).toPoint( )
   );
@@ -102,18 +102,18 @@ void SelectionArea::mouseReleaseEvent( QMouseEvent *event )
     case SelectionMode::WIDGET:
     {
       // Get the mouse position in normalized coordinates.
-      QPointF normalizedPoint = normalizePoint( event->pos( ));
+      const QPointF normalizedPoint = normalizePoint( event->pos( ));
 
       // Transforms the point to widget coordinates.
-      QSize ws = rootWidget_->size( );
-      QPoint widgetPoint(
+      const QSize ws = input_.getSize( );
+      const QPoint widgetPoint(
         static_cast<int>(( normalizedPoint.x( ) * ws.width( ))) ,
         static_cast<int>(( normalizedPoint.y( ) * ws.height( )))
       );
 
       // Search the clicked widget, ignoring the already selected one.
-      selectedWidget_ = qt_utils::findDeepestChildWithPoint(
-        rootWidget_ ,
+      selectedWidget_ = api_utils::findDeepestChildWithPoint(
+        input_.getWidget( ) ,
         widgetPoint ,
         selectedWidget_
       );
@@ -128,18 +128,18 @@ void SelectionArea::mouseReleaseEvent( QMouseEvent *event )
 
 void SelectionArea::renderImage( )
 {
-  if ( screen_ != nullptr )
+  if ( input_.isScreen( ))
   {
     // It's stupid to scale a screen's image. Just send it to the holder! :)
-    auto screen = screen_;
+    const auto screen = input_.getScreen( );
     setHolderPixmap( screen->grabWindow( 0 ));
   }
-  else
+  else if ( input_.isWidget( ))
   {
     // First we have to find the optimal scale for the render.
-    QSize thisSize = size( );
-    QSize wSize = rootWidget_->size( );
-    QSize size = QSize(
+    const QSize thisSize = size( );
+    const QSize wSize = input_.getWidget( )->size( );
+    const QSize size = QSize(
       thisSize.height( ) * wSize.width( ) / wSize.width( ) ,
       thisSize.height( )
     );
@@ -153,7 +153,7 @@ void SelectionArea::renderImage( )
     );
 
     // Now we render it and send it to the holder.
-    rootWidget_->render( &painter );
+    input_.getWidget( )->render( &painter );
     QPixmap map;
     map.convertFromImage( image , Qt::ColorOnly );
     setHolderPixmap( map );
@@ -188,8 +188,8 @@ void SelectionArea::refreshSelectionMode( )
 
         // We have to transform the size of the widget from
         // widget's coordinates to screen coordinates.
-        QSize s = rootWidget_->size( );
-        QPointF min = widget->mapTo( rootWidget_ , QPoint( ));
+        const QSize s = input_.getSize( );
+        QPointF min = widget->mapTo( input_.getWidget( ) , QPoint( ));
         QPointF max = min +
                       QPoint( widget->width( ) , widget->height( ));
 
@@ -217,10 +217,10 @@ QPointF SelectionArea::normalizePoint( const QPointF& point )
   // ExtraX and extraY represents the blank space in this area.
   // We have to remove it from the normalized coordinates if we
   // want the algorithm to work properly!
-  auto w = static_cast<float>( width( ));
-  auto h = static_cast<float>(height( ));
-  float extraX = ( w - static_cast<float>( pixmap( )->width( ))) / w;
-  float extraY = ( h - static_cast<float>( pixmap( )->height( ))) / h;
+  const auto w = static_cast<float>( width( ));
+  const auto h = static_cast<float>(height( ));
+  const float extraX = ( w - static_cast<float>( pixmap( )->width( ))) / w;
+  const float extraY = ( h - static_cast<float>( pixmap( )->height( ))) / h;
 
   QPointF p = point;
   p = QPointF( p.x( ) / w , p.y( ) / h );
@@ -234,10 +234,10 @@ QPointF SelectionArea::denormalizePoint( const QPointF& point )
   // ExtraX and extraY represents the blank space in this area.
   // We have to remove it from the normalized coordinates if we
   // want the algorithm to work properly!
-  auto w = static_cast<float>( width( ));
-  auto h = static_cast<float>( height( ));
-  float extraX = ( w - static_cast<float>(pixmap( )->width( ))) / w;
-  float extraY = ( h - static_cast<float>(pixmap( )->height( ))) / h;
+  const auto w = static_cast<float>( width( ));
+  const auto h = static_cast<float>( height( ));
+  const float extraX = ( w - static_cast<float>(pixmap( )->width( ))) / w;
+  const float extraY = ( h - static_cast<float>(pixmap( )->height( ))) / h;
 
   QPointF p = point;
   p.setX( p.x( ) * ( 1 - extraX ) + extraX / 2 );
@@ -246,9 +246,9 @@ QPointF SelectionArea::denormalizePoint( const QPointF& point )
   return p;
 }
 
-void SelectionArea::changeScreen( QScreen *screen )
+void SelectionArea::changeInput( Input input )
 {
-  screen_ = screen;
+  input_ = input;
   refreshSelectionMode( );
 }
 
@@ -258,19 +258,24 @@ void SelectionArea::changeMode( SelectionMode mode )
   refreshSelectionMode( );
 }
 
-QWidget *SelectionArea::getSelectedWidget( ) const
+Input SelectionArea::getSelectedInput( ) const
 {
-  if ( mode_ == SelectionMode::WIDGET ) return selectedWidget_;
-  return rootWidget_;
-}
-
-QScreen *SelectionArea::getSelectedScreen( ) const
-{
-  return screen_;
+  return mode_ == SelectionMode::WIDGET
+         ? Input( selectedWidget_ )
+         : input_;
 }
 
 QRectF SelectionArea::getViewport( ) const
 {
   if ( mode_ == SelectionMode::AREA ) return sourceViewport_;
   return { 0 , 0 , 1 , 1 };
+}
+
+void SelectionArea::resizeEvent(QResizeEvent *e)
+{
+  PixmapHolder::resizeEvent(e);
+
+  renderImage();
+
+  refreshSelectionMode();
 }

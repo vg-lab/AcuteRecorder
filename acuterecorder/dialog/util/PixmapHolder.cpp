@@ -1,5 +1,5 @@
 //
-// Created by gaelr on 08/11/2021.
+// Created by Gael Rial Costas on 08/11/2021.
 //
 
 #include "PixmapHolder.h"

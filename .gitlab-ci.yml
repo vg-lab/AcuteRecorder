@@ -17,6 +17,7 @@ Ubuntu-master:
  stage: build
  script:
   - module load Qt-5.10.0
+  - export GITHUB_MIRROR_URL="git@github.com:vg-lab/AcuteRecorder.git"
   - export CMAKE_EXTRA_ARGS="-DCLONE_SUBPROJECTS=ON"
   - export BUILD_GENERATOR="Ninja";
   - bash .gitlab-ci.sh

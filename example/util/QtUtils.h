@@ -9,9 +9,6 @@
 namespace qt_utils
 {
 
-  QWidget *findDeepestChildWithPoint( QWidget *parent , const QPoint& point ,
-                                      QWidget *ignore = nullptr );
-
   QString readStyle( );
 
 }

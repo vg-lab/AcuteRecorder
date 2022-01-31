@@ -19,7 +19,7 @@ Q_OBJECT
 
 public:
 
-  explicit FixedDestinationModeRegion( QWidget *parent );
+  explicit FixedDestinationModeRegion( QWidget *parent , QSize defaultSize );
 
   QSize getDestinationSize( ) const;
 

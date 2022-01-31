@@ -1,5 +1,5 @@
 //
-// Created by gaelr on 18/11/2021.
+// Created by Gael Rial Costas on 18/11/2021.
 //
 
 #include "FFMPEGRecorderStorageWorker.h"
@@ -36,7 +36,6 @@ QStringList createFFMPEGArguments( int fps , int width , int height ,
   // encoding of such small dimensions.
   if ( width < C_NVIDIA_MIN_DIMENSION || height < C_NVIDIA_MIN_DIMENSION )
   {
-    qDebug( ) << "CPU MODE";
     arguments << "-vsync" << "0" << "-r" << QString::number( fps );
     arguments << "-f" << "rawvideo" << "-s";
     arguments << QString::number( width ) + "x" + QString::number( height );
@@ -45,7 +44,6 @@ QStringList createFFMPEGArguments( int fps , int width , int height ,
   }
   else
   {
-    qDebug( ) << "GPU MODE";
     arguments << "-hwaccel" << "cuda";
     arguments << "-vsync" << "0" << "-r" << QString::number( fps );
     arguments << "-f" << "rawvideo" << "-s";

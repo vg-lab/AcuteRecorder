@@ -14,6 +14,8 @@ class QComboBox;
 
 class WorkerBuilder;
 
+struct RSWParameters;
+
 class OutputRegion : public QWidget
 {
 Q_OBJECT
@@ -24,7 +26,7 @@ Q_OBJECT
 
 public:
 
-  explicit OutputRegion( QWidget *parent );
+  explicit OutputRegion( QWidget *parent , const RSWParameters& parameters );
 
   QString getOutputPath( ) const;
 

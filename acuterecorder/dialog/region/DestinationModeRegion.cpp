@@ -9,17 +9,21 @@
 #include <QLabel>
 #include <QVariant>
 
-#include <region/FixedDestinationModeRegion.h>
-#include <region/ScaledDestinationModeRegion.h>
+#include <dialog/region/FixedDestinationModeRegion.h>
+#include <dialog/region/ScaledDestinationModeRegion.h>
+#include <dialog/RSWParameters.h>
 
-#include <constant/Styles.h>
+#include <dialog/constant/Styles.h>
 
-DestinationModeRegion::DestinationModeRegion( QWidget *parent )
+DestinationModeRegion::DestinationModeRegion( QWidget *parent ,
+                                              const RSWParameters& parameters )
   : QWidget( parent ) ,
     fixed_( new QRadioButton( "Fixed" , this )) ,
     scaled_( new QRadioButton( "Scaled" , this )) ,
-    fixedRegion_( new FixedDestinationModeRegion( this )) ,
-    scaleRegion_( new ScaledDestinationModeRegion( this ))
+    fixedRegion_( new FixedDestinationModeRegion(
+      this , parameters.defaultFixedOutputSize )) ,
+    scaleRegion_( new ScaledDestinationModeRegion(
+      this , parameters.defaultScaledOutputSize ))
 {
 
   auto layout = new QHBoxLayout( this );
@@ -32,6 +36,9 @@ DestinationModeRegion::DestinationModeRegion( QWidget *parent )
   auto label = new QLabel( "Output size:" );
   label->setProperty( "class" , styles::INFO_LABEL );
 
+  fixed_->setProperty( "class" , styles::SELECTION_RADIO_BUTTON );
+  scaled_->setProperty( "class" , styles::DESTINATION_RADIO_BUTTON );
+
   layout->addWidget( label );
   layout->addWidget( fixed_ );
   layout->addWidget( scaled_ );
@@ -41,7 +48,14 @@ DestinationModeRegion::DestinationModeRegion( QWidget *parent )
 
   fixedRegion_->hide( );
 
-  scaled_->setChecked( true );
+  if ( parameters.defaultOutputSizeScaled )
+  {
+    scaled_->setChecked( true );
+  }
+  else
+  {
+    fixed_->setChecked( true );
+  }
 
   QObject::connect(
     fixed_ , SIGNAL( toggled( bool )) ,

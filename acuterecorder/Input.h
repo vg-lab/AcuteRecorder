@@ -1,5 +1,5 @@
 //
-// Created by gaelr on 18/11/2021.
+// Created by Gael Rial Costas on 18/11/2021.
 //
 
 #ifndef ACUTERECORDER_OUTPUT_H
@@ -17,7 +17,7 @@ class QSize;
 
 class QImage;
 
-enum class InputType
+enum class ACUTERECORDER_API InputType
 {
   INVALID , SCREEN , WIDGET
 };
@@ -79,6 +79,20 @@ public:
    * @return whether this input represents a QScreen.
    */
   bool isScreen( ) const;
+
+  /**
+   * Returns the represented QWidget.
+   * This method returns nullptr if this input doesn't represent a QWidget.
+   * @return the QWidget.
+   */
+  QWidget *getWidget( ) const;
+
+  /**
+ * Returns the represented QScreen.
+ * This method returns nullptr if this input doesn't represent a QScreen.
+ * @return the QScreen.
+ */
+  QScreen *getScreen( ) const;
 
   /**
    * Returns the size of the represented element.
