@@ -4,11 +4,12 @@
 
 ## Índice
 
-- [Arquitectura de la librería](#Arquitectura de la librería)
-- [Creando una grabación](#Creando una grabación)
-- [Creando un nuevo tipo de objeto de guardado](#Creando un nuevo tipo de objeto de guardado)
+- [Arquitectura de la librería](#architecture)
+- [Creando una grabación](#recording)
+- [Creando un nuevo tipo de objeto de guardado](#storage)
+- [Diálogos y widgets útiles](#dialog)
 
-## Arquitectura de la librería
+## <a name="architecture"></a> Arquitectura de la librería
 
 _AcuteRecorder_ está compuesto por tres componentes principales:
 
@@ -22,7 +23,7 @@ _AcuteRecorder_ está compuesto por tres componentes principales:
 Cada tipo de *RecorderStorageWorker* es representado por un objeto _WorkerBuilder_. Este objeto es el encargado de crear
 los _RecorderStorageWorker_ e indicar si estos se pueden crear en el contexto actual de la aplicación.
 
-## Creando una grabación
+## <a name="recording"></a> Creando una grabación
 
 ### Paso 1: crear un objeto de configuración
 
@@ -89,7 +90,7 @@ Para terminar la grabación, se debe utilizar el método _stop()_. Cabe destacar
 instantáneamente, ya que el buffer del objeto de guardado debe vaciarse. Usa la señal _finished()_ para realizar
 acciones cuando todo el proceso de grabación haya terminado.
 
-## Creando un nuevo tipo de objeto de guardado
+## <a name="storage"></a> Creando un nuevo tipo de objeto de guardado
 
 Actualmente, _AcuteRecorder_ soporta dos tipos de objetos de guardado:
 
@@ -127,4 +128,63 @@ Ahora solo queda registrar la clase constructora en la librería.
 
 ```c++
 Recorder::registerWorker("my_worker", new MyWorkerBuilder());
+```
+
+## <a name="dialog"></a> Diálogos y widgets útiles
+
+La librería contiene varios widgets y diálogos útiles para crear interfaces de configuración rápidamente. Actualmente
+existen un widget y dos diálogos.
+
+### RecorderSettingsWidget
+
+RecorderSettingsWidget es un widget que contiene todos los componentes necesarios para que un usuario pueda configurar
+una grabación. El desarrollador podrá recoger una copia del RecorderSettings actual cuando lo necesite.
+
+![](https://i.imgur.com/5GjhFQh.png)
+
+### RecorderSettingsDialog
+
+Diálogo que permite al usuario configurar una grabación. A diferencia del widget anterior, este componente es un
+diálogo, lo que permite parar la ejecución del programa hasta que el usuario no haya configurado la grabación. Este
+diálogo comprueba si la configuración es válida e informa al usuario de posibles sobrescrituras de archivos.
+
+```c++
+bool includeScreens = true;
+auto dialog = new RecorderSettingsDialog( nullptr , widgetToRender , includeScreens );
+if ( dialog->exec( ) )
+{
+  qDebug( ) << "Dialog finished";
+  RecorderSettings settings = dialog->getSettings( );
+  qDebug( ) << "Input area: " << settings.getInputArea( );
+  qDebug( ) << "Output area: " << settings.getOutputSize( );
+  qDebug( ) << "Output FPS: " << settings.getFPS( );
+  qDebug( ) << "Output path: " << settings.getOutputPath( );
+  qDebug( ) << "Storage worker: " << settings.getStorageWorker( );
+}
+else
+{
+  qDebug( ) << "Dialog cancelled.";
+}
+```
+
+![](https://i.imgur.com/dwOBFIy.png)
+
+### RecorderDialog
+
+Igual que un RecorderSettingsDialog, pero en vez de devolver un RecorderSettings, configura un Recorder listo para ser
+usado. Este componente también tiene la opción de configurar una grabación con un QTimer asignado automáticamente.
+
+```c++
+bool includeScreens = true;
+bool takeFramesAutomatically = true; // If true, creates the QTimer.
+auto dialog = new RecorderDialog( nullptr , widgetToRender , includeScreens , takeFramesAutomatically );
+if ( dialog->exec( ) )
+{
+  auto recorder = dialog->getRecorder( );
+  // Manage recorder here.
+}
+else
+{
+  qDebug( ) << "Dialog cancelled.";
+}
 ```

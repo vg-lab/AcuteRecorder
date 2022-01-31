@@ -13,10 +13,6 @@ set( acuterecorder_VERSION_ABI 1 )
 
 SET( acuterecorder_LICENSE "GPL")
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
 # Disable in source building
 if( "${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}" )
   message( FATAL "no in source building allowed.")
@@ -43,6 +39,7 @@ include(GitExternal)
 set(acuterecorder_DESCRIPTION "Acute Recorder")
 set(COMMON_PROJECT_DOMAIN gmrv.es)
 
+# this forces C++11
 include(Common)
 
 option(BUILD_EXAMPLE "BUILD ACUTE RECORDER EXAMPLE" ON)

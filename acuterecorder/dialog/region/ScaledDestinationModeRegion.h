@@ -19,7 +19,7 @@ Q_OBJECT
 
 public:
 
-  explicit ScaledDestinationModeRegion( QWidget *widget );
+  explicit ScaledDestinationModeRegion( QWidget *widget, QSizeF defaultScale);
 
   QSizeF getDestinationScale( ) const;
 

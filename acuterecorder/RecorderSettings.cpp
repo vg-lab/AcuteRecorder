@@ -1,5 +1,5 @@
 //
-// Created by gaelr on 18/11/2021.
+// Created by Gael Rial Costas on 18/11/2021.
 //
 
 #include "RecorderSettings.h"
@@ -21,6 +21,12 @@ RecorderSettings& RecorderSettings::input( QWidget *widget )
 RecorderSettings& RecorderSettings::input( QScreen *screen )
 {
   input_ = { Input( screen ) , true };
+  return *this;
+}
+
+RecorderSettings& RecorderSettings::input( const Input& input )
+{
+  input_ = { input , input.getType() != InputType::INVALID };
   return *this;
 }
 
@@ -123,7 +129,7 @@ bool RecorderSettings::isValid( ) const
          && outputSize_.second && fps_.second && storageWorker_.second;
 }
 
-void RecorderSettings::sendInvalidParametersDebugMessage( ) const
+void RecorderSettings::invalidParametersDebug( ) const
 {
   if ( !input_.second )qDebug( ) << "Input is not set!";
   if ( !inputArea_.second )qDebug( ) << "Input area is not set!";

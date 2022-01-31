@@ -6,11 +6,16 @@
 #define QTRECORDER_SELECTIONMODEREGION_H
 
 #include <QWidget>
-#include <util/SelectionMode.h>
+#include <acuterecorder/dialog/util/SelectionMode.h>
+#include <acuterecorder/dialog/RecordingSettingsWidget.h>
 
 class QScreen;
+
 class QRadioButton;
+
 class QSpinBox;
+
+struct RSWParameters;
 
 class SelectionModeRegion : public QWidget
 {
@@ -24,7 +29,8 @@ Q_OBJECT
 
 public:
 
-  explicit SelectionModeRegion( QWidget *parent );
+  explicit SelectionModeRegion( QWidget *parent ,
+                                const RSWParameters& parameters );
 
   SelectionMode getSelectionMode( ) const;
 
@@ -32,7 +38,7 @@ public:
 
 public slots:
 
-  void changeScreen( QScreen *screen );
+  void changeInput( Input input );
 
 private slots:
 

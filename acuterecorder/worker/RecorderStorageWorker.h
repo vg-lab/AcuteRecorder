@@ -56,7 +56,7 @@ signals:
    * Notifies a change in the buffer of the worker.
    * @param size the size of the buffer.
    */
-  virtual void fileQueueSizeChanged( int size );
+  void fileQueueSizeChanged( int size );
 
 };
 

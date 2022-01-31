@@ -1,5 +1,5 @@
 //
-// Created by gaelr on 18/11/2021.
+// Created by Gael Rial Costas on 18/11/2021.
 //
 
 #ifndef ACUTERECORDER_RECORDERSETTINGS_H
@@ -23,7 +23,6 @@
  */
 class ACUTERECORDER_API RecorderSettings
 {
-
 
   std::pair< Input , bool > input_{ Input( ) , false };
   std::pair< QRectF , bool > inputArea_{{ 0 , 0 , 0 , 0 } , false };
@@ -54,6 +53,13 @@ public:
    * @return this builder.
    */
   RecorderSettings& input( QScreen *screen );
+
+  /**
+   * Makes the given input the input of the settings.
+   * @param input the input.
+   * @return this builder.
+   */
+  RecorderSettings& input( const Input& input );
 
   /**
    * Returns the input of this recorder.
@@ -180,7 +186,7 @@ public:
    * Sends a debug message containing information about all
    * invalid parameters in these settings.
    */
-  void sendInvalidParametersDebugMessage( ) const;
+  void invalidParametersDebug( ) const;
 
 };
 

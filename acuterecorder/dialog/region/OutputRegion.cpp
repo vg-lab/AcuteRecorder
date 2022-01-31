@@ -6,6 +6,8 @@
 
 #include <acuterecorder/worker/WorkerBuilder.h>
 #include <acuterecorder/Recorder.h>
+#include <acuterecorder/dialog/constant/Styles.h>
+#include <acuterecorder/dialog/RSWParameters.h>
 
 #include <QHBoxLayout>
 #include <QLabel>
@@ -13,12 +15,12 @@
 #include <QPushButton>
 #include <QFileDialog>
 
-#include <constant/Styles.h>
 #include <QComboBox>
 #include <QObject>
 
-OutputRegion::OutputRegion( QWidget *p ) : QWidget( p ) ,
-                                           folderMode_( false )
+OutputRegion::OutputRegion( QWidget *p , const RSWParameters& parameters )
+  : QWidget( p ) ,
+    folderMode_( false )
 {
   auto layout = new QHBoxLayout( this );
   layout->setAlignment( Qt::AlignLeft );
@@ -33,7 +35,7 @@ OutputRegion::OutputRegion( QWidget *p ) : QWidget( p ) ,
   outputTextField_->setProperty( "class" , styles::OUTPUT_TEXT_FIELD );
   button->setProperty( "class" , styles::OUTPUT_FILE_BUTTON );
 
-  outputTextField_->setText( "output.mp4" );
+  outputTextField_->setText( parameters.defaultOutput );
 
   auto label = new QLabel( "Output:" );
   label->setProperty( "class" , styles::INFO_LABEL );
@@ -56,8 +58,17 @@ OutputRegion::OutputRegion( QWidget *p ) : QWidget( p ) ,
     if ( item.second->isAvailable( ))
     {
       workers_->addItem( item.first );
+      if ( item.first == parameters.defaultWorker )
+      {
+        workers_->setCurrentIndex(workers_->count()-1);
+      }
     }
   }
+
+  label->setVisible( parameters.showOutput );
+  outputTextField_->setVisible( parameters.showOutput );
+  workerLabel->setVisible( parameters.showWorker );
+  workers_->setVisible( parameters.showWorker );
 
   QObject::connect(
     button , SIGNAL( pressed( )) ,
@@ -97,28 +108,28 @@ void OutputRegion::openFileDialog( )
 {
   auto result = QFileDialog::getSaveFileName(
     this ,
-    "Select output" ,
-    "~/" ,
+    tr("Select output") ,
+    QDir::homePath(),
     "*.mp4"
   );
-  if ( result.isEmpty( )) return;
-  outputTextField_->setText( result );
+  if ( !result.isEmpty( ))
+    outputTextField_->setText( result );
 }
 
 void OutputRegion::openFolderDialog( )
 {
   auto result = QFileDialog::getExistingDirectory(
     this ,
-    "Select output folder" ,
-    "~/"
+    tr("Select output folder") ,
+    QDir::homePath()
   );
-  if ( result.isEmpty( )) return;
-  outputTextField_->setText( result );
+  if ( !result.isEmpty( ))
+    outputTextField_->setText( result );
 }
 
 void OutputRegion::changeFolderMode( const QString& workerName )
 {
   WorkerBuilder *worker = Recorder::getWorkerBuilder( workerName );
-  if ( worker == nullptr ) return;
-  folderMode_ = worker->isOutputAFolder( );
+  if ( worker )
+    folderMode_ = worker->isOutputAFolder( );
 }

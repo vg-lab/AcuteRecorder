@@ -7,9 +7,10 @@
 #include <QHBoxLayout>
 #include <QSpinBox>
 
-#include <constant/Styles.h>
+#include <dialog/constant/Styles.h>
 
-FixedDestinationModeRegion::FixedDestinationModeRegion( QWidget *parent )
+FixedDestinationModeRegion::FixedDestinationModeRegion( QWidget *parent ,
+                                                        QSize defaultSize )
   : QWidget( parent ) ,
     width_( new QSpinBox( this )) ,
     height_( new QSpinBox( this ))
@@ -25,11 +26,11 @@ FixedDestinationModeRegion::FixedDestinationModeRegion( QWidget *parent )
   width_->setMinimum( 1 );
   height_->setMinimum( 1 );
 
-  width_->setMaximum(10000);
-  height_->setMaximum(10000);
+  width_->setMaximum( 10000 );
+  height_->setMaximum( 10000 );
 
-  width_->setValue(1920);
-  height_->setValue(1080);
+  width_->setValue( defaultSize.width( ));
+  height_->setValue( defaultSize.height( ));
 
   width_->setProperty( "class" , styles::FIXED_WIDTH );
   height_->setProperty( "class" , styles::FIXED_HEIGHT );

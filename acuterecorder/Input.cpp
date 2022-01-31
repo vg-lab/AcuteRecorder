@@ -1,5 +1,5 @@
 //
-// Created by gaelr on 18/11/2021.
+// Created by Gael Rial Costas on 18/11/2021.
 //
 
 #include "Input.h"
@@ -44,7 +44,17 @@ bool Input::isScreen( ) const
   return screen_ != nullptr;
 }
 
-QImage * Input::render( const QRectF& inputArea , const QSize& outputSize ) const
+QWidget *Input::getWidget( ) const
+{
+  return widget_;
+}
+
+QScreen *Input::getScreen( ) const
+{
+  return screen_;
+}
+
+QImage *Input::render( const QRectF& inputArea , const QSize& outputSize ) const
 {
   if ( widget_ == nullptr && screen_ == nullptr )
   {
@@ -109,5 +119,5 @@ QSize Input::getSize( ) const
     throw std::logic_error( "Input is invalid: it has no widget or screen." );
   }
 
-  return widget_ == nullptr ? screen_->size() : widget_->size();
+  return widget_ == nullptr ? screen_->size( ) : widget_->size( );
 }

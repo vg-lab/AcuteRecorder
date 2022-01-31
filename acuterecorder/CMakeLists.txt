@@ -29,6 +29,18 @@ set(ACUTERECORDER_SOURCES
         worker/WorkerBuilder.cpp
         worker/FFMPEGWorkerBuilder.cpp
         worker/ImageWorkerBuilder.cpp
+        dialog/element/ScreenComboBox.cpp
+        dialog/element/SelectionArea.cpp
+        dialog/region/DestinationModeRegion.cpp
+        dialog/region/FixedDestinationModeRegion.cpp
+        dialog/region/OutputRegion.cpp
+        dialog/region/ScaledDestinationModeRegion.cpp
+        dialog/region/SelectionModeRegion.cpp
+        dialog/util/PixmapHolder.cpp
+        dialog/util/APIUtils.cpp
+        dialog/RecorderDialog.cpp
+        dialog/RecorderSettingsDialog.cpp
+        dialog/RecorderSettingsWidget.cpp
         )
 
 set(ACUTERECORDER_PUBLIC_HEADERS
@@ -37,11 +49,15 @@ set(ACUTERECORDER_PUBLIC_HEADERS
         RecorderSettings.h
         Recorder.h
         worker/RecorderStorageWorker.h
-        worker/FFMPEGRecorderStorageWorker.h
-        worker/ImageRecorderStorageWorker.h
         worker/WorkerBuilder.h
-        worker/FFMPEGWorkerBuilder.h
-        worker/ImageWorkerBuilder.h
+        dialog/constant/Styles.h
+        dialog/element/ScreenComboBox.h
+        dialog/element/SelectionArea.h
+        dialog/util/PixmapHolder.h
+        dialog/RecorderDialog.h
+        dialog/RecorderSettingsDialog.h
+        dialog/RecordingSettingsWidget.h
+        dialog/RSWParameters.h
         )
 
 set(ACUTERECORDER_HEADERS

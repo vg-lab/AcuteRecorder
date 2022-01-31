@@ -2,9 +2,9 @@
 // Created by Gael Rial Costas on 16/8/21.
 //
 
-#include <acuterecorder/acuterecorder.h>
-
 #include "MainWindowRegion.h"
+
+#include <acuterecorder/acuterecorder.h>
 
 #include <QApplication>
 #include <QScreen>
@@ -12,60 +12,33 @@
 #include <QMessageBox>
 #include <QFileInfo>
 
-#include <element/SelectionArea.h>
-#include <element/ScreenComboBox.h>
 #include <element/StartStopButton.h>
-
-#include <region/SelectionModeRegion.h>
-#include <region/DestinationModeRegion.h>
-#include <region/OutputRegion.h>
-
 #include <constant/Styles.h>
 
 MainWindowRegion::MainWindowRegion( QWidget *parent , QWidget *root ) :
   QWidget( parent ) , recorder_( nullptr )
 {
   auto layout = new QVBoxLayout( this );
-
-  setProperty( "class" , styles::REGION_MAIN_WINDOW );
+  setProperty( "class" , example_styles::REGION_MAIN_WINDOW );
   setLayout( layout );
 
-  selectionArea_ = new SelectionArea( this , root );
-  screenComboBox_ = new ScreenComboBox( this );
-  selectionModeRegion_ = new SelectionModeRegion( this );
-  destinationModeRegion_ = new DestinationModeRegion( this );
-  outputRegion_ = new OutputRegion( this );
+  RSWParameters parameters;
+  parameters.widgetsToRecord.emplace_back("Test widget", root );
+  settingsWidget_ = new RecorderSettingsWidget( this , parameters );
   startStopButton_ = new StartStopButton( this );
   queueSizeBar_ = new QProgressBar( this );
 
-  queueSizeBar_->setProperty( "class" , styles::QUEUE_SIZE_BAR );
+  queueSizeBar_->setProperty( "class" , example_styles::QUEUE_SIZE_BAR );
+  queueSizeBar_->setFormat("Frame queue: %p frames");
+  // @felix 31-01-22 what happens if there are more than 100 frames in the queue?
+  queueSizeBar_->setValue(0); // init
 
-  layout->addWidget( selectionArea_ , 1 );
-  layout->addStretch( );
-  layout->addWidget( screenComboBox_ );
-  layout->addWidget( selectionModeRegion_ );
-  layout->addWidget( destinationModeRegion_ );
-  layout->addWidget( outputRegion_ );
+  layout->addWidget( settingsWidget_ );
   layout->addWidget( startStopButton_ );
   layout->addWidget( queueSizeBar_ );
 
-
-  QObject::connect(
-    screenComboBox_ , SIGNAL( screenChanged( QScreen * )) ,
-    selectionArea_ , SLOT( changeScreen( QScreen * ))
-  );
-  QObject::connect(
-    screenComboBox_ , SIGNAL( screenChanged( QScreen * )) ,
-    selectionModeRegion_ , SLOT( changeScreen( QScreen * ))
-  );
-  QObject::connect(
-    selectionModeRegion_ , SIGNAL( selectionModeChanged( SelectionMode )) ,
-    selectionArea_ , SLOT( changeMode( SelectionMode ))
-  );
-
-  QObject::connect(
-    startStopButton_ , SIGNAL( clicked( bool )) ,
-    this , SLOT( toggleRecording( ))
+  QObject::connect( startStopButton_ , SIGNAL( clicked( bool )) ,
+                    this ,             SLOT( toggleRecording( ))
   );
 }
 
@@ -86,32 +59,7 @@ void MainWindowRegion::startRecording( )
   // First we have to create our configuration. We can do it directly
   // or using the builder.
 
-  RecorderSettings builder = RecorderSettings( );
-
-  auto screen = selectionArea_->getSelectedScreen( );
-  if ( screen != nullptr )
-  {
-    builder.input( screen );
-  }
-  else
-  {
-    builder.input( selectionArea_->getSelectedWidget( ));
-  }
-
-  builder.inputArea( selectionArea_->getViewport( ));
-  builder.fps( selectionModeRegion_->getFPS( ));
-  builder.outputPath( outputRegion_->getOutputPath( ));
-  builder.storageWorker( outputRegion_->getWorkerName( ));
-
-  if ( destinationModeRegion_->isFixedMode( ))
-  {
-    builder.outputSize( destinationModeRegion_->getFixedSize( ));
-  }
-  else
-  {
-    builder.outputScaledSize( destinationModeRegion_->getScaledSize( ));
-  }
-
+  RecorderSettings builder = settingsWidget_->getSettings( );
   if ( !builder.isValid( ))
   {
     QMessageBox msgBox( this );
@@ -123,7 +71,7 @@ void MainWindowRegion::startRecording( )
   }
 
   QFileInfo outputVideo{ builder.getOutputPath( ) };
-  if ( outputVideo.exists( ) && !outputRegion_->isFolderMode())
+  if ( outputVideo.exists( ) && !settingsWidget_->isFolderMode( ))
   {
     QMessageBox msgBox( this );
     msgBox.setWindowTitle( tr( "Output video exists" ));
@@ -138,10 +86,7 @@ void MainWindowRegion::startRecording( )
     if ( result != QMessageBox::Ok ) return;
   }
 
-  screenComboBox_->setEnabled( false );
-  selectionModeRegion_->setEnabled( false );
-  destinationModeRegion_->setEnabled( false );
-  outputRegion_->setEnabled( false );
+  settingsWidget_->setEnabled( false );
 
   // We create the config and the recorder.
   recorder_ = new Recorder( builder );
@@ -158,20 +103,16 @@ void MainWindowRegion::startRecording( )
   // use Recorder::stop(). You have to wait for the  image queue
   // to be empty.
   QObject::connect(
-    recorder_, SIGNAL( finished( )) ,
-    this , SLOT( deleteRecorder())
+    recorder_ , SIGNAL( finished( )) ,
+    this , SLOT( deleteRecorder( ))
   );
 
   // Queue size
+  QObject::connect( recorder_,     SIGNAL(bufferSizeChange(int)),
+                    queueSizeBar_, SLOT(setValue(int)));
 
-  QObject::connect(
-    recorder_, SIGNAL( bufferSizeChange( int )) ,
-    queueSizeBar_ , SLOT( setValue( int ))
-  );
-
-  QObject::connect(
-    recorder_, SIGNAL( finished( )) ,
-    startStopButton_ , SLOT( onFinish( ))
+  QObject::connect( recorder_ , SIGNAL( finished( )) ,
+                    startStopButton_ , SLOT( onFinish( ))
   );
 
   startStopButton_->onStart( );
@@ -184,16 +125,13 @@ void MainWindowRegion::stopRecording( )
   QObject::disconnect( &timer_ , SIGNAL( timeout( )) ,
                        recorder_ , SLOT( takeFrame( )));
 
-  QApplication::setOverrideCursor(Qt::WaitCursor);
+  QApplication::setOverrideCursor( Qt::WaitCursor );
 
   recorder_->stop( );
 
-  screenComboBox_->setEnabled( true );
-  selectionModeRegion_->setEnabled( true );
-  destinationModeRegion_->setEnabled( true );
-  outputRegion_->setEnabled( true );
+  settingsWidget_->setEnabled( true );
 
-  QApplication::restoreOverrideCursor();
+  QApplication::restoreOverrideCursor( );
 }
 
 void MainWindowRegion::toggleRecording( )
@@ -208,8 +146,8 @@ void MainWindowRegion::toggleRecording( )
   }
 }
 
-void MainWindowRegion::deleteRecorder()
+void MainWindowRegion::deleteRecorder( )
 {
-  if(recorder_) recorder_->deleteLater();
+  if ( recorder_ ) recorder_->deleteLater( );
   recorder_ = nullptr;
 }

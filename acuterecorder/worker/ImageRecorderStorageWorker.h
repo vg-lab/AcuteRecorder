@@ -1,5 +1,5 @@
 //
-// Created by gaelr on 18/11/2021.
+// Created by Gael Rial Costas on 18/11/2021.
 //
 
 #ifndef ACUTERECORDER_QTSTORAGETHREAD_H
@@ -57,16 +57,13 @@ public:
    * @param output the path of the output folder.
    */
   ImageRecorderStorageWorker( QObject *object , const QString &output );
+  virtual ~ImageRecorderStorageWorker() {};
 
-  void push( QImage *image ) override;
+  virtual void push( QImage *image ) override;
 
 public slots:
 
-  void stop( ) override;
-
-signals:
-
-  void fileQueueSizeChanged( int size ) override;
+  virtual void stop( ) override;
 
 };
 

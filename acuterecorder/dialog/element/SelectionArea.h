@@ -1,39 +1,40 @@
 //
-// Created by gaelr on 08/11/2021.
+// Created by Gael Rial Costas on 08/11/2021.
 //
 
 #ifndef QTRECORDER_SELECTIONAREA_H
 #define QTRECORDER_SELECTIONAREA_H
 
+#include <acuterecorder/api.h>
+
 #include <QRubberBand>
 #include <QRectF>
 
-#include <util/PixmapHolder.h>
-#include <util/SelectionMode.h>
+#include <acuterecorder/dialog/util/PixmapHolder.h>
+#include <acuterecorder/dialog/util/SelectionMode.h>
+#include <acuterecorder/Input.h>
 
 class QScreen;
+class QResizeEvent;
 
 /**
  * Represents the area where the user can select the area to record.
  *
  * This area supports all three selection modes: FULL, AREA and WIDGET.
  */
-class SelectionArea : public PixmapHolder
+class ACUTERECORDER_API SelectionArea : public PixmapHolder
 {
 
 Q_OBJECT
 
   SelectionMode mode_;
-  QWidget *rootWidget_;
+  Input input_;
   QWidget *selectedWidget_;
-  QScreen *screen_;
   QRectF sourceViewport_;
 
   QRubberBand *band_;
   QPointF areaFrom_ , areaTo_;
   bool dragging_;
-
-  QTimer *resizeCheckTimer_;
 
 private slots:
 
@@ -52,34 +53,26 @@ protected:
 
   void mouseReleaseEvent( QMouseEvent *event ) override;
 
+  void resizeEvent(QResizeEvent *e) override;
+
 public:
 
   /**
    * Creates the selection area.
    * @param parent  the parent widget. Required by Qt. It may be null.
-   * @param data the general data of the recorder.
-   * It will be modified by this area.
+   * @param rootWidget the first widget to show.
+   * @param selectionMode the default selection mode.
    */
-  explicit SelectionArea( QWidget *parent , QWidget *rootWidget );
+  explicit SelectionArea( QWidget *parent ,
+                          QWidget *rootWidget ,
+                          SelectionMode selectionMode );
 
   /**
-   * Returns the selected widget.
+   * Returns the selected input.
    *
-   * This method should not be used if getSelectedScreen() is not null.
-   *
-   * @return the selected widget.
+   * @return the selected input.
    */
-  QWidget *getSelectedWidget( ) const;
-
-  /**
-   * Returns the selected screen.
-   *
-   * If no screen is selected, this method returns
-   * null and getSelectedWidget() should be used.
-   *
-   * @return the selected screen.
-   */
-  QScreen *getSelectedScreen( ) const;
+  Input getSelectedInput( ) const;
 
   /**
    * Returns the viewport to use in the recording.
@@ -124,7 +117,7 @@ public:
 
 public slots:
 
-  void changeScreen( QScreen *screen );
+  void changeInput( Input input );
 
   void changeMode( SelectionMode mode );
 

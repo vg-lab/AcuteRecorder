@@ -1,5 +1,5 @@
 //
-// Created by gaelr on 18/11/2021.
+// Created by Gael Rial Costas on 18/11/2021.
 //
 
 #include "Recorder.h"
@@ -45,7 +45,7 @@ Recorder::Recorder( RecorderSettings settings ) :
   {
     qDebug( )
       << "[Recorder] Recorder settings are not valid. Aborting construction";
-    settings_.sendInvalidParametersDebugMessage( );
+    settings_.invalidParametersDebug();
   }
   else
   {
@@ -67,20 +67,16 @@ Recorder::Recorder( RecorderSettings settings ) :
     {
       storageWorker_ = workerBuilder->createWorker( this , settings_ );
 
-      QObject::connect(
-        storageWorker_ , SIGNAL( finished( )) ,
-        storageWorker_ , SLOT( deleteLater( ))
+      QObject::connect( storageWorker_ , SIGNAL( finished( )) ,
+                        storageWorker_ , SLOT( deleteLater( ))
       );
 
-      connect( storageWorker_ ,
-               &RecorderStorageWorker::fileQueueSizeChanged ,
-               [ & ]( int value )
-               { emit bufferSizeChange( value ); } );
+      connect( storageWorker_ , SIGNAL(fileQueueSizeChanged(int)) ,
+               this,            SIGNAL(bufferSizeChange(int)));
 
-      connect( storageWorker_ ,
-               &QThread::finished ,
-               [ & ]( )
-               { emit finished( ); } );
+      connect( storageWorker_ , SIGNAL(finished()),
+               this,            SIGNAL(finished()));
+
       storageWorker_->start( );
     }
   }
@@ -91,6 +87,11 @@ void Recorder::stop( )
   if ( !isRecording( )) return;
 
   storageWorker_->stop( );
+}
+
+void Recorder::wait( )
+{
+  storageWorker_->wait( );
 }
 
 void Recorder::takeFrame( )

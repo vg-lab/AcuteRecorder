@@ -1,9 +1,11 @@
 //
-// Created by gaelr on 08/11/2021.
+// Created by Gael Rial Costas on 08/11/2021.
 //
 
 #ifndef QTRECORDER_PIXMAPHOLDER_H
 #define QTRECORDER_PIXMAPHOLDER_H
+
+#include <acuterecorder/api.h>
 
 #include <QLabel>
 
@@ -11,7 +13,7 @@
  * Small helper node used to hold a Pixmap that will be resized
  * to match this label's bounds.
  */
-class PixmapHolder : public QLabel
+class ACUTERECORDER_API PixmapHolder : public QLabel
 {
 
 Q_OBJECT

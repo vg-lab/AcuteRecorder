@@ -2,8 +2,8 @@
 // Created by gaeqs on 12/15/21.
 //
 
-#include <acuterecorder/worker/FFMPEGRecorderStorageWorker.h>
-#include <acuterecorder/RecorderSettings.h>
+#include <worker/FFMPEGRecorderStorageWorker.h>
+#include <RecorderSettings.h>
 
 #include <QProcess>
 

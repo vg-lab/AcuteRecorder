@@ -3,14 +3,12 @@
 //
 
 #include "StartStopButton.h"
-
 #include <QVariant>
-
 #include <constant/Styles.h>
 
 StartStopButton::StartStopButton( QWidget *parent ) : QPushButton( parent )
 {
-  setProperty( "class" , styles::START_STOP_BUTTON );
+  setProperty( "class" , example_styles::START_STOP_BUTTON );
   setProperty( "running" , false );
   setText( "Start" );
 }

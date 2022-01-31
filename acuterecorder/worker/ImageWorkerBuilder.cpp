@@ -2,8 +2,8 @@
 // Created by gaeqs on 12/15/21.
 //
 
-#include <acuterecorder/worker/ImageRecorderStorageWorker.h>
-#include <acuterecorder/RecorderSettings.h>
+#include <worker/ImageRecorderStorageWorker.h>
+#include <RecorderSettings.h>
 
 #include "ImageWorkerBuilder.h"
 

@@ -4,11 +4,12 @@
 
 ## Index
 
-- [API architecture](#API architecture)
-- [Creating a recorder](#Creating a recorder)
-- [Creating a new storage worker](#Creating a new storage worker)
+- [API architecture](#architecture)
+- [Creating a recorder](#recording)
+- [Creating a new storage worker](#storage)
+- [Useful dialogs and widgets](#dialog)
 
-## API architecture
+## <a name="architecture"></a> API architecture
 
 _AcuteRecorder_ can be split into three main components:
 
@@ -21,7 +22,7 @@ _AcuteRecorder_ can be split into three main components:
 Every storage worker is represented by a _WorkerBuilder_. This object is in charge of creating storage workers. They
 also indicate whether storage workers of its type can be created in the application's current context.
 
-## Creating a recorder
+## <a name="recording"></a> Creating a recorder
 
 ### Step 1: create a settings object
 
@@ -83,7 +84,7 @@ _finished()_ signal to know when the recording has finished.
 Use _stop()_ to stop the recording. This won't finish the recording instantaneously: the storage worker's buffer must be
 depleted first. Use the _finished()_ signal to execute code after the recording has finished.
 
-## Creating a new storage worker
+## <a name="storage"></a> Creating a new storage worker
 
 Currently, _AcuteRecorder_ supports two types of storage workers:
 
@@ -120,4 +121,63 @@ Now you just have to register the builder:
 
 ```c++
 Recorder::registerWorker("my_worker", new MyWorkerBuilder());
+```
+
+## <a name="dialog"></a> Useful dialogs and widgets
+
+The API contains several useful widgets and dialogs you can use to create configuration UIs easily. Currently, there are
+one widget and two dialogs available.
+
+### RecorderSettingsWidget
+
+A RecorderSettingsWidget is a widget that contains all UI componentes required for the user to create a
+RecorderSettings. The developer can fetch a copy of the RecorderSettings when they need it.
+
+![](https://i.imgur.com/5GjhFQh.png)
+
+### RecorderSettingsDialog
+
+This dialog allows the user to configure a RecorderSettings. Unlike the previous widget, this component is a dialog.
+This allows the developer to interrupt the program execution until the user configures the recording. This dialog also
+checks if the RecorderSettings is valid and notices the user about overwrites.
+
+```c++
+bool includeScreens = true;
+auto dialog = new RecorderSettingsDialog( nullptr , widgetToRender , includeScreens );
+if ( dialog->exec( ) )
+{
+  qDebug( ) << "Dialog finished";
+  RecorderSettings settings = dialog->getSettings( );
+  qDebug( ) << "Input area: " << settings.getInputArea( );
+  qDebug( ) << "Output area: " << settings.getOutputSize( );
+  qDebug( ) << "Output FPS: " << settings.getFPS( );
+  qDebug( ) << "Output path: " << settings.getOutputPath( );
+  qDebug( ) << "Storage worker: " << settings.getStorageWorker( );
+}
+else
+{
+  qDebug( ) << "Dialog cancelled.";
+}
+```
+
+![](https://i.imgur.com/dwOBFIy.png)
+
+### RecorderDialog
+
+Behaves similar to a RecorderSettingsDialog, but instead of returning a RecorderSettings, this dialog creates a new
+Recorder ready to be used. This dialog also has the option to configure a Recorder with a linked QTimer.
+
+```c++
+bool includeScreens = true;
+bool takeFramesAutomatically = true; // If true, creates the QTimer.
+auto dialog = new RecorderDialog( nullptr , widgetToRender , includeScreens , takeFramesAutomatically );
+if ( dialog->exec( ) )
+{
+  auto recorder = dialog->getRecorder( );
+  // Manage recorder here.
+}
+else
+{
+  qDebug( ) << "Dialog cancelled.";
+}
 ```
