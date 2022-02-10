@@ -26,15 +26,16 @@ RecorderSettingsWidget::RecorderSettingsWidget(
   setProperty( "class" , styles::REGION_SETTINGS_WIDGET );
   setLayout( layout );
 
-  Q_ASSERT(!parameters.widgetsToRecord.empty());
+  Q_ASSERT( !parameters.widgetsToRecord.empty( ));
 
   selectionArea_ = new SelectionArea(
-    this , parameters.widgetsToRecord.front().second ,
+    this , parameters.widgetsToRecord.front( ).second ,
     parameters.defaultSelectionMode );
   screenComboBox_ = new ScreenComboBox(
     this , parameters.widgetsToRecord , parameters.includeScreens );
   selectionModeRegion_ = new SelectionModeRegion( this , parameters );
-  destinationModeRegion_ = new DestinationModeRegion( this , parameters );
+  destinationModeRegion_ = new DestinationModeRegion(
+    this , selectionArea_ , parameters );
   outputRegion_ = new OutputRegion( this , parameters );
 
   layout->addWidget( selectionArea_ , 1 );

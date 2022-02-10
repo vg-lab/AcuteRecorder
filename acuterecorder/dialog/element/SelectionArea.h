@@ -121,6 +121,10 @@ public slots:
 
   void changeMode( SelectionMode mode );
 
+signals:
+
+  void inputSizeChange( QSize size );
+
 };
 
 

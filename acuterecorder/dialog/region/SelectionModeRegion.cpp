@@ -14,11 +14,11 @@
 
 SelectionModeRegion::SelectionModeRegion( QWidget *parent ,
                                           const RSWParameters& parameters )
-  : QWidget( parent ) ,
-    fullButton_( new QRadioButton( "Full" , this )) ,
-    areaButton_( new QRadioButton( "Area" , this )) ,
-    widgetButton_( new QRadioButton( "Widget" , this )) ,
-    fpsSpinBox_( new QSpinBox( this ))
+  : QWidget( parent )
+  , fullButton_( new QRadioButton( "Full" , this ))
+  , areaButton_( new QRadioButton( "Area" , this ))
+  , widgetButton_( new QRadioButton( "Widget" , this ))
+  , fpsSpinBox_( new QSpinBox( this ))
 {
   auto layout = new QHBoxLayout( this );
   layout->setAlignment( Qt::AlignAbsolute );
@@ -80,6 +80,27 @@ SelectionModeRegion::SelectionModeRegion( QWidget *parent ,
       break;
   }
 
+  QString tooltip = "Here you can configure the area of the video to record.";
+
+  if ( parameters.showFullSourceMode )
+  {
+    tooltip += "\nFull: records the full area of the input.";
+  }
+
+  if ( parameters.showAreaSourceMode )
+  {
+    tooltip += "\nArea: records a selected area of the input.";
+  }
+
+  if ( parameters.showWidgetSourceMode )
+  {
+    tooltip += "\nWidget: records a sub-widget of the input.";
+  }
+
+  label->setToolTip( tooltip );
+
+  fpsLabel->setToolTip( "The frame per seconds of the output video." );
+
   QObject::connect(
     fullButton_ , SIGNAL( toggled( bool )) ,
     this , SLOT( refreshSelectionMode( ))
@@ -114,7 +135,7 @@ int SelectionModeRegion::getFPS( ) const
 
 void SelectionModeRegion::changeInput( Input input )
 {
-  if ( input.isWidget() )
+  if ( input.isWidget( ))
   {
     widgetButton_->setEnabled( true );
   }

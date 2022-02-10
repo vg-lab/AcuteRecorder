@@ -23,11 +23,27 @@ QPixmap PixmapHolder::getScaledPixmap( ) const
 void PixmapHolder::setHolderPixmap( const QPixmap& pixmap )
 {
   pixmap_ = pixmap;
-  setPixmap( getScaledPixmap( ));
+  QPixmap scaled = getScaledPixmap();
+  width_ = scaled.width();
+  height_ = scaled.height();
+  setPixmap( scaled );
 }
 
 void PixmapHolder::resizeEvent( QResizeEvent * )
 {
   if ( pixmap_.isNull( )) return;
-  setPixmap( getScaledPixmap( ));
+  QPixmap scaled = getScaledPixmap();
+  width_ = scaled.width();
+  height_ = scaled.height();
+  setPixmap( scaled );
+}
+
+int PixmapHolder::getWidth( ) const
+{
+  return width_;
+}
+
+int PixmapHolder::getHeight( ) const
+{
+  return height_;
 }
