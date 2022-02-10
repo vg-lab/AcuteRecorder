@@ -16,25 +16,26 @@ constexpr int UPDATE_MILLIS = 50;
 SelectionArea::SelectionArea( QWidget *parent ,
                               QWidget *rootWidget ,
                               SelectionMode selectionMode )
-  : PixmapHolder( parent ) ,
-    mode_( selectionMode ) ,
-    input_( rootWidget ) ,
-    selectedWidget_( rootWidget ) ,
-    sourceViewport_( 0 , 0 , 1 , 1 ) ,
-    band_( new QRubberBand( QRubberBand::Rectangle , this )) ,
-    areaFrom_( 0 , 0 ) ,
-    areaTo_( 0 , 0 ) ,
-    dragging_( false )
+  : PixmapHolder( parent )
+  , mode_( selectionMode )
+  , input_( rootWidget )
+  , selectedWidget_( rootWidget )
+  , sourceViewport_( 0 , 0 , 1 , 1 )
+  , band_( new QRubberBand( QRubberBand::Rectangle , this ))
+  , areaFrom_( 0 , 0 )
+  , areaTo_( 0 , 0 )
+  , dragging_( false )
 {
   setAlignment( Qt::AlignCenter );
 
-  auto timer = new QTimer(this);
-  connect(timer, SIGNAL(timeout()), this, SLOT(renderImage()));
-  connect(this, SIGNAL(destroyed(QObject*)), timer, SLOT(deleteLater()));
+  auto timer = new QTimer( this );
+  connect( timer , SIGNAL( timeout( )) , this , SLOT( renderImage( )));
+  connect( this , SIGNAL( destroyed( QObject * )) , timer ,
+           SLOT( deleteLater( )));
 
-  timer->setSingleShot(false);
-  timer->setInterval(UPDATE_MILLIS);
-  timer->start();
+  timer->setSingleShot( false );
+  timer->setInterval( UPDATE_MILLIS );
+  timer->start( );
 }
 
 // region mouse events
@@ -78,13 +79,25 @@ void SelectionArea::mouseMoveEvent( QMouseEvent *event )
     clamp( static_cast<float>(areaTo_.y( )) , 0.0f , 1.0f )
   );
 
+  // Positivice area:
+
+  QPointF min = QPointF(
+    std::min( areaFrom_.x( ) , areaTo_.x( )) ,
+    std::min( areaFrom_.y( ) , areaTo_.y( ))
+  );
+
+  QPointF max = QPointF(
+    std::max( areaFrom_.x( ) , areaTo_.x( )) ,
+    std::max( areaFrom_.y( ) , areaTo_.y( ))
+  );
+
   // Update the viewport. Updating it here assures consistency with the
-  // #refreshSelectionMode( ) method.+
-  sourceViewport_ = QRectF( areaFrom_ , areaTo_ );
+  // #refreshSelectionMode( ) method.
+  sourceViewport_ = QRectF( min , max );
 
   const QRect rect(
-    denormalizePoint( sourceViewport_.topLeft( )).toPoint( ) ,
-    denormalizePoint( sourceViewport_.bottomRight( )).toPoint( )
+    denormalizePoint( min ).toPoint( ) ,
+    denormalizePoint( max ).toPoint( )
   );
   band_->setGeometry( rect );
 }
@@ -136,27 +149,7 @@ void SelectionArea::renderImage( )
   }
   else if ( input_.isWidget( ))
   {
-    // First we have to find the optimal scale for the render.
-    const QSize thisSize = size( );
-    const QSize wSize = input_.getWidget( )->size( );
-    const QSize size = QSize(
-      thisSize.height( ) * wSize.width( ) / wSize.width( ) ,
-      thisSize.height( )
-    );
-    QImage image( size , QImage::Format_RGB32 );
-    QPainter painter( &image );
-
-    // Now that we have the optimal scale, use it in the painter.
-    painter.scale(
-      static_cast<float>( size.width( )) / static_cast<float>( wSize.width( )) ,
-      static_cast<float>( size.height( )) / static_cast<float>( wSize.height( ))
-    );
-
-    // Now we render it and send it to the holder.
-    input_.getWidget( )->render( &painter );
-    QPixmap map;
-    map.convertFromImage( image , Qt::ColorOnly );
-    setHolderPixmap( map );
+    setHolderPixmap( input_.getWidget( )->grab( ));
   }
 
   // Just in case the rendering widget was resized, refresh the selection.
@@ -170,6 +163,7 @@ void SelectionArea::refreshSelectionMode( )
     case SelectionMode::FULL:
       // The FULL mode just hides the selection.
       band_->hide( );
+      emit inputSizeChange( input_.getSize( ));
       break;
     case SelectionMode::AREA:
     {
@@ -178,6 +172,16 @@ void SelectionArea::refreshSelectionMode( )
       QPointF max = denormalizePoint( sourceViewport_.bottomRight( ));
       band_->setGeometry( QRect( min.toPoint( ) , max.toPoint( )));
       band_->show( );
+
+      QSizeF sizeF = sourceViewport_.size( );
+      QSize inputSize = input_.getSize( );
+
+      QSize size = QSize(
+        static_cast<int>(sizeF.width( ) * inputSize.width( )) ,
+        static_cast<int>(sizeF.height( ) * inputSize.height( ))
+      );
+
+      emit inputSizeChange( size );
     }
       break;
     case SelectionMode::WIDGET:
@@ -206,6 +210,7 @@ void SelectionArea::refreshSelectionMode( )
           max.toPoint( )
         ));
         band_->show( );
+        emit inputSizeChange( input_.getSize( ));
       }
     }
       break;
@@ -217,10 +222,10 @@ QPointF SelectionArea::normalizePoint( const QPointF& point )
   // ExtraX and extraY represents the blank space in this area.
   // We have to remove it from the normalized coordinates if we
   // want the algorithm to work properly!
-  const auto w = static_cast<float>( width( ));
+  const auto w = static_cast<float>(width( ));
   const auto h = static_cast<float>(height( ));
-  const float extraX = ( w - static_cast<float>( pixmap( )->width( ))) / w;
-  const float extraY = ( h - static_cast<float>( pixmap( )->height( ))) / h;
+  const float extraX = ( w - static_cast<float>(getWidth( ))) / w;
+  const float extraY = ( h - static_cast<float>(getHeight( ))) / h;
 
   QPointF p = point;
   p = QPointF( p.x( ) / w , p.y( ) / h );
@@ -236,8 +241,8 @@ QPointF SelectionArea::denormalizePoint( const QPointF& point )
   // want the algorithm to work properly!
   const auto w = static_cast<float>( width( ));
   const auto h = static_cast<float>( height( ));
-  const float extraX = ( w - static_cast<float>(pixmap( )->width( ))) / w;
-  const float extraY = ( h - static_cast<float>(pixmap( )->height( ))) / h;
+  const float extraX = ( w - static_cast<float>(getWidth( ))) / w;
+  const float extraY = ( h - static_cast<float>(getHeight( ))) / h;
 
   QPointF p = point;
   p.setX( p.x( ) * ( 1 - extraX ) + extraX / 2 );
@@ -271,11 +276,11 @@ QRectF SelectionArea::getViewport( ) const
   return { 0 , 0 , 1 , 1 };
 }
 
-void SelectionArea::resizeEvent(QResizeEvent *e)
+void SelectionArea::resizeEvent( QResizeEvent *e )
 {
-  PixmapHolder::resizeEvent(e);
+  PixmapHolder::resizeEvent( e );
 
-  renderImage();
+  renderImage( );
 
-  refreshSelectionMode();
+  refreshSelectionMode( );
 }

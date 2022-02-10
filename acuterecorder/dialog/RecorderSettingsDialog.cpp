@@ -30,6 +30,8 @@ RecorderSettingsDialog::RecorderSettingsDialog( QWidget *parent ,
   auto buttonBox = new QDialogButtonBox(
     QDialogButtonBox::Ok | QDialogButtonBox::Cancel , this );
 
+  buttonBox->button(QDialogButtonBox::Ok)->setText("Start");
+
   layout->addWidget( settingsWidget_ );
   layout->addWidget( buttonBox );
 

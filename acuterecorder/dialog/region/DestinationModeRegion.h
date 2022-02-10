@@ -9,6 +9,10 @@
 
 class QRadioButton;
 
+class QLabel;
+
+class SelectionArea;
+
 class FixedDestinationModeRegion;
 
 class ScaledDestinationModeRegion;
@@ -20,15 +24,19 @@ class DestinationModeRegion : public QWidget
 
 Q_OBJECT
 
+  SelectionArea *selectionArea_;
+
   QRadioButton *fixed_;
   QRadioButton *scaled_;
 
   FixedDestinationModeRegion *fixedRegion_;
   ScaledDestinationModeRegion *scaleRegion_;
+  QLabel *finalSizeLabel_;
 
 public:
 
   explicit DestinationModeRegion( QWidget *parent ,
+                                  SelectionArea *selectionArea ,
                                   const RSWParameters& parameters );
 
   bool isFixedMode( ) const;
@@ -40,6 +48,8 @@ public:
 public slots:
 
   void refreshRegion( );
+
+  void refreshOutputSize( );
 
 };
 

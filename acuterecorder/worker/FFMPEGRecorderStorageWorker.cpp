@@ -121,7 +121,7 @@ void FFMPEGRecorderStorageWorker::run( )
   }
 
   process->closeWriteChannel( );
-  process->waitForFinished( );
+  process->waitForFinished( -1 );
   process->deleteLater( );
 
   qDebug( ) << process->readAllStandardOutput( );

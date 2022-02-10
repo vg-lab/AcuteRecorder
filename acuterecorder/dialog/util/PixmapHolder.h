@@ -19,6 +19,8 @@ class ACUTERECORDER_API PixmapHolder : public QLabel
 Q_OBJECT
 
   QPixmap pixmap_;
+  int width_;
+  int height_;
 
 public:
 
@@ -44,6 +46,18 @@ public slots:
    * @param pixmap the Pixmap. It may be null.
    */
   void setHolderPixmap( const QPixmap& pixmap );
+
+  /**
+   * Returns the width of the scaled pixmap.
+   * @return the width.
+   */
+  int getWidth( ) const;
+
+  /**
+   * Returns the height of the scaled pixmap.
+   * @return the height.
+   */
+  int getHeight( ) const;
 
   void resizeEvent( QResizeEvent *resizeEvent ) override;
 

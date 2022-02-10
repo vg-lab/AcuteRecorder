@@ -19,8 +19,8 @@
 #include <QObject>
 
 OutputRegion::OutputRegion( QWidget *p , const RSWParameters& parameters )
-  : QWidget( p ) ,
-    folderMode_( false )
+  : QWidget( p )
+  , folderMode_( false )
 {
   auto layout = new QHBoxLayout( this );
   layout->setAlignment( Qt::AlignLeft );
@@ -60,7 +60,7 @@ OutputRegion::OutputRegion( QWidget *p , const RSWParameters& parameters )
       workers_->addItem( item.first );
       if ( item.first == parameters.defaultWorker )
       {
-        workers_->setCurrentIndex(workers_->count()-1);
+        workers_->setCurrentIndex( workers_->count( ) - 1 );
       }
     }
   }
@@ -69,6 +69,14 @@ OutputRegion::OutputRegion( QWidget *p , const RSWParameters& parameters )
   outputTextField_->setVisible( parameters.showOutput );
   workerLabel->setVisible( parameters.showWorker );
   workers_->setVisible( parameters.showWorker );
+
+  label->setToolTip(
+    "The output path where the video will be stored."
+  );
+
+  workerLabel->setToolTip(
+    "Represents the way the video will be stored in memory."
+  );
 
   QObject::connect(
     button , SIGNAL( pressed( )) ,
@@ -108,9 +116,11 @@ void OutputRegion::openFileDialog( )
 {
   auto result = QFileDialog::getSaveFileName(
     this ,
-    tr("Select output") ,
-    QDir::homePath(),
-    "*.mp4"
+    tr( "Select output" ) ,
+    QDir::homePath( ) ,
+    "*.mp4" ,
+    nullptr ,
+    QFileDialog::DontUseNativeDialog
   );
   if ( !result.isEmpty( ))
     outputTextField_->setText( result );
@@ -120,8 +130,9 @@ void OutputRegion::openFolderDialog( )
 {
   auto result = QFileDialog::getExistingDirectory(
     this ,
-    tr("Select output folder") ,
-    QDir::homePath()
+    tr( "Select output folder" ) ,
+    QDir::homePath( ) ,
+    QFileDialog::DontUseNativeDialog
   );
   if ( !result.isEmpty( ))
     outputTextField_->setText( result );
