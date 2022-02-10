@@ -99,7 +99,7 @@ SelectionModeRegion::SelectionModeRegion( QWidget *parent ,
 
   label->setToolTip( tooltip );
 
-  fpsLabel->setToolTip( "The frame per seconds of the output video." );
+  fpsLabel->setToolTip( "The frames per second of the output video." );
 
   QObject::connect(
     fullButton_ , SIGNAL( toggled( bool )) ,
