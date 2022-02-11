@@ -92,6 +92,12 @@ RecorderSettings& RecorderSettings::fps( int fps )
   return *this;
 }
 
+RecorderSettings& RecorderSettings::stabilizeFramerate( bool stabilize )
+{
+  stabilizeFramerate_ = stabilize;
+  return *this;
+}
+
 Input RecorderSettings::getInput( ) const
 {
   return input_.first;
@@ -120,6 +126,11 @@ int RecorderSettings::getFPS( ) const
 QString RecorderSettings::getStorageWorker( ) const
 {
   return storageWorker_.first;
+}
+
+bool RecorderSettings::shouldStabilizeFramerate( )
+{
+  return stabilizeFramerate_;
 }
 
 

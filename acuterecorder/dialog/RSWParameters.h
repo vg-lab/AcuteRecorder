@@ -114,6 +114,12 @@ struct ACUTERECORDER_API RSWParameters
    * The default worker.
    */
   QString defaultWorker = "ffmpeg";
+
+  /**
+   * Whether the created settings must have the framerate stabilizer
+   * activated by default.
+   */
+  bool stabilizeFramerate = false;
 };
 
 #endif //ACUTERECORDER_RSWPARAMETERS_H

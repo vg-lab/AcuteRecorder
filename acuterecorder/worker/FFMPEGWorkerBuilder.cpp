@@ -16,13 +16,16 @@ FFMPEGWorkerBuilder::FFMPEGWorkerBuilder( )
 bool FFMPEGWorkerBuilder::isAvailable( ) const
 {
   QProcess process;
-  process.start("ffmpeg -codecs", QIODevice::OpenMode::enum_type::ReadWrite);
-  process.waitForFinished();
+  process.start( "ffmpeg" ,
+                 QStringList( "-codecs" ) ,
+                 QIODevice::OpenMode::enum_type::ReadWrite
+  );
+  process.waitForFinished( );
 
-  if(process.exitCode() != 0) return false;
+  if ( process.exitCode( ) != 0 ) return false;
 
-  const auto output = process.readAllStandardOutput();
-  return output.contains("nvenc_h264");
+  const auto output = process.readAllStandardOutput( );
+  return output.contains( "nvenc_h264" );
 }
 
 

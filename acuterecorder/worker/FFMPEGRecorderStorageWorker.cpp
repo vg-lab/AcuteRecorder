@@ -94,7 +94,7 @@ void FFMPEGRecorderStorageWorker::run( )
 
     // Sends the image to FFMPEG.
     char *bytes = ( char * ) image->bits( );
-    auto amount = static_cast<qint64>(image->byteCount( ));
+    auto amount = static_cast<qint64>(image->sizeInBytes( ));
 
     // Qt images will always ceil the bytes per line to a multiple of four.
     // This is because QImage uses integers under the hood.
@@ -123,9 +123,6 @@ void FFMPEGRecorderStorageWorker::run( )
   process->closeWriteChannel( );
   process->waitForFinished( -1 );
   process->deleteLater( );
-
-  qDebug( ) << process->readAllStandardOutput( );
-  qDebug( ) << process->readAllStandardError( );
 }
 
 bool FFMPEGRecorderStorageWorker::popElement( QImage *& image )

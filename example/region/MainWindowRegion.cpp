@@ -24,6 +24,7 @@ MainWindowRegion::MainWindowRegion( QWidget *parent , QWidget *root ) :
 
   RSWParameters parameters;
   parameters.widgetsToRecord.emplace_back("Test widget", root );
+  parameters.stabilizeFramerate = true;
   settingsWidget_ = new RecorderSettingsWidget( this , parameters );
   startStopButton_ = new StartStopButton( this );
   queueSizeBar_ = new QProgressBar( this );

@@ -49,6 +49,7 @@ namespace acute_recorder
     parameters.showOutputSizeParameters = false;
 
     parameters.defaultFPS = 120;
+    parameters.stabilizeFramerate = true;
 
     auto dialog = new RecorderSettingsDialog( nullptr , parameters );
     if ( dialog->exec( ))
@@ -60,10 +61,11 @@ namespace acute_recorder
       qDebug( ) << "Output FPS: " << settings.getFPS( );
       qDebug( ) << "Output path: " << settings.getOutputPath( );
       qDebug( ) << "Storage worker: " << settings.getStorageWorker( );
+      qDebug( ) << "Stabilize: " << settings.shouldStabilizeFramerate( );
 
-      qDebug() << "Settings valid: " << settings.isValid();
+      qDebug( ) << "Settings valid: " << settings.isValid( );
 
-      if(!settings.isValid()) settings.invalidParametersDebug();
+      if ( !settings.isValid( )) settings.invalidParametersDebug( );
     }
     else
     {

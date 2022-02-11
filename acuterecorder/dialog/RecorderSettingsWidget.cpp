@@ -20,6 +20,7 @@ RecorderSettingsWidget::RecorderSettingsWidget(
   QWidget *parent ,
   const RSWParameters& parameters )
   : QWidget( parent )
+  , stabilizeFramerate_( parameters.stabilizeFramerate )
 {
   auto layout = new QVBoxLayout( this );
 
@@ -76,7 +77,8 @@ RecorderSettings RecorderSettingsWidget::getSettings( )
     .inputArea( selectionArea_->getViewport( ))
     .fps( selectionModeRegion_->getFPS( ))
     .outputPath( outputRegion_->getOutputPath( ))
-    .storageWorker( outputRegion_->getWorkerName( ));
+    .storageWorker( outputRegion_->getWorkerName( ))
+    .stabilizeFramerate( stabilizeFramerate_ );
 
   if ( destinationModeRegion_->isFixedMode( ))
   {
