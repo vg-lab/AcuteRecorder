@@ -54,7 +54,8 @@ QScreen *Input::getScreen( ) const
   return screen_;
 }
 
-QImage *Input::render( const QRectF& inputArea , const QSize& outputSize ) const
+std::shared_ptr< QImage >
+Input::render( const QRectF& inputArea , const QSize& outputSize ) const
 {
   if ( widget_ == nullptr && screen_ == nullptr )
   {
@@ -71,8 +72,10 @@ QImage *Input::render( const QRectF& inputArea , const QSize& outputSize ) const
 
   if ( widget_ != nullptr )
   {
-    auto image = new QImage( outputSize , QImage::Format_RGB888 );
-    QPainter painter( image );
+    auto image = std::make_shared< QImage >(
+      outputSize , QImage::Format_RGB888
+    );
+    QPainter painter( image.get( ));
 
     // This scales the widget to fit the image.
     painter.scale(
@@ -107,8 +110,10 @@ QImage *Input::render( const QRectF& inputArea , const QSize& outputSize ) const
 
     // Finally, convert the data to an image pointer.
     // This may seem a bad code, but Qt does its magic under the hood.
-    return new QImage( pixmap.toImage( )
-                         .convertToFormat( QImage::Format_RGB888 ));
+
+    return std::make_shared< QImage >(
+      pixmap.toImage( ).convertToFormat( QImage::Format_RGB888 )
+    );
   }
 }
 

@@ -32,7 +32,7 @@ Q_OBJECT
   QMutex mutex_;
   QWaitCondition notEmptyCondition_;
 
-  QQueue< QImage * > queue_;
+  QQueue< std::shared_ptr< QImage > > queue_;
   volatile bool running_;
 
   /**
@@ -44,7 +44,7 @@ Q_OBJECT
    * @param image the popped image.
    * @return whether the thread should continue.
    */
-  bool popElement( QImage *& image );
+  bool popElement( std::shared_ptr<QImage>& image );
 
 protected:
 
@@ -59,7 +59,7 @@ public:
   ImageRecorderStorageWorker( QObject *object , const QString &output );
   virtual ~ImageRecorderStorageWorker() {};
 
-  virtual void push( QImage *image ) override;
+  virtual void push( std::shared_ptr< QImage > image ) override;
 
 public slots:
 

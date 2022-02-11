@@ -138,7 +138,7 @@ void Recorder::takeFrame( )
   while ( stabilize && duplicationDelay_ > delayBetweenFrames_ )
   {
     // Create duplicated image pointing the data of the original
-    storageWorker_->push( new QImage( *image ));
+    storageWorker_->push( image );
     duplicationDelay_ -= delayBetweenFrames_;
   }
 

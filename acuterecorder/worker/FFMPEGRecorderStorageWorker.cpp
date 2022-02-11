@@ -85,7 +85,7 @@ void FFMPEGRecorderStorageWorker::run( )
   auto process = new QProcess( );
   process->start( QString( "ffmpeg" ) , arguments , QIODevice::ReadWrite );
 
-  QImage *image = nullptr;
+  std::shared_ptr< QImage > image = nullptr;
   while ( running_ || !queue_.empty( ))
   {
     // Pops an element from the queue. If this method returns
@@ -117,7 +117,6 @@ void FFMPEGRecorderStorageWorker::run( )
       // There are no extra bytes! Write the full frame.
       process->write( bytes , amount * sizeof( char ));
     }
-    delete image;
   }
 
   process->closeWriteChannel( );
@@ -125,7 +124,7 @@ void FFMPEGRecorderStorageWorker::run( )
   process->deleteLater( );
 }
 
-bool FFMPEGRecorderStorageWorker::popElement( QImage *& image )
+bool FFMPEGRecorderStorageWorker::popElement( std::shared_ptr< QImage >& image )
 {
   mutex_.lock( );
 
@@ -161,7 +160,7 @@ void FFMPEGRecorderStorageWorker::stop( )
   mutex_.unlock( );
 }
 
-void FFMPEGRecorderStorageWorker::push( QImage *image )
+void FFMPEGRecorderStorageWorker::push( std::shared_ptr< QImage > image )
 {
   mutex_.lock( );
   queue_.push_back( image );

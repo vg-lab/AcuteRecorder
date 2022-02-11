@@ -6,6 +6,7 @@
 #define ACUTERECORDER_OUTPUT_H
 
 #include <acuterecorder/api.h>
+#include <memory>
 
 class QWidget;
 
@@ -108,9 +109,10 @@ public:
    *                  viewport.
    * @param outputSize the size of the output. The render will be stretched
    *                    to fit this size.
-   * @return the QImage representing the screeshot.
+   * @return the QImage representing the screenshot.
    */
-  QImage *render( const QRectF& inputArea , const QSize& outputSize ) const;
+  std::shared_ptr< QImage >
+  render( const QRectF& inputArea , const QSize& outputSize ) const;
 
 };
 
