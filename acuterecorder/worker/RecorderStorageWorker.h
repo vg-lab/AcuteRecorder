@@ -40,7 +40,7 @@ public:
    * Sends a frame to the storage.
    * @param image the frame.
    */
-  virtual void push( QImage *image );
+  virtual void push( std::shared_ptr<QImage> image );
 
 public slots:
 

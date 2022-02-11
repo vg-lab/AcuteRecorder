@@ -11,9 +11,9 @@ RecorderStorageWorker::RecorderStorageWorker( QObject *parent )
   : QThread( parent )
 { }
 
-void RecorderStorageWorker::push( QImage *image )
+void RecorderStorageWorker::push( std::shared_ptr< QImage > image )
 {
-  printf( "Unused image %p" , image );
+  printf( "Unused image %p" , image.get( ));
 }
 
 void RecorderStorageWorker::stop( )

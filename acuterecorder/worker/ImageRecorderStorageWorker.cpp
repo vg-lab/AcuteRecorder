@@ -29,7 +29,7 @@ void ImageRecorderStorageWorker::run( )
   if ( running_ ) return;
   running_ = true;
 
-  QImage *image = nullptr;
+  std::shared_ptr< QImage > image = nullptr;
 
   int id = 0;
 
@@ -43,12 +43,10 @@ void ImageRecorderStorageWorker::run( )
     const auto path = output_.absoluteFilePath(number + ".png");
     image->save( path , "PNG" );
     id++;
-
-    delete image;
   }
 }
 
-bool ImageRecorderStorageWorker::popElement( QImage *& image )
+bool ImageRecorderStorageWorker::popElement( std::shared_ptr< QImage >& image )
 {
   mutex_.lock( );
 
@@ -84,7 +82,7 @@ void ImageRecorderStorageWorker::stop( )
   mutex_.unlock( );
 }
 
-void ImageRecorderStorageWorker::push( QImage *image )
+void ImageRecorderStorageWorker::push( std::shared_ptr< QImage > image )
 {
   mutex_.lock( );
   queue_.push_back( image );
