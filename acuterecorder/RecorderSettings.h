@@ -31,6 +31,7 @@ class ACUTERECORDER_API RecorderSettings
   std::pair< int , bool > fps_{ 0 , false };
   std::pair< QString , bool > storageWorker_{ "" , false };
 
+  bool stabilizeFramerate_ = false;
   std::map< QString , QVariant > extraSettings_;
 
 public:
@@ -158,6 +159,21 @@ public:
    * @return the name of the storage worker.
    */
   QString getStorageWorker( ) const;
+
+  /**
+   * Makes the recorder to stabilize its framerate, duplicating
+   * or skipping frames if needed.
+   * This value is optional and false by default.
+   * @return this builder.
+   */
+  RecorderSettings& stabilizeFramerate( bool stabilize );
+
+  /**
+   * Returns whether the recorder has to stabilize the framerate,
+   * duplicating or skipping frames if needed.
+   * @return whether framerate should be stabilized.
+   */
+  bool shouldStabilizeFramerate( );
 
   /**
  * Returns the extra settings value inside these settings that matches

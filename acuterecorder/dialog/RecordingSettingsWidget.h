@@ -42,6 +42,8 @@ Q_OBJECT
   DestinationModeRegion *destinationModeRegion_;
   OutputRegion *outputRegion_;
 
+  bool stabilizeFramerate_;
+
 public:
 
   /**

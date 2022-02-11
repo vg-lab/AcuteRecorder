@@ -5,11 +5,14 @@
 #ifndef ACUTERECORDER_RECORDER_H
 #define ACUTERECORDER_RECORDER_H
 
-#include <acuterecorder/api.h>
+#include <chrono>
 
-#include <QObject>
+#include <acuterecorder/api.h>
 #include <acuterecorder/worker/WorkerBuilder.h>
 #include <acuterecorder/worker/RecorderStorageWorker.h>
+
+#include <QObject>
+
 
 #include "RecorderSettings.h"
 
@@ -34,6 +37,12 @@ Q_OBJECT
 
   RecorderSettings settings_;
   RecorderStorageWorker *storageWorker_;
+
+  std::chrono::time_point<std::chrono::high_resolution_clock> last_frame_;
+  std::chrono::nanoseconds delayBetweenFrames_;
+  std::chrono::nanoseconds duplicationDelay_;
+
+  bool recording_;
 
 public:
 
@@ -81,8 +90,15 @@ public:
    *
    * @return whether this recorder is recording.
    */
-  inline bool isRecording( ) const
-  { return storageWorker_->isRunning( ); }
+  bool isRecording( ) const;
+
+  /**
+   * Returns whether this recorder is not recording and
+   * the worker has stopped its activity.
+   * @return whether this recorder is not recording and
+   * the worker has stopped.
+   */
+  bool hasFinished();
 
 public slots:
 

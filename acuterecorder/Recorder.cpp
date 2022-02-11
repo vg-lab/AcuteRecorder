@@ -6,6 +6,7 @@
 
 #include <QThread>
 #include <QDebug>
+#include <QImage>
 
 #include <worker/ImageWorkerBuilder.h>
 #include <worker/FFMPEGWorkerBuilder.h>
@@ -36,16 +37,21 @@ WorkerBuilder *Recorder::getWorkerBuilder( const QString& worker )
   return registeredWorkers_[ worker ];
 }
 
-Recorder::Recorder( RecorderSettings settings ) :
-  settings_( std::move( settings )) ,
-  storageWorker_( nullptr )
+Recorder::Recorder( RecorderSettings settings )
+  :
+  settings_( std::move( settings ))
+  , storageWorker_( nullptr )
+  , last_frame_( )
+  , delayBetweenFrames_( 1000000000L / static_cast<int64_t>(settings.getFPS( )))
+  , duplicationDelay_( 0 )
+  , recording_( false )
 {
 
   if ( !settings_.isValid( ))
   {
     qDebug( )
       << "[Recorder] Recorder settings are not valid. Aborting construction";
-    settings_.invalidParametersDebug();
+    settings_.invalidParametersDebug( );
   }
   else
   {
@@ -71,15 +77,27 @@ Recorder::Recorder( RecorderSettings settings ) :
                         storageWorker_ , SLOT( deleteLater( ))
       );
 
-      connect( storageWorker_ , SIGNAL(fileQueueSizeChanged(int)) ,
-               this,            SIGNAL(bufferSizeChange(int)));
+      connect( storageWorker_ , SIGNAL( fileQueueSizeChanged( int )) ,
+               this , SIGNAL( bufferSizeChange( int )));
 
-      connect( storageWorker_ , SIGNAL(finished()),
-               this,            SIGNAL(finished()));
+      connect( storageWorker_ , SIGNAL( finished( )) ,
+               this , SIGNAL( finished( )));
 
+      recording_ = true;
       storageWorker_->start( );
+      last_frame_ = std::chrono::high_resolution_clock::now( );
     }
   }
+}
+
+bool Recorder::isRecording( ) const
+{
+  return recording_;
+}
+
+bool Recorder::hasFinished( )
+{
+  return !storageWorker_->isRunning( );
 }
 
 void Recorder::stop( )
@@ -87,6 +105,7 @@ void Recorder::stop( )
   if ( !isRecording( )) return;
 
   storageWorker_->stop( );
+  recording_ = false;
 }
 
 void Recorder::wait( )
@@ -97,8 +116,31 @@ void Recorder::wait( )
 void Recorder::takeFrame( )
 {
   if ( !isRecording( )) return;
+  bool stabilize = settings_.shouldStabilizeFramerate( );
+  if ( stabilize )
+  {
+    auto now = std::chrono::high_resolution_clock::now( );
+    duplicationDelay_ += now - last_frame_ - delayBetweenFrames_;
+    last_frame_ = now;
+
+    if ( duplicationDelay_ < -delayBetweenFrames_)
+    {
+      // Frame not needed! Skipped!
+      duplicationDelay_ += delayBetweenFrames_;
+      return;
+    }
+  }
+
   auto input = settings_.getInputArea( );
   auto output = settings_.getOutputSize( );
   auto image = settings_.getInput( ).render( input , output );
+
+  while ( stabilize && duplicationDelay_ > delayBetweenFrames_ )
+  {
+    // Create duplicated image pointing the data of the original
+    storageWorker_->push( new QImage( *image ));
+    duplicationDelay_ -= delayBetweenFrames_;
+  }
+
   storageWorker_->push( image );
 }
