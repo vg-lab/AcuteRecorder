@@ -94,12 +94,12 @@ void FFMPEGRecorderStorageWorker::run( )
 
     // Sends the image to FFMPEG.
     char *bytes = ( char * ) image->bits( );
-    auto amount = static_cast<qint64>(image->sizeInBytes( ));
 
     // Qt images will always ceil the bytes per line to a multiple of four.
     // This is because QImage uses integers under the hood.
     // We need to get rid of these extra bytes or ffmpeg will implode!
     const int bytesPerLine = image->bytesPerLine( );
+    const auto amount = static_cast<qint64>(bytesPerLine * image->height( ));
     const qint64 difference = bytesPerLine - expectedBytesPerLine_;
 
     if ( difference )

@@ -7,6 +7,7 @@
 
 #include <QThread>
 #include <acuterecorder/api.h>
+#include <memory>
 
 class QObject;
 class QSize;
