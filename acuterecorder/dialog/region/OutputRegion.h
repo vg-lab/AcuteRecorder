@@ -23,6 +23,7 @@ Q_OBJECT
   QLineEdit *outputTextField_;
   QComboBox *workers_;
   bool folderMode_;
+  QString defaultOutput_;
 
 public:
 

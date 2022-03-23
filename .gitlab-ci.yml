@@ -26,31 +26,31 @@ Ubuntu-master:
  tags:
   - ubuntu
 
-OSX-master:
- stage: build
- script:
-  - module load Qt-5.12.10
-  - export CMAKE_EXTRA_ARGS="-DCLONE_SUBPROJECTS=ON -DGLUT_glut_LIBRARY=/usr/local/Cellar/freeglut/3.0.0/lib/libglut.dylib"
-  - export BUILD_GENERATOR="Ninja"
-  - export CMAKE_OSX_ARCHITECTURES=x86_64
-  - bash .gitlab-ci.sh
- only:
-  - master
- except:
-  - tags
- tags:
-  - osx-sierra
+    #OSX-master:
+    # stage: build
+    # script:
+    #  - module load Qt-5.12.10
+    #  - export CMAKE_EXTRA_ARGS="-DCLONE_SUBPROJECTS=ON -DGLUT_glut_LIBRARY=/usr/local/Cellar/freeglut/3.0.0/lib/libglut.dylib"
+    #  - export BUILD_GENERATOR="Ninja"
+    #  - export CMAKE_OSX_ARCHITECTURES=x86_64
+    #  - bash .gitlab-ci.sh
+    # only:
+    #  - master
+    # except:
+    #  - tags
+    # tags:
+    #  - osx-sierra
 
-OSX:
- stage: build
- script:
-  - module load Qt-5.12.10
-  - export CMAKE_EXTRA_ARGS="-DCLONE_SUBPROJECTS=ON -DGLUT_glut_LIBRARY=/usr/local/Cellar/freeglut/3.0.0/lib/libglut.dylib"
-  - export BUILD_GENERATOR="Ninja";
-  - export CMAKE_OSX_ARCHITECTURES=x86_64
-  - bash .gitlab-ci.sh
- tags:
-  - osx-sierra
+    #OSX:
+    # stage: build
+    # script:
+    #  - module load Qt-5.12.10
+    #  - export CMAKE_EXTRA_ARGS="-DCLONE_SUBPROJECTS=ON -DGLUT_glut_LIBRARY=/usr/local/Cellar/freeglut/3.0.0/lib/libglut.dylib"
+    #  - export BUILD_GENERATOR="Ninja";
+    #  - export CMAKE_OSX_ARCHITECTURES=x86_64
+    #  - bash .gitlab-ci.sh
+    # tags:
+    #  - osx-sierra
 
 Win7:
  stage: build

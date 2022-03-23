@@ -42,7 +42,7 @@ namespace acute_recorder
     RSWParameters parameters;
     parameters.widgetsToRecord.emplace_back("Test widget", widgetToRender );
     parameters.defaultSelectionMode = SelectionMode::AREA;
-    parameters.showWorker = false;
+    parameters.showWorker = true;
     parameters.showSourceParameters = false;
 
     parameters.defaultOutputSizeScaled = true;

@@ -181,7 +181,7 @@ public:
  * @param key the key.
  * @return the value.
  */
-  QVariant getExtraSetting( const QString& key );
+  QVariant getExtraSetting( const QString& key ) const;
 
   /**
    * Sets a extra settings value inside these settings.

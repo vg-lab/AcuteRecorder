@@ -6,9 +6,9 @@
 
 #include <acuterecorder/RecorderSettings.h>
 #include <acuterecorder/Recorder.h>
-#include <acuterecorder/dialog/RecordingSettingsWidget.h>
 #include <acuterecorder/dialog/util/APIUtils.h>
 #include <acuterecorder/dialog/RSWParameters.h>
+#include <acuterecorder/dialog/RecorderSettingsWidget.h>
 
 #include <QDialogButtonBox>
 #include <QPushButton>

@@ -160,7 +160,10 @@ RecorderSettings::setExtraSetting( const QString& key , const QVariant& value )
   return *this;
 }
 
-QVariant RecorderSettings::getExtraSetting( const QString& key )
+QVariant RecorderSettings::getExtraSetting( const QString& key ) const
 {
-  return extraSettings_[ key ];
+  const auto it = extraSettings_.find(key);
+  Q_ASSERT(it != extraSettings_.end());
+
+  return (*it).second;
 }

@@ -21,6 +21,7 @@
 OutputRegion::OutputRegion( QWidget *p , const RSWParameters& parameters )
   : QWidget( p )
   , folderMode_( false )
+  , defaultOutput_ (parameters.defaultOutput)
 {
   auto layout = new QHBoxLayout( this );
   layout->setAlignment( Qt::AlignLeft );
@@ -34,8 +35,6 @@ OutputRegion::OutputRegion( QWidget *p , const RSWParameters& parameters )
 
   outputTextField_->setProperty( "class" , styles::OUTPUT_TEXT_FIELD );
   button->setProperty( "class" , styles::OUTPUT_FILE_BUTTON );
-
-  outputTextField_->setText( parameters.defaultOutput );
 
   auto label = new QLabel( "Output:" );
   label->setProperty( "class" , styles::INFO_LABEL );
@@ -57,18 +56,21 @@ OutputRegion::OutputRegion( QWidget *p , const RSWParameters& parameters )
   {
     if ( item.second->isAvailable( ))
     {
+      if(workers_->count() == 0) changeFolderMode(item.first);
       workers_->addItem( item.first );
+
       if ( item.first == parameters.defaultWorker )
       {
         workers_->setCurrentIndex( workers_->count( ) - 1 );
+        changeFolderMode(item.first);
       }
     }
   }
 
   label->setVisible( parameters.showOutput );
   outputTextField_->setVisible( parameters.showOutput );
-  workerLabel->setVisible( parameters.showWorker );
-  workers_->setVisible( parameters.showWorker );
+
+  workers_->setEnabled(workers_->count() > 1 && parameters.showWorker);
 
   label->setToolTip(
     "The output path where the video will be stored."
@@ -87,6 +89,8 @@ OutputRegion::OutputRegion( QWidget *p , const RSWParameters& parameters )
     workers_ , SIGNAL( currentTextChanged(const QString &)) ,
     this , SLOT( changeFolderMode(const QString &))
   );
+
+  changeFolderMode( workers_->currentText( ));
 }
 
 QString OutputRegion::getOutputPath( ) const
@@ -140,7 +144,14 @@ void OutputRegion::openFolderDialog( )
 
 void OutputRegion::changeFolderMode( const QString& workerName )
 {
-  WorkerBuilder *worker = Recorder::getWorkerBuilder( workerName );
+  auto worker = Recorder::getWorkerBuilder( workerName );
   if ( worker )
+  {
     folderMode_ = worker->isOutputAFolder( );
+
+    if(folderMode_)
+      outputTextField_->setText( QDir::homePath() );
+    else
+      outputTextField_->setText( QDir::home().absoluteFilePath(defaultOutput_ ));
+  }
 }

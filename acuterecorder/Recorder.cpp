@@ -80,6 +80,9 @@ Recorder::Recorder( RecorderSettings settings )
       connect( storageWorker_ , SIGNAL( fileQueueSizeChanged( int )) ,
                this , SIGNAL( bufferSizeChange( int )));
 
+      connect( storageWorker_ , SIGNAL(error(const QString &)),
+               this, SIGNAL(error(const QString &)));
+
       connect( storageWorker_ , SIGNAL( finished( )) ,
                this , SIGNAL( finished( )));
 

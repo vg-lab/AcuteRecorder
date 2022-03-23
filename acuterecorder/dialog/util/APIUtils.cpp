@@ -63,7 +63,7 @@ namespace api_utils
           .arg( outputVideo.absoluteFilePath( )));
       msgBox.setStandardButtons( QMessageBox::Cancel | QMessageBox::Ok );
       msgBox.setDefaultButton( QMessageBox::Ok );
-      msgBox.setIcon( QMessageBox::Icon::Critical );
+      msgBox.setIcon( QMessageBox::Icon::Warning );
       const auto result = msgBox.exec( );
 
       if ( result != QMessageBox::Ok ) return false;

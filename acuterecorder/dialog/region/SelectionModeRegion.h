@@ -7,7 +7,7 @@
 
 #include <QWidget>
 #include <acuterecorder/dialog/util/SelectionMode.h>
-#include <acuterecorder/dialog/RecordingSettingsWidget.h>
+#include <acuterecorder/dialog/RecorderSettingsWidget.h>
 
 class QScreen;
 
