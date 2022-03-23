@@ -53,6 +53,12 @@ private slots:
 
   void deleteRecorder( );
 
+  /** \brief Displays the recorder error message.
+   * \param[in] message Error message.
+   *
+   */
+  void onRecorderError(const QString &message);
+
 };
 
 

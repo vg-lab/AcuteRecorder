@@ -25,15 +25,21 @@ bool FFMPEGWorkerBuilder::isAvailable( ) const
   if ( process.exitCode( ) != 0 ) return false;
 
   const auto output = process.readAllStandardOutput( );
-  return output.contains( "nvenc_h264" );
+
+  codecs.clear();
+
+  // valid detected codecs
+  if(output.contains( "nvenc_h264" )) codecs << "nvenc_h264";
+  if(output.contains( "libx264" ))    codecs << "libx264";
+  if(output.contains( "mpeg4" ))      codecs << "mpeg4";
+
+  return !codecs.isEmpty();
 }
 
-
 RecorderStorageWorker *FFMPEGWorkerBuilder::createWorker(
-  QObject *object , const RecorderSettings& settings ) const
+  QObject *object , RecorderSettings& settings ) const
 {
-  return new FFMPEGRecorderStorageWorker( object ,
-                                          settings.getOutputSize( ) ,
-                                          settings.getFPS( ) ,
-                                          settings.getOutputPath( ));
+  settings.setExtraSetting(FFMPEGRecorderStorageWorker::CODECS_KEY, codecs);
+
+  return new FFMPEGRecorderStorageWorker( object , settings);
 }

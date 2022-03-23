@@ -41,11 +41,11 @@ public:
   /**
    * Creates a new worker.
    * @param object the parent object of the builder.
-   * @param settings the settings of the recorder.
+   * @param settings the settings of the recorder. Can be modified by builder.
    * @return the new worker.
    */
   virtual RecorderStorageWorker *createWorker(
-    QObject *object , const RecorderSettings& settings ) const = 0;
+    QObject *object , RecorderSettings& settings ) const = 0;
 
 private:
   bool outputToFolder_;

@@ -140,6 +140,11 @@ signals:
    */
   void finished( );
 
+  /** \brief Notifies about a worker error.
+   *
+   */
+  void error(const QString &message);
+
 };
 
 #endif //ACUTERECORDER_RECORDER_H

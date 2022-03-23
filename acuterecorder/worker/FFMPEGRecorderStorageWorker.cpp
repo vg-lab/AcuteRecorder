@@ -6,13 +6,14 @@
 
 #include <memory>
 #include <QImage>
-#include <QDebug>
+#include <QMutex>
 #include <QProcess>
+#include <QVariant>
+
+const QString FFMPEGRecorderStorageWorker::CODECS_KEY = "ffmpeg_codec";
 
 //const char *C_BASE_COMMAND_GPU = "ffmpeg -hwaccel cuda -vsync 0 -r %d -f rawvideo -s %dx%d -pix_fmt rgb24 -i - -c:v hevc_nvenc -f mp4 -preset medium -y %s";
 //const char *C_BASE_COMMAND_CPU = "ffmpeg -vsync 0 -r %d -f rawvideo -s %dx%d -pix_fmt rgb24 -i - -c:v libx264 -f mp4 -preset fast -y %s";
-
-constexpr int C_NVIDIA_MIN_DIMENSION = 145;
 
 /**
  * Generates a FFMPEG command used to encode a set of raw images to a mp4 video.
@@ -28,13 +29,28 @@ constexpr int C_NVIDIA_MIN_DIMENSION = 145;
  * @return the FFMPEG command to use.
  */
 QStringList createFFMPEGArguments( int fps , int width , int height ,
-                                   const QString& output )
+                                   const QString& output , const QStringList &codecs)
 {
+  constexpr int C_NVIDIA_MIN_DIMENSION = 145;
   QStringList arguments;
-  // If the width or height are less than 145 pixels, use CPU encoding.
-  // This is because NVENC doesn't support video
-  // encoding of such small dimensions.
-  if ( width < C_NVIDIA_MIN_DIMENSION || height < C_NVIDIA_MIN_DIMENSION )
+
+  if(codecs.contains("nvenc_h264"))
+  {
+    // If the width or height are less than 145 pixels, use CPU encoding.
+    // This is because NVENC doesn't support video
+    // encoding of such small dimensions.
+    if (width >= C_NVIDIA_MIN_DIMENSION && height >= C_NVIDIA_MIN_DIMENSION)
+    {
+      arguments << "-hwaccel" << "cuda";
+      arguments << "-vsync" << "0" << "-r" << QString::number( fps );
+      arguments << "-f" << "rawvideo" << "-s";
+      arguments << QString::number( width ) + "x" + QString::number( height );
+      arguments << "-pix_fmt" << "rgb24" << "-i" << "-" << "-c:v" << "nvenc_h264";
+      arguments << "-f" << "mp4" << "-preset" << "medium" << "-y" << output;
+    }
+  }
+
+  if(codecs.contains("libx264") && arguments.isEmpty())
   {
     arguments << "-vsync" << "0" << "-r" << QString::number( fps );
     arguments << "-f" << "rawvideo" << "-s";
@@ -42,31 +58,34 @@ QStringList createFFMPEGArguments( int fps , int width , int height ,
     arguments << "-pix_fmt" << "rgb24" << "-i" << "-" << "-c:v" << "libx264";
     arguments << "-f" << "mp4" << "-preset" << "fast" << "-y" << output;
   }
-  else
+
+  if(codecs.contains("mpeg4") && arguments.isEmpty())
   {
-    arguments << "-hwaccel" << "cuda";
     arguments << "-vsync" << "0" << "-r" << QString::number( fps );
     arguments << "-f" << "rawvideo" << "-s";
     arguments << QString::number( width ) + "x" + QString::number( height );
-    arguments << "-pix_fmt" << "rgb24" << "-i" << "-" << "-c:v" << "hevc_nvenc";
-    arguments << "-f" << "mp4" << "-preset" << "medium" << "-y" << output;
+    arguments << "-pix_fmt" << "rgb24" << "-i" << "-" << "-c:v" << "mpeg4";
+    arguments << "-f" << "mp4" << "-qscale:v" << "1" << "-y" << output;
   }
 
+  Q_ASSERT(!arguments.isEmpty());
   return arguments;
 }
 
 FFMPEGRecorderStorageWorker::FFMPEGRecorderStorageWorker(
-  QObject *object , const QSize& size , int fps , QString output ) :
+  QObject *object , const RecorderSettings &settings ) :
   RecorderStorageWorker( object ) ,
-  size_( size ) ,
-  fps_( fps ) ,
-  output_( std::move( output )) ,
-  expectedBytesPerLine_( size.width( ) * 3 ) ,
+  size_( settings.getOutputSize()) ,
+  fps_( settings.getFPS() ) ,
+  output_( settings.getOutputPath() ) ,
+  expectedBytesPerLine_( size_.width( ) * 3 ) ,
   mutex_( ) ,
   notEmptyCondition_( ) ,
   queue_( ) ,
   running_( false )
 {
+  codecs_ = settings.getExtraSetting(FFMPEGRecorderStorageWorker::CODECS_KEY).toStringList();
+  Q_ASSERT(!codecs_.isEmpty());
 }
 
 void FFMPEGRecorderStorageWorker::run( )
@@ -79,14 +98,18 @@ void FFMPEGRecorderStorageWorker::run( )
     fps_ ,
     size_.width( ) ,
     size_.height( ) ,
-    output_ );
+    output_,
+    codecs_);
+
+  bool errorOcurred = false;
 
   // Creates the process for the command and opens a write pipe.
   auto process = new QProcess( );
+  connect(process, &QProcess::errorOccurred, [&errorOcurred](){ errorOcurred = true; });
   process->start( QString( "ffmpeg" ) , arguments , QIODevice::ReadWrite );
 
   std::shared_ptr< QImage > image = nullptr;
-  while ( running_ || !queue_.empty( ))
+  while ( (running_ || !queue_.empty( )) && !errorOcurred)
   {
     // Pops an element from the queue. If this method returns
     // true the thread must end. If that happens we just break the while.
@@ -119,6 +142,12 @@ void FFMPEGRecorderStorageWorker::run( )
     }
   }
 
+  if(errorOcurred)
+  {
+    error_ = process->errorString();
+    emit error(error_);
+  }
+
   process->closeWriteChannel( );
   process->waitForFinished( -1 );
   process->deleteLater( );
@@ -126,7 +155,7 @@ void FFMPEGRecorderStorageWorker::run( )
 
 bool FFMPEGRecorderStorageWorker::popElement( std::shared_ptr< QImage >& image )
 {
-  mutex_.lock( );
+  QMutexLocker locker(&mutex_);
 
   // If the queue is empty, this thread waits for a update.
   // If the update is a queue push the thread exits the while.
@@ -138,7 +167,6 @@ bool FFMPEGRecorderStorageWorker::popElement( std::shared_ptr< QImage >& image )
 
     if ( queue_.isEmpty( ) && !running_ )
     {
-      mutex_.unlock( );
       return false;
     }
   }
@@ -146,7 +174,6 @@ bool FFMPEGRecorderStorageWorker::popElement( std::shared_ptr< QImage >& image )
   image = queue_.takeFirst();
 
   emit fileQueueSizeChanged( queue_.size( ));
-  mutex_.unlock( );
 
   return true;
 }
@@ -155,17 +182,17 @@ void FFMPEGRecorderStorageWorker::stop( )
 {
   running_ = false;
 
-  mutex_.lock( );
+  QMutexLocker locker(&mutex_);
   notEmptyCondition_.wakeAll( );
-  mutex_.unlock( );
 }
 
 void FFMPEGRecorderStorageWorker::push( std::shared_ptr< QImage > image )
 {
-  mutex_.lock( );
-  queue_.push_back( image );
-  emit fileQueueSizeChanged( queue_.size( ));
-  mutex_.unlock( );
+  {
+    QMutexLocker locker(&mutex_);
+    queue_.push_back( image );
+    emit fileQueueSizeChanged( queue_.size( ));
+  }
 
   notEmptyCondition_.wakeAll( );
 }

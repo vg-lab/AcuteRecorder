@@ -33,6 +33,8 @@ protected:
    */
   void run( ) override;
 
+  QString error_; /** error message or empty if success. */
+
 public:
 
   explicit RecorderStorageWorker( QObject *parent );
@@ -42,6 +44,12 @@ public:
    * @param image the frame.
    */
   virtual void push( std::shared_ptr<QImage> image );
+
+  /** \brief Returns the error message or empty if success.
+   *
+   */
+  QString errorMessage() const
+  { return error_; }
 
 public slots:
 
@@ -58,6 +66,8 @@ signals:
    * @param size the size of the buffer.
    */
   void fileQueueSizeChanged( int size );
+
+  void error(const QString &message);
 
 };
 

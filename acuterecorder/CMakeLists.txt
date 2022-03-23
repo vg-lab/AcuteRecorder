@@ -56,7 +56,7 @@ set(ACUTERECORDER_PUBLIC_HEADERS
         dialog/util/PixmapHolder.h
         dialog/RecorderDialog.h
         dialog/RecorderSettingsDialog.h
-        dialog/RecordingSettingsWidget.h
+        dialog/RecorderSettingsWidget.h
         dialog/RSWParameters.h
         )
 

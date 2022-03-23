@@ -16,7 +16,7 @@ bool ImageWorkerBuilder::isAvailable( ) const
 }
 
 RecorderStorageWorker *ImageWorkerBuilder::createWorker(
-  QObject *object , const RecorderSettings& settings ) const
+  QObject *object , RecorderSettings& settings ) const
 {
   return new ImageRecorderStorageWorker(object, settings.getOutputPath());
 }

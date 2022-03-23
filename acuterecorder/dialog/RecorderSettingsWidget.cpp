@@ -2,8 +2,6 @@
 // Created by Gael Rial Costas on 16/8/21.
 //
 
-#include "RecordingSettingsWidget.h"
-
 #include <acuterecorder/dialog/element/SelectionArea.h>
 #include <acuterecorder/dialog/element/ScreenComboBox.h>
 #include <acuterecorder/dialog/region/SelectionModeRegion.h>
@@ -11,6 +9,7 @@
 #include <acuterecorder/dialog/region/OutputRegion.h>
 #include <acuterecorder/dialog/constant/Styles.h>
 #include <acuterecorder/dialog/RSWParameters.h>
+#include <acuterecorder/dialog/RecorderSettingsWidget.h>
 
 #include <QApplication>
 #include <QScreen>

@@ -116,6 +116,10 @@ void MainWindowRegion::startRecording( )
                     startStopButton_ , SLOT( onFinish( ))
   );
 
+  QObject::connect( recorder_, SIGNAL(error(const QString &)),
+                    this, SLOT(onRecorderError(const QString &))
+  );
+
   startStopButton_->onStart( );
 }
 
@@ -151,4 +155,10 @@ void MainWindowRegion::deleteRecorder( )
 {
   if ( recorder_ ) recorder_->deleteLater( );
   recorder_ = nullptr;
+}
+
+void MainWindowRegion::onRecorderError(const QString &message)
+{
+  const auto title = tr("Recorder error");
+  QMessageBox::critical(this, title, message, QMessageBox::Button::Ok);
 }

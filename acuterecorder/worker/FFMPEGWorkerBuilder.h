@@ -22,8 +22,9 @@ public:
   bool isAvailable( ) const override;
 
   RecorderStorageWorker *createWorker(
-    QObject *object , const RecorderSettings& settings ) const override;
+    QObject *object , RecorderSettings& settings ) const override;
 
+  mutable QStringList codecs; /** available codecs. */
 };
 
 

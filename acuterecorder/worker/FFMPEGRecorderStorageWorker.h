@@ -14,6 +14,7 @@
 #include <QThread>
 
 #include "RecorderStorageWorker.h"
+#include "RecorderSettings.h"
 
 class QImage;
 
@@ -28,6 +29,7 @@ Q_OBJECT
   QSize size_;
   int fps_;
   QString output_;
+  QStringList codecs_;
 
   qint64 expectedBytesPerLine_;
 
@@ -61,9 +63,11 @@ public:
    * @param output the output path of the video.
    */
   FFMPEGRecorderStorageWorker( QObject *object ,
-                               const QSize& size , int fps , QString output );
+                               const RecorderSettings &settings );
 
   virtual void push( std::shared_ptr< QImage > image ) override;
+
+  static const QString CODECS_KEY;
 
 public slots:
 

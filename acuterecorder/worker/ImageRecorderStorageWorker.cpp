@@ -21,7 +21,7 @@ ImageRecorderStorageWorker::ImageRecorderStorageWorker( QObject *object ,
     running_( false )
 {
   if(!output_.exists() || !output_.isReadable())
-    throw(std::runtime_error{"invalid output directory"});
+    throw(std::runtime_error{"The output directory is invalid or doesn't exist!"});
 }
 
 void ImageRecorderStorageWorker::run( )

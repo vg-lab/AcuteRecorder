@@ -6,9 +6,9 @@
 
 #include <acuterecorder/RecorderSettings.h>
 #include <acuterecorder/Recorder.h>
-#include <acuterecorder/dialog/RecordingSettingsWidget.h>
 #include <acuterecorder/dialog/util/APIUtils.h>
 #include <acuterecorder/dialog/RSWParameters.h>
+#include <acuterecorder/dialog/RecorderSettingsWidget.h>
 
 #include <QDialogButtonBox>
 #include <QPushButton>
@@ -63,11 +63,17 @@ void RecorderDialog::tryToAccept( )
     bool folderMode = settingsWidget_->isFolderMode( );
     if (!api_utils::validateSettings( this , settings , folderMode ))
     {
-      QMessageBox::warning(this, "Invalid configuration", "The recorder settings are invalid");
+      QMessageBox::critical(this, "Invalid configuration", "The recorder settings are invalid");
       return;
     }
 
-    recorder_ = new Recorder(settings);
+    try
+    {
+      recorder_ = new Recorder( settings );
+    } catch (const std::runtime_error& ex) {
+      QMessageBox::critical(this, "Error", ex.what());
+      return;
+    }
 
     if (takeFramesAutomatically_)
     {
