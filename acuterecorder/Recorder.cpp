@@ -119,10 +119,11 @@ void Recorder::wait( )
 void Recorder::takeFrame( )
 {
   if ( !isRecording( )) return;
-  bool stabilize = settings_.shouldStabilizeFramerate( );
+
+  const bool stabilize = settings_.shouldStabilizeFramerate( );
   if ( stabilize )
   {
-    auto now = std::chrono::high_resolution_clock::now( );
+    const auto now = std::chrono::high_resolution_clock::now( );
     duplicationDelay_ += now - last_frame_ - delayBetweenFrames_;
     last_frame_ = now;
 
@@ -134,9 +135,9 @@ void Recorder::takeFrame( )
     }
   }
 
-  auto input = settings_.getInputArea( );
-  auto output = settings_.getOutputSize( );
-  auto image = settings_.getInput( ).render( input , output );
+  const auto inputArea = settings_.getInputArea( );
+  const auto outputSize = settings_.getOutputSize( );
+  const auto image = settings_.getInput( ).render( inputArea , outputSize );
 
   while ( stabilize && duplicationDelay_ > delayBetweenFrames_ )
   {

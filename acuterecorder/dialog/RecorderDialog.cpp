@@ -34,7 +34,7 @@ RecorderDialog::RecorderDialog( QWidget *parent ,
   auto buttonBox = new QDialogButtonBox(
     QDialogButtonBox::Ok | QDialogButtonBox::Cancel , this );
 
-  buttonBox->button(QDialogButtonBox::Ok)->setText("Start");
+  buttonBox->button(QDialogButtonBox::Ok)->setText("Start Recording!");
 
   layout->addWidget( settingsWidget_ );
   layout->addWidget( buttonBox );

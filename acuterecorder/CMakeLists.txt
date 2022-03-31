@@ -20,9 +20,11 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR}/include)
 
 set(ACUTERECORDER_SOURCES
+        resources_recorder.qrc
         Input.cpp
         RecorderSettings.cpp
         Recorder.cpp
+        RecorderAction.cpp
         worker/RecorderStorageWorker.cpp
         worker/FFMPEGRecorderStorageWorker.cpp
         worker/ImageRecorderStorageWorker.cpp
@@ -48,6 +50,8 @@ set(ACUTERECORDER_PUBLIC_HEADERS
         Input.h
         RecorderSettings.h
         Recorder.h
+        RecorderAction.h
+        Utils.h
         worker/RecorderStorageWorker.h
         worker/WorkerBuilder.h
         dialog/constant/Styles.h

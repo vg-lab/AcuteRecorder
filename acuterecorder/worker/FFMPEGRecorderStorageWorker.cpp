@@ -9,11 +9,11 @@
 #include <QMutex>
 #include <QProcess>
 #include <QVariant>
+#include <QFile>
+#include <QFileInfo>
 
 const QString FFMPEGRecorderStorageWorker::CODECS_KEY = "ffmpeg_codec";
-
-//const char *C_BASE_COMMAND_GPU = "ffmpeg -hwaccel cuda -vsync 0 -r %d -f rawvideo -s %dx%d -pix_fmt rgb24 -i - -c:v hevc_nvenc -f mp4 -preset medium -y %s";
-//const char *C_BASE_COMMAND_CPU = "ffmpeg -vsync 0 -r %d -f rawvideo -s %dx%d -pix_fmt rgb24 -i - -c:v libx264 -f mp4 -preset fast -y %s";
+const QString SUFFIX = "_temporal";
 
 /**
  * Generates a FFMPEG command used to encode a set of raw images to a mp4 video.
@@ -93,20 +93,29 @@ void FFMPEGRecorderStorageWorker::run( )
   if ( running_ ) return;
   running_ = true;
 
+  if(QFileInfo::exists(output_) && !QFile::remove(output_))
+  {
+    error_ = "Unable to remove old output file: " + output_;
+    emit error(error_);
+  }
+
+  // just in case a crash occurred before, remove temporal silently
+  QFile::remove(output_+SUFFIX);
+
   // Creates the FFMPEG command.
   const QStringList arguments = createFFMPEGArguments(
     fps_ ,
     size_.width( ) ,
     size_.height( ) ,
-    output_,
+    output_ + SUFFIX,
     codecs_);
 
   bool errorOcurred = false;
 
   // Creates the process for the command and opens a write pipe.
-  auto process = new QProcess( );
-  connect(process, &QProcess::errorOccurred, [&errorOcurred](){ errorOcurred = true; });
-  process->start( QString( "ffmpeg" ) , arguments , QIODevice::ReadWrite );
+  QProcess process;
+  connect(&process, &QProcess::errorOccurred, [&errorOcurred](){ errorOcurred = true; });
+  process.start( QString( "ffmpeg" ) , arguments , QIODevice::ReadWrite );
 
   std::shared_ptr< QImage > image = nullptr;
   while ( (running_ || !queue_.empty( )) && !errorOcurred)
@@ -131,26 +140,31 @@ void FFMPEGRecorderStorageWorker::run( )
       // the frame line per line.
       for ( int i = 0; i < size_.height( ); ++i )
       {
-        process->write( bytes , expectedBytesPerLine_ * sizeof( char ));
+        process.write( bytes , expectedBytesPerLine_ * sizeof( char ));
         bytes += bytesPerLine;
       }
     }
     else
     {
       // There are no extra bytes! Write the full frame.
-      process->write( bytes , amount * sizeof( char ));
+      process.write( bytes , amount * sizeof( char ));
     }
   }
 
   if(errorOcurred)
   {
-    error_ = process->errorString();
+    error_ = process.errorString();
     emit error(error_);
   }
 
-  process->closeWriteChannel( );
-  process->waitForFinished( -1 );
-  process->deleteLater( );
+  process.closeWriteChannel( );
+  process.waitForFinished( -1 );
+
+  if(!QFile::rename(output_ + SUFFIX, output_))
+  {
+    error_ = "Unable to rename temporal file to: " + output_;
+    emit error(error_);
+  }
 }
 
 bool FFMPEGRecorderStorageWorker::popElement( std::shared_ptr< QImage >& image )
