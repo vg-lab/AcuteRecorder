@@ -25,7 +25,6 @@ namespace acute_recorder
 
   void initRecorder( QWidget *widgetToRender )
   {
-
     auto *window = new MainWindowRegion( nullptr , widgetToRender );
     window->setWindowTitle( "Acute Recorder" );
     window->setStyleSheet( qt_utils::readStyle( ));
@@ -82,7 +81,8 @@ namespace acute_recorder
     {
       auto recorder = dialog->getRecorder( );
       qDebug( ) << "Test finished. Stopping recorder...";
-      recorder->stop( );
+
+      RecorderUtils::stopAndWait(recorder);
     }
     else
     {
