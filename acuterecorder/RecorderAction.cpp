@@ -70,7 +70,7 @@ void RecorderAction::changeUI(bool state)
 
 void RecorderAction::swapIcon()
 {
-  static char counter = 0;
+  static unsigned char counter = 0;
 
   if(isChecked())
   {

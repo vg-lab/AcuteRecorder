@@ -125,7 +125,7 @@ void FFMPEGRecorderStorageWorker::run( )
     if ( !popElement( image )) break;
 
     // Sends the image to FFMPEG.
-    char *bytes = ( char * ) image->bits( );
+    auto bytes = reinterpret_cast<const char *>(image->bits( ));
 
     // Qt images will always ceil the bytes per line to a multiple of four.
     // This is because QImage uses integers under the hood.
@@ -140,14 +140,14 @@ void FFMPEGRecorderStorageWorker::run( )
       // the frame line per line.
       for ( int i = 0; i < size_.height( ); ++i )
       {
-        process.write( bytes , expectedBytesPerLine_ * sizeof( char ));
+        process.write( bytes , expectedBytesPerLine_ * sizeof(char));
         bytes += bytesPerLine;
       }
     }
     else
     {
       // There are no extra bytes! Write the full frame.
-      process.write( bytes , amount * sizeof( char ));
+      process.write( bytes , amount * sizeof(char));
     }
   }
 
