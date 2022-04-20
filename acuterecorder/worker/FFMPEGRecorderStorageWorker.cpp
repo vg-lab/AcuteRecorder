@@ -4,7 +4,11 @@
 
 #include "FFMPEGRecorderStorageWorker.h"
 
+// C++
 #include <memory>
+#include <fstream>
+
+// Qt
 #include <QImage>
 #include <QMutex>
 #include <QProcess>
@@ -45,7 +49,7 @@ QStringList createFFMPEGArguments( int fps , int width , int height ,
       arguments << "-vsync" << "0" << "-r" << QString::number( fps );
       arguments << "-f" << "rawvideo" << "-s";
       arguments << QString::number( width ) + "x" + QString::number( height );
-      arguments << "-pix_fmt" << "rgb24" << "-i" << "-" << "-c:v" << "nvenc_h264";
+      arguments << "-pix_fmt" << "rgb24" << "-i" << (output+SUFFIX) << "-c:v" << "nvenc_h264";
       arguments << "-f" << "mp4" << "-preset" << "medium" << "-y" << output;
     }
   }
@@ -55,7 +59,7 @@ QStringList createFFMPEGArguments( int fps , int width , int height ,
     arguments << "-vsync" << "0" << "-r" << QString::number( fps );
     arguments << "-f" << "rawvideo" << "-s";
     arguments << QString::number( width ) + "x" + QString::number( height );
-    arguments << "-pix_fmt" << "rgb24" << "-i" << "-" << "-c:v" << "libx264";
+    arguments << "-pix_fmt" << "rgb24" << "-i" << (output+SUFFIX) << "-c:v" << "libx264";
     arguments << "-f" << "mp4" << "-preset" << "fast" << "-y" << output;
   }
 
@@ -64,7 +68,7 @@ QStringList createFFMPEGArguments( int fps , int width , int height ,
     arguments << "-vsync" << "0" << "-r" << QString::number( fps );
     arguments << "-f" << "rawvideo" << "-s";
     arguments << QString::number( width ) + "x" + QString::number( height );
-    arguments << "-pix_fmt" << "rgb24" << "-i" << "-" << "-c:v" << "mpeg4";
+    arguments << "-pix_fmt" << "rgb24" << "-i" << (output+SUFFIX) << "-c:v" << "mpeg4";
     arguments << "-f" << "mp4" << "-qscale:v" << "1" << "-y" << output;
   }
 
@@ -100,25 +104,29 @@ void FFMPEGRecorderStorageWorker::run( )
   }
 
   // just in case a crash occurred before, remove temporal silently
-  QFile::remove(output_+SUFFIX);
+  const auto temporalOutput = output_ + SUFFIX;
+  QFile::remove(temporalOutput);
 
   // Creates the FFMPEG command.
   const QStringList arguments = createFFMPEGArguments(
     fps_ ,
     size_.width( ) ,
     size_.height( ) ,
-    output_ + SUFFIX,
+    output_,
     codecs_);
 
-  bool errorOcurred = false;
+  std::ofstream temporalfile (temporalOutput.toStdString().c_str(),
+                              std::ofstream::binary|std::ofstream::trunc);
 
-  // Creates the process for the command and opens a write pipe.
-  QProcess process;
-  connect(&process, &QProcess::errorOccurred, [&errorOcurred](){ errorOcurred = true; });
-  process.start( QString( "ffmpeg" ) , arguments , QIODevice::ReadWrite );
+  if(!temporalfile.is_open())
+  {
+    error_ = "Unable to open temporal file:" + temporalOutput;
+    emit error(error_);
+    return;
+  }
 
   std::shared_ptr< QImage > image = nullptr;
-  while ( (running_ || !queue_.empty( )) && !errorOcurred)
+  while ( (running_ || !queue_.empty( )) )
   {
     // Pops an element from the queue. If this method returns
     // true the thread must end. If that happens we just break the while.
@@ -140,54 +148,76 @@ void FFMPEGRecorderStorageWorker::run( )
       // the frame line per line.
       for ( int i = 0; i < size_.height( ); ++i )
       {
-        process.write( bytes , expectedBytesPerLine_ * sizeof(char));
+        temporalfile.write( bytes , expectedBytesPerLine_ * sizeof( char ));
         bytes += bytesPerLine;
       }
     }
     else
     {
       // There are no extra bytes! Write the full frame.
-      process.write( bytes , amount * sizeof(char));
+      temporalfile.write( bytes , amount * sizeof( char ));
+    }
+
+    if(!temporalfile.good())
+    {
+      error_ = "Failure when writing to temporal file: " + temporalOutput;
+      emit error(error_);
+      break;
     }
   }
 
-  if(errorOcurred)
+  temporalfile.flush();
+  temporalfile.close();
+
+  if(error_.isEmpty())
   {
-    error_ = process.errorString();
+    bool errorOcurred = false;
+
+    QProcess process;
+    connect(&process, &QProcess::errorOccurred, [&errorOcurred](){ errorOcurred = true; });
+    process.start( QString( "ffmpeg" ) , arguments , QIODevice::ReadWrite|QIODevice::Unbuffered );
+    process.waitForStarted(-1);
+    process.waitForFinished( -1 );
+
+    if(errorOcurred)
+    {
+      error_ = process.errorString();
+      emit error(error_);
+    }
+  }
+
+  if(!QFile::remove(temporalOutput) && error_.isEmpty())
+  {
+    error_ = "Unable to remove temporal file: " + temporalOutput;
     emit error(error_);
   }
 
-  process.closeWriteChannel( );
-  process.waitForFinished( -1 );
-
-  if(!QFile::rename(output_ + SUFFIX, output_))
-  {
-    error_ = "Unable to rename temporal file to: " + output_;
-    emit error(error_);
-  }
+  running_ = false;
 }
 
 bool FFMPEGRecorderStorageWorker::popElement( std::shared_ptr< QImage >& image )
 {
-  QMutexLocker locker(&mutex_);
+  int qSize = 0;
 
-  // If the queue is empty, this thread waits for a update.
-  // If the update is a queue push the thread exits the while.
-  // If the update is a render stopButton the thread must end. In this
-  // case this method returns false.
-  while ( queue_.empty( ))
   {
-    notEmptyCondition_.wait( &mutex_ );
+    QMutexLocker locker(&mutex_);
 
-    if ( queue_.isEmpty( ) && !running_ )
+    // If the queue is empty, this thread waits for a update.
+    // If the update is a queue push the thread exits the while.
+    // If the update is a render stopButton the thread must end. In this
+    // case this method returns false.
+    while ( queue_.empty( ))
     {
-      return false;
+      notEmptyCondition_.wait( &mutex_ );
+
+      if (!running_ && queue_.empty() ) return false;
     }
+
+    image = queue_.takeFirst();
+    qSize = queue_.size();
   }
 
-  image = queue_.takeFirst();
-
-  emit fileQueueSizeChanged( queue_.size( ));
+  emit fileQueueSizeChanged( qSize );
 
   return true;
 }
@@ -202,11 +232,17 @@ void FFMPEGRecorderStorageWorker::stop( )
 
 void FFMPEGRecorderStorageWorker::push( std::shared_ptr< QImage > image )
 {
+  int qSize = 0;
+
+  // do not insert frames if not running
+  if(running_)
   {
     QMutexLocker locker(&mutex_);
     queue_.push_back( image );
-    emit fileQueueSizeChanged( queue_.size( ));
+    qSize = queue_.size();
   }
+
+  emit fileQueueSizeChanged( qSize );
 
   notEmptyCondition_.wakeAll( );
 }

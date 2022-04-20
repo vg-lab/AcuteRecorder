@@ -39,36 +39,43 @@ void ImageRecorderStorageWorker::run( )
     // true the thread must end. If that happens we just break the while.
     if ( !popElement( image )) break;
 
-    const auto number = QString("%1").arg( id , 6 , 10 , QChar( '0' ));
+    const auto number = QString("frame_%1").arg( id , 6 , 10 , QChar( '0' ));
     const auto path = output_.absoluteFilePath(number + ".png");
-    image->save( path , "PNG" );
+    if(!image->save( path , "PNG" ))
+    {
+      error_ = "Unable to save image : " + path;
+      emit error(error_);
+      break;
+    }
     id++;
   }
+
+  running_ = false;
 }
 
 bool ImageRecorderStorageWorker::popElement( std::shared_ptr< QImage >& image )
 {
-  mutex_.lock( );
+  int qSize = 0;
 
-  // If the queue is empty, this thread waits for a update.
-  // If the update is a queue push the thread exits the while.
-  // If the update is a render stopButton the thread must end. In this
-  // case this method returns false.
-  while ( queue_.empty( ))
   {
-    notEmptyCondition_.wait( &mutex_ );
+    QMutexLocker locker(&mutex_);
 
-    if ( queue_.isEmpty( ) && !running_ )
+    // If the queue is empty, this thread waits for a update.
+    // If the update is a queue push the thread exits the while.
+    // If the update is a render stopButton the thread must end. In this
+    // case this method returns false.
+    while ( queue_.empty( ))
     {
-      mutex_.unlock( );
-      return false;
+      notEmptyCondition_.wait( locker.mutex() );
+
+      if(queue_.isEmpty() && !running_) return false;
     }
+
+    image = queue_.takeFirst();
+    qSize = queue_.size();
   }
 
-  image = queue_.takeFirst();
-
-  emit fileQueueSizeChanged( queue_.size( ));
-  mutex_.unlock( );
+  emit fileQueueSizeChanged( qSize );
 
   return true;
 }
@@ -77,17 +84,23 @@ void ImageRecorderStorageWorker::stop( )
 {
   running_ = false;
 
-  mutex_.lock( );
+  QMutexLocker locker(&mutex_);
   notEmptyCondition_.wakeAll( );
-  mutex_.unlock( );
 }
 
 void ImageRecorderStorageWorker::push( std::shared_ptr< QImage > image )
 {
-  mutex_.lock( );
-  queue_.push_back( image );
-  emit fileQueueSizeChanged( queue_.size( ));
-  mutex_.unlock( );
+  int qSize = 0;
+
+  // Do not push images if not running.
+  if(running_)
+  {
+    QMutexLocker locker(&mutex_);
+    queue_.push_back( image );
+    qSize = queue_.size();
+  }
+
+  emit fileQueueSizeChanged( qSize );
 
   notEmptyCondition_.wakeAll( );
 }
