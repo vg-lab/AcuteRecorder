@@ -16,10 +16,9 @@ FFMPEGWorkerBuilder::FFMPEGWorkerBuilder( )
 bool FFMPEGWorkerBuilder::isAvailable( ) const
 {
   QProcess process;
-  process.start( "ffmpeg" ,
-                 QStringList( "-codecs" ) ,
-                 QIODevice::OpenMode::enum_type::ReadWrite
-  );
+  process.start("ffmpeg",
+                QStringList{"-hide_banner", "-codecs"},
+                QIODevice::OpenMode::enum_type::ReadWrite);
   process.waitForFinished( );
 
   if ( process.exitCode( ) != 0 ) return false;
@@ -29,7 +28,8 @@ bool FFMPEGWorkerBuilder::isAvailable( ) const
   codecs.clear();
 
   // valid detected codecs
-  if(output.contains( "nvenc_h264" )) codecs << "nvenc_h264";
+  if(output.contains( "h264_nvenc" )) codecs << "h264_nvenc";
+  if(output.contains( "h264_vaapi" )) codecs << "h264_vaapi";
   if(output.contains( "libx264" ))    codecs << "libx264";
   if(output.contains( "mpeg4" ))      codecs << "mpeg4";
 

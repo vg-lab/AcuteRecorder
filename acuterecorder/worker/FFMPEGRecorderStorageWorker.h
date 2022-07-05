@@ -19,7 +19,7 @@
 class QImage;
 
 /**
- * This worker saves the frames in a .mp4 video using FFMPEG.
+ * This worker encodes the frames to a video using FFMPEG.
  */
 class FFMPEGRecorderStorageWorker : public RecorderStorageWorker
 {

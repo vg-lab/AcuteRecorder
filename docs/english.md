@@ -33,7 +33,7 @@ RecorderSettings config = RecorderSettings( )
   .input( screen )
   .inputArea( QRectF( 0 , 0 , 1 , 1 ))
   .fps( 60 )
-  .outputPath( "output.mp4" )
+  .outputPath( "output.mkv" )
   .outputSize( QSize( 1920 , 1080 ))
   .storageWorker( "FFMPEG" );
 ```
@@ -88,7 +88,7 @@ depleted first. Use the _finished()_ signal to execute code after the recording 
 
 Currently, _AcuteRecorder_ supports two types of storage workers:
 
-- _ffmpeg_: allows creating _MP4_ videos using the _FFMPEG_ library. Requires _FFMPEG_ to be installed.
+- _ffmpeg_: allows creating Matroska _MKV_ videos using the _FFMPEG_ library. Requires _FFMPEG_ to be installed.
 - _images_: saves the frames of the video in a folder. Each frame represented by a _PNG_ image.
 
 You can create your custom storage worker in three easy steps:

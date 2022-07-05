@@ -34,7 +34,7 @@ RecorderSettings config = RecorderSettings( )
   .input( screen )
   .inputArea( QRectF( 0 , 0 , 1 , 1 ))
   .fps( 60 )
-  .outputPath( "output.mp4" )
+  .outputPath( "output.mkv" )
   .outputSize( QSize( 1920 , 1080 ))
   .storageWorker( "FFMPEG" );
 ```
@@ -94,7 +94,7 @@ acciones cuando todo el proceso de grabación haya terminado.
 
 Actualmente, _AcuteRecorder_ soporta dos tipos de objetos de guardado:
 
-- _ffmpeg_: permite generar archivos _MP4_ usando la librería _FFMPEG_. Requiere que _FFMPEG_ esté instalado.
+- _ffmpeg_: permite generar archivos Matroska _MKV_ usando la librería _FFMPEG_. Requiere que _FFMPEG_ esté instalado.
 - _images_: guarda todos los frames del vídeo en una carpeta. Los frames son imágenes en formato _PNG_.
 
 Si necesitas un objeto de guardado en concreto, puedes añadirlo de manera muy sencilla:
