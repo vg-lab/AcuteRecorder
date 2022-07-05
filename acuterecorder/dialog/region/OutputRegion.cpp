@@ -122,12 +122,16 @@ void OutputRegion::openFileDialog( )
     this ,
     tr( "Select output" ) ,
     QDir::homePath( ) ,
-    "*.mp4" ,
+    "*.mkv" ,
     nullptr ,
     QFileDialog::DontUseNativeDialog
   );
   if ( !result.isEmpty( ))
+  {
+    if(!result.endsWith(".mkv",Qt::CaseInsensitive)) result += ".mkv";
+
     outputTextField_->setText( result );
+  }
 }
 
 void OutputRegion::openFolderDialog( )
@@ -138,6 +142,7 @@ void OutputRegion::openFolderDialog( )
     QDir::homePath( ) ,
     QFileDialog::DontUseNativeDialog
   );
+
   if ( !result.isEmpty( ))
     outputTextField_->setText( result );
 }

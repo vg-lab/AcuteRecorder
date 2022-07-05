@@ -103,7 +103,7 @@ struct ACUTERECORDER_API RSWParameters
   /**
    * The default output path value.
    */
-  QString defaultOutput = "output.mp4";
+  QString defaultOutput = "output.mkv";
 
   /**
    * Makes the worker combo box visible.

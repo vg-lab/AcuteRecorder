@@ -20,7 +20,7 @@ const QString FFMPEGRecorderStorageWorker::CODECS_KEY = "ffmpeg_codec";
 const QString SUFFIX = "_temporal";
 
 /**
- * Generates a FFMPEG command used to encode a set of raw images to a mp4 video.
+ * Generates a FFMPEG command used to encode a set of raw images to a H.264 or MPEG-4 P2 video.
  * The video will have the given width and height and it will be display at the
  * given framerate (fps). It will be saved at the given output.
  *
@@ -36,40 +36,56 @@ QStringList createFFMPEGArguments( int fps , int width , int height ,
                                    const QString& output , const QStringList &codecs)
 {
   constexpr int C_NVIDIA_MIN_DIMENSION = 145;
+  constexpr int C_VAAPI_MIN_DIMENSION = 32;
   QStringList arguments;
 
-  if(codecs.contains("nvenc_h264"))
+  if(codecs.contains("h264_nvenc"))
   {
-    // If the width or height are less than 145 pixels, use CPU encoding.
+    // If the width or height is less than 145 pixels fallback to another encoder.
     // This is because NVENC doesn't support video
     // encoding of such small dimensions.
     if (width >= C_NVIDIA_MIN_DIMENSION && height >= C_NVIDIA_MIN_DIMENSION)
     {
       arguments << "-hwaccel" << "cuda";
-      arguments << "-vsync" << "0" << "-r" << QString::number( fps );
+      arguments << "-vsync" << "passthrough" << "-r" << QString::number( fps );
       arguments << "-f" << "rawvideo" << "-s";
       arguments << QString::number( width ) + "x" + QString::number( height );
-      arguments << "-pix_fmt" << "rgb24" << "-i" << (output+SUFFIX) << "-c:v" << "nvenc_h264";
-      arguments << "-f" << "mp4" << "-preset" << "medium" << "-y" << output;
+      arguments << "-pix_fmt" << "rgb24" << "-i" << (output+SUFFIX) << "-c:v" << "h264_nvenc";
+      arguments << "-f" << "matroska" << "-preset" << "medium" << "-y" << output;
+    }
+  }
+
+  if(codecs.contains("h264_vaapi") && arguments.isEmpty())
+  {
+    // Do not exceed hardware constraints.
+    if (width >= C_VAAPI_MIN_DIMENSION && height >= C_VAAPI_MIN_DIMENSION)
+    {
+      arguments << "-hwaccel" << "vaapi" << "-hwaccel_output_format" << "vaapi";
+      arguments << "-vsync" << "passthrough" << "-r" << QString::number( fps );
+      arguments << "-f" << "rawvideo" << "-s";
+      arguments << QString::number( width ) + "x" + QString::number( height );
+      arguments << "-pix_fmt" << "rgb24" << "-i" << (output+SUFFIX);
+      arguments << "-vf" << "format=nv12,hwupload" << "-c:v" << "h264_vaapi";
+      arguments << "-f" << "matroska" << "-qp" << "24" << "-y" << output;
     }
   }
 
   if(codecs.contains("libx264") && arguments.isEmpty())
   {
-    arguments << "-vsync" << "0" << "-r" << QString::number( fps );
+    arguments << "-vsync" << "passthrough" << "-r" << QString::number( fps );
     arguments << "-f" << "rawvideo" << "-s";
     arguments << QString::number( width ) + "x" + QString::number( height );
     arguments << "-pix_fmt" << "rgb24" << "-i" << (output+SUFFIX) << "-c:v" << "libx264";
-    arguments << "-f" << "mp4" << "-preset" << "fast" << "-y" << output;
+    arguments << "-f" << "matroska" << "-preset" << "fast" << "-y" << output;
   }
 
   if(codecs.contains("mpeg4") && arguments.isEmpty())
   {
-    arguments << "-vsync" << "0" << "-r" << QString::number( fps );
+    arguments << "-vsync" << "passthrough" << "-r" << QString::number( fps );
     arguments << "-f" << "rawvideo" << "-s";
     arguments << QString::number( width ) + "x" + QString::number( height );
     arguments << "-pix_fmt" << "rgb24" << "-i" << (output+SUFFIX) << "-c:v" << "mpeg4";
-    arguments << "-f" << "mp4" << "-qscale:v" << "1" << "-y" << output;
+    arguments << "-f" << "matroska" << "-qscale:v" << "1" << "-y" << output;
   }
 
   Q_ASSERT(!arguments.isEmpty());
