@@ -10,7 +10,7 @@
 /**
  * The selection mode of a SelectionArea.
  */
-enum class ACUTERECORDER_API SelectionMode
+enum class SelectionMode
 {
   /**
    * This mode includes all the widget/screen into the viewport.

@@ -18,7 +18,7 @@ class QSize;
 
 class QImage;
 
-enum class ACUTERECORDER_API InputType
+enum class InputType
 {
   INVALID , SCREEN , WIDGET
 };
