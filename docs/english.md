@@ -1,6 +1,6 @@
 # AcuteRecorder - Widget recorder for Qt
 
-(c) 2021-2022. GMRV / URJC
+(c) 2021-2022. VG-Lab / URJC
 
 ## Index
 

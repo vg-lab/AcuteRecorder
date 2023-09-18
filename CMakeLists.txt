@@ -37,7 +37,7 @@ include(GitExternal)
 
 # description
 set(acuterecorder_DESCRIPTION "Acute Recorder")
-set(COMMON_PROJECT_DOMAIN gmrv.es)
+set(COMMON_PROJECT_DOMAIN vg-lab.es)
 
 # this forces C++11
 include(Common)
