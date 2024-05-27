@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 VG-LAB/URJC
+ * Copyright (c) 2022-2024 VG-LAB/URJC
  *
  * Authors: Félix de las Pozas <felix.delaspozas@urjc.es>
  *
