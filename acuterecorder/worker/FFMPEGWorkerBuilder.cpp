@@ -80,8 +80,5 @@ bool FFMPEGWorkerBuilder::isCodecSupportedByHardware(const std::string &codec) c
   process.start("ffmpeg", parameters, QIODevice::OpenMode::enum_type::ReadWrite);
   process.waitForFinished();
 
-  if (process.exitCode() != 0)
-    return false;
-
-  return true;
+  return process.exitCode() == 0;
 }
