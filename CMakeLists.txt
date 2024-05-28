@@ -8,7 +8,7 @@
 cmake_minimum_required( VERSION 3.1 FATAL_ERROR )
 
 # project and version
-project( acuterecorder VERSION 1.0.5 )
+project( acuterecorder VERSION 1.0.6 )
 set( acuterecorder_VERSION_ABI 1 )
 
 SET( acuterecorder_LICENSE "GPL")
